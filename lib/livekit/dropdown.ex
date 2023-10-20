@@ -50,7 +50,7 @@ defmodule Livekit.Dropdown do
 
   def dropdown_item(assigns) do
     ~H"""
-    <div class={@class} role="menuitem">
+    <div class={@class} role="menuitem" livekit-state="">
       <%= render_slot(@inner_block) %>
     </div>
     """
