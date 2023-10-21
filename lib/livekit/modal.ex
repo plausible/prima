@@ -52,9 +52,9 @@ defmodule Livekit.Modal do
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
       livekit-ref="modal-panel"
-      phx-window-keydown={hide_modal()}
+      phx-window-keydown={close()}
       phx-key="escape"
-      phx-click-away={hide_modal()}
+      phx-click-away={close()}
       class={@class}
     >
       <%= render_slot(@inner_block) %>
@@ -66,7 +66,7 @@ defmodule Livekit.Modal do
     JS.dispatch("livekit:modal:open", to: "##{id}")
   end
 
-  def hide_modal() do
+  def close() do
     JS.dispatch("livekit:modal:close")
   end
 end
