@@ -4,11 +4,21 @@ defmodule LivekitWeb.DemoLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, async_modal_open?: false)}
   end
 
   @impl true
   def handle_params(_params, _, socket) do
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("open-async-modal", params, socket) do
+    {:noreply, assign(socket, async_modal_open?: true)}
+  end
+
+  @impl true
+  def handle_event("close-async-modal", params, socket) do
+    {:noreply, assign(socket, async_modal_open?: false)}
   end
 end

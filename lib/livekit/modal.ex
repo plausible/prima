@@ -4,6 +4,7 @@ defmodule Livekit.Modal do
 
   attr :id, :string, required: true
   attr :class, :string, default: ""
+  attr :on_close, JS, default: %JS{}
 
   slot :inner_block
 
@@ -12,7 +13,7 @@ defmodule Livekit.Modal do
     <div
       id={@id}
       js-show={JS.show()}
-      js-hide={JS.hide()}
+      js-hide={@on_close |> JS.hide()}
       style="display: none;"
       phx-hook="Modal"
       class={@class}
@@ -39,6 +40,7 @@ defmodule Livekit.Modal do
     """
   end
 
+  attr :id, :string, required: true
   attr :class, :string, default: ""
   attr :transition_enter, :any, default: nil
   attr :transition_leave, :any, default: nil
@@ -47,10 +49,11 @@ defmodule Livekit.Modal do
   def modal_panel(assigns) do
     ~H"""
     <.focus_wrap
-      id="id-for-focus-wrap"
+      id={@id}
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
+      phx-mounted={JS.dispatch("livekit:modal:panel-mounted")}
       livekit-ref="modal-panel"
       phx-window-keydown={close()}
       phx-key="escape"
