@@ -1,6 +1,7 @@
 defmodule LivekitWeb.DemoLive do
   use LivekitWeb, :live_view
   import Livekit.{Dropdown, Modal}
+  embed_templates "demo_live/*"
 
   @impl true
   def mount(_params, _session, socket) do

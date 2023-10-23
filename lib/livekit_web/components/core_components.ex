@@ -15,88 +15,24 @@ defmodule LivekitWeb.CoreComponents do
   Icons are provided by [heroicons](https://heroicons.com). See `icon/1` for usage.
   """
   use Phoenix.Component
-
   alias Phoenix.LiveView.JS
 
-  # @doc """
-  # Renders a modal.
+  attr :title, :string, required: true
+  slot :inner_block, required: true
 
-  # ## Examples
+  def demo_section(assigns) do
+    ~H"""
+    <div class="space-y-4">
+      <div class="border-b border-gray-200 pb-2">
+        <h3 class="text-base font-semibold leading-6 text-gray-900"><%= @title %></h3>
+      </div>
+      <div>
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
 
-  #     <.modal id="confirm-modal">
-  #       This is a modal.
-  #     </.modal>
-
-  # JS commands may be passed to the `:on_cancel` to configure
-  # the closing/cancel event, for example:
-
-  #     <.modal id="confirm" on_cancel={JS.navigate(~p"/posts")}>
-  #       This is another modal.
-  #     </.modal>
-
-  # """
-
-  # attr :id, :string, required: true
-  # attr :show, :boolean, default: false
-  # attr :on_cancel, JS, default: %JS{}
-  # slot :inner_block, required: true
-
-  # def modal(assigns) do
-  #   ~H"""
-  #   <div
-  #     id={@id}
-  #     phx-mounted={@show && show_modal(@id)}
-  #     phx-remove={hide_modal(@id)}
-  #     data-cancel={JS.exec(@on_cancel, "phx-remove")}
-  #     class="relative z-50 hidden"
-  #   >
-  #     <div id={"#{@id}-bg"} class="bg-zinc-50/90 fixed inset-0 transition-opacity" aria-hidden="true" />
-  #     <div
-  #       class="fixed inset-0 overflow-y-auto"
-  #       aria-labelledby={"#{@id}-title"}
-  #       aria-describedby={"#{@id}-description"}
-  #       role="dialog"
-  #       aria-modal="true"
-  #       tabindex="0"
-  #     >
-  #       <div class="flex min-h-full items-center justify-center">
-  #         <div class="w-full max-w-3xl p-4 sm:p-6 lg:py-8">
-  #           <.focus_wrap
-  #             id={"#{@id}-container"}
-  #             phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
-  #             phx-key="escape"
-  #             phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-  #             class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-14 shadow-lg ring-1 transition"
-  #           >
-  #             <div class="absolute top-6 right-5">
-  #               <button
-  #                 phx-click={JS.exec("data-cancel", to: "##{@id}")}
-  #                 type="button"
-  #                 class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
-  #                 aria-label="close"
-  #               >
-  #                 <.icon name="hero-x-mark-solid" class="h-5 w-5" />
-  #               </button>
-  #             </div>
-  #             <div id={"#{@id}-content"}>
-  #               <%= render_slot(@inner_block) %>
-  #             </div>
-  #           </.focus_wrap>
-  #         </div>
-  #       </div>
-  #     </div>
-  #   </div>
-  #   """
-  # end
-
-  @doc """
-  Renders flash notices.
-
-  ## Examples
-
-      <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
-  """
   attr :id, :string, default: "flash", doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
