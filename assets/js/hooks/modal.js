@@ -28,7 +28,6 @@ export default {
 
   maybeExecJS(el, attribute) {
     if (el && el.getAttribute(attribute)) {
-      console.log('executing')
       this.liveSocket.execJS(el, el.getAttribute(attribute))
     }
   }
