@@ -5,6 +5,7 @@ defmodule Livekit.Modal do
   attr :id, :string, required: true
   attr :class, :string, default: ""
   attr :on_close, JS, default: %JS{}
+  attr :show, :boolean, default: false
 
   slot :inner_block
 
@@ -14,6 +15,7 @@ defmodule Livekit.Modal do
       id={@id}
       js-show={JS.show()}
       js-hide={@on_close |> JS.hide()}
+      phx-mounted={@show && open(@id)} # "This does not work - the hook is not registered yet when the livekit:modal:open event is triggered"
       style="display: none;"
       phx-hook="Modal"
       class={@class}

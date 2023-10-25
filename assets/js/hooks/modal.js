@@ -4,7 +4,6 @@ export default {
     const panel = this.el.querySelector('[livekit-ref="modal-panel"]')
 
     this.refs = { overlay, panel }
-
     this.el.addEventListener('livekit:modal:open', (e) => {
       liveSocket.execJS(this.el, this.el.getAttribute('js-show'))
       liveSocket.execJS(this.refs.overlay, this.refs.overlay.getAttribute("js-show"))

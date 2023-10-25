@@ -14,6 +14,7 @@ defmodule LivekitWeb.Router do
     pipe_through :browser
 
     live "/demo", DemoLive
+    live "/demo/history-modal", DemoLive, :history_modal
 
     get "/", PageController, :home
   end
