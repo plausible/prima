@@ -2,7 +2,7 @@ defmodule Livekit.Dropdown do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
-  slot :id, required: true
+  attr :id, :string, default: ""
   slot :inner_block, required: true
 
   # TODO: phx-click-away ID is hardcoded
