@@ -56,7 +56,7 @@ defmodule Livekit.Modal do
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
-      phx-mounted={JS.dispatch("livekit:modal:panel-mounted")}
+      phx-mounted={JS.show(transition: @transition_enter)}
       livekit-ref="modal-panel"
       phx-window-keydown={close()}
       phx-key="escape"
