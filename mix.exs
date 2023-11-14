@@ -1,15 +1,19 @@
 defmodule Livekit.MixProject do
   use Mix.Project
+  @source_url "https://github.com/plausible/livekit"
 
   def project do
     [
+      name: "Livekit",
+      description: "Unstyled, accessible components for LiveView applications",
       app: :livekit,
       version: "0.1.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      package: package()
     ]
   end
 
@@ -58,6 +62,14 @@ defmodule Livekit.MixProject do
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind default", "esbuild default"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      links: %{"GitHub" => @source_url},
+      exclude_patterns: ["lib/livekit_web.ex", "lib/livekit_web"]
     ]
   end
 end
