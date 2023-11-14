@@ -1,18 +1,32 @@
 # Livekit
 
-To start your Phoenix server:
+A WIP library to provide unstyled, accessible UI components for Phoenix LiveView applications.
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+#### Modal
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+- [ ] `.modal_title` sub-component
+- [ ] ARIA attributes
+    - [ ] Need to generate IDs somehow
+- [ ] Stop body from scrolling (or is this a styling concern?)
+- [ ] History modal example does not work
+- [ ] Form component issue
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+#### Dropdown
 
-## Learn more
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+- [ ] Need to generate IDs somehow
+  - [ ] Click away currently uses hardcoded ID
+  - [ ] Probably means multiple on the same page will not work
+- [ ] Keyboard navigation
+- [ ] Tabindex
+- [ ] Tab + Enter should open
+- [ ] Should dropdown close when item is clicked?
+- [ ] Render dropdown item `as` a link, button or whatever you want
+
+#### Combobox
+
+Not started
+
+#### Tabs
+
+Not started
