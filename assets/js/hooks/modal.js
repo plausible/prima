@@ -6,14 +6,7 @@ export default {
       this.maybeExecJS(this.ref("modal-panel"), "js-show");
     });
 
-    // This is triggered via JS.dispatch
     this.el.addEventListener("livekit:modal:close", (_e) => {
-      this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
-      this.maybeExecJS(this.ref("modal-panel"), "js-hide");
-    });
-
-    // This is triggered via push_event from backend
-    this.handleEvent("livekit:modal:close", (_e) => {
       this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
       this.maybeExecJS(this.ref("modal-panel"), "js-hide");
     });
