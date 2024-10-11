@@ -43,6 +43,20 @@ defmodule Livekit.Modal do
     """
   end
 
+  slot :inner_block
+
+  def modal_loader(assigns) do
+    ~H"""
+    <div
+      livekit-ref="modal-loader"
+      js-show={JS.show()}
+      js-hide={JS.hide()}
+      >
+      <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
   attr :id, :string, required: true
   attr :class, :string, default: ""
   attr :transition_enter, :any, default: nil
@@ -56,7 +70,8 @@ defmodule Livekit.Modal do
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
-      phx-mounted={JS.show(transition: @transition_enter)}
+      phx-mounted={panel_mounted()}
+      phx-remove={panel_removed()}
       livekit-ref="modal-panel"
       phx-window-keydown={close()}
       phx-key="escape"
@@ -66,6 +81,14 @@ defmodule Livekit.Modal do
       <%= render_slot(@inner_block) %>
     </.focus_wrap>
     """
+  end
+
+  def panel_removed() do
+    JS.dispatch("livekit:modal:panel-removed")
+  end
+
+  def panel_mounted() do
+    JS.dispatch("livekit:modal:panel-mounted")
   end
 
   def open(id) do

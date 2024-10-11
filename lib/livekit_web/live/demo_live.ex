@@ -5,12 +5,22 @@ defmodule LivekitWeb.DemoLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, async_modal_open?: false)}
+    {:ok, assign(socket, async_modal_open?: false, form_modal_open?: false)}
   end
 
   @impl true
   def handle_params(_params, _, socket) do
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("open-form-modal", _params, socket) do
+    {:noreply, assign(socket, form_modal_open?: true)}
+  end
+
+  @impl true
+  def handle_event("close-form-modal", _params, socket) do
+    {:noreply, assign(socket, form_modal_open?: false)}
   end
 
   @impl true
@@ -21,5 +31,10 @@ defmodule LivekitWeb.DemoLive do
   @impl true
   def handle_event("close-async-modal", _params, socket) do
     {:noreply, assign(socket, async_modal_open?: false)}
+  end
+
+  @impl true
+  def handle_info("close-form-modal", socket) do
+    {:noreply, assign(socket, form_modal_open?: false)}
   end
 end
