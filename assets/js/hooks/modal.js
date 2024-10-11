@@ -33,6 +33,10 @@ export default {
     this.ref("modal-overlay").addEventListener("phx:hide-end", (_e) => {
       this.maybeExecJS(this.el, "js-hide");
     });
+
+    if(Object.hasOwn(this.el.dataset, 'livekitShow')) {
+      this.el.dispatchEvent(new Event('livekit:modal:open'))
+    }
   },
 
   maybeExecJS(el, attribute) {

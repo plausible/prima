@@ -16,7 +16,7 @@ defmodule Livekit.Modal do
       id={@id}
       js-show={JS.show()}
       js-hide={@on_close |> JS.hide()}
-      phx-mounted={@show && open(@id)}
+      data-livekit-show={@show}
       style="display: none;"
       phx-hook="Modal"
       class={@class}

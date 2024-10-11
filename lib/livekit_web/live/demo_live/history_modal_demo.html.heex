@@ -6,9 +6,10 @@
 </.link>
 
 <.modal
-  show={@live_action == :history_modal}
+  :if={@live_action == :history_modal}
+  show
   id="demo-history-modal"
-  on_close={JS.push("close-async-modal")}
+  on_close={JS.patch(~p"/demo")}
   class="relative z-10"
 >
   <.modal_overlay
