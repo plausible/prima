@@ -10,8 +10,8 @@ export default {
     });
 
     this.el.addEventListener("livekit:modal:panel-mounted", (_e) => {
-      this.maybeExecJS(this.ref("modal-panel"), "js-show");
       this.maybeExecJS(this.ref("modal-loader"), "js-hide");
+      this.maybeExecJS(this.ref("modal-panel"), "js-show");
       this.ref("modal-panel").dataset.livekitAsync = true
     })
 

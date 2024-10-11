@@ -20,6 +20,7 @@ defmodule Livekit.Modal do
       style="display: none;"
       phx-hook="Modal"
       class={@class}
+      role="dialog"
     >
       <%= render_slot(@inner_block) %>
     </div>
