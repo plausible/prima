@@ -11,4 +11,6 @@ defmodule Livekit do
   defdelegate modal_overlay(assigns), to: Livekit.Modal
   defdelegate modal_loader(assigns), to: Livekit.Modal
   defdelegate modal_panel(assigns), to: Livekit.Modal
+
+  defdelegate combobox(assigns), to: Livekit.Combobox
 end
