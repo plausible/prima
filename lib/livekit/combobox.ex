@@ -24,8 +24,6 @@ defmodule Livekit.Combobox do
       <input 
         type="text"
         class={@class}
-        phx-change="search"
-        phx-debounce={200}
         tabindex="0"  
         {@rest}
         />
@@ -52,9 +50,15 @@ defmodule Livekit.Combobox do
 
   slot :inner_block, required: true
   attr :class, :string, default: ""
+  attr :value, :any, required: true
+
   def combobox_option(assigns) do
     ~H"""
-    <div role="option" class={@class}>
+    <div 
+      role="option" 
+      class={@class} 
+      data-value={@value}
+      >
       <%= render_slot(@inner_block) %>
     </div>
     """
