@@ -48,11 +48,7 @@ defmodule Livekit.Modal do
 
   def modal_loader(assigns) do
     ~H"""
-    <div
-      livekit-ref="modal-loader"
-      js-show={JS.show()}
-      js-hide={JS.hide()}
-      >
+    <div livekit-ref="modal-loader" js-show={JS.show()} js-hide={JS.hide()}>
       <%= render_slot(@inner_block) %>
     </div>
     """

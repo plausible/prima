@@ -15,18 +15,15 @@ defmodule Livekit.Combobox do
   end
 
   attr :class, :string, default: ""
+
   attr(:rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
          multiple pattern placeholder readonly required rows size step)
   )
+
   def combobox_input(assigns) do
     ~H"""
-      <input 
-        type="text"
-        class={@class}
-        tabindex="0"  
-        {@rest}
-        />
+    <input type="text" class={@class} tabindex="0" {@rest} />
     """
   end
 
@@ -34,6 +31,7 @@ defmodule Livekit.Combobox do
   attr :class, :string, default: ""
   attr :transition_enter, :any, default: nil
   attr :transition_leave, :any, default: nil
+
   def combobox_options(assigns) do
     ~H"""
     <div
@@ -42,7 +40,7 @@ defmodule Livekit.Combobox do
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
       data-livekit-ref="options"
-      >
+    >
       <%= render_slot(@inner_block) %>
     </div>
     """
@@ -54,14 +52,9 @@ defmodule Livekit.Combobox do
 
   def combobox_option(assigns) do
     ~H"""
-    <div 
-      role="option" 
-      class={@class} 
-      data-value={@value}
-      >
+    <div role="option" class={@class} data-value={@value}>
       <%= render_slot(@inner_block) %>
     </div>
     """
   end
-
 end
