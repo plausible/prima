@@ -13,7 +13,12 @@ defmodule LivekitWeb.DemoLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, form_modal_open?: false, suggestions: [])}
+    socket = socket
+    |> assign(form_modal_open?: false)
+    |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
+    |> stream(:suggestions, [])
+
+    {:ok, socket}
   end
 
   @impl true
@@ -40,6 +45,6 @@ defmodule LivekitWeb.DemoLive do
         String.contains?(option, input)
       end)
 
-    {:noreply, assign(socket, %{suggestions: suggestions})}
+    {:noreply, stream(socket, :suggestions, suggestions)}
   end
 end

@@ -12,7 +12,17 @@ export default {
     // this.el.querySelector('input').addEventListener('input', this.onInput.bind(this))
   },
 
+  beforeUpdate() {
+    this.activeValueBeforeUpdate = this.el.querySelector('[role=option][data-focus=true]')?.getAttribute('data-value')
+  },
+
   updated() {
+    const activeDomNode = this.el.querySelector(`[role=option][data-value=${this.activeValueBeforeUpdate}]`)
+    if (this.activeValueBeforeUpdate && activeDomNode) {
+      this.setFocus(activeDomNode)
+    } else {
+      this.focusFirstOption()
+    }
   },
 
   setFocus(el) {

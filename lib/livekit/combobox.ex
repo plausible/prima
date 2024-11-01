@@ -2,7 +2,7 @@ defmodule Livekit.Combobox do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
-  attr :id, :string, default: ""
+  attr :id, :string, required: true
   slot :inner_block, required: true
   attr :class, :string, default: ""
 
@@ -15,7 +15,6 @@ defmodule Livekit.Combobox do
   end
 
   attr :class, :string, default: ""
-
   attr(:rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
          multiple pattern placeholder readonly required rows size step)
@@ -47,12 +46,15 @@ defmodule Livekit.Combobox do
   end
 
   slot :inner_block, required: true
+  attr :id, :string, default: nil
   attr :class, :string, default: ""
   attr :value, :any, required: true
 
   def combobox_option(assigns) do
+    assigns = assign(assigns, id: assigns.id || assigns.value)
+
     ~H"""
-    <div role="option" class={@class} data-value={@value}>
+    <div role="option" id={@id} class={@class} data-value={@value}>
       <%= render_slot(@inner_block) %>
     </div>
     """
