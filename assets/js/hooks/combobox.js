@@ -4,7 +4,15 @@ export default {
     this.el.addEventListener('keydown', this.onKey.bind(this))
     this.el.querySelector('input').addEventListener('focus', this.showOptions.bind(this))
     this.el.querySelector('input').addEventListener('blur', this.hideOptions.bind(this))
-    this.el.querySelector('input').addEventListener('input', this.onInput.bind(this))
+
+    if(document.activeElement === this.el.querySelector('input')) {
+      this.showOptions()
+    }
+    this.el.querySelector('input').dispatchEvent(new Event("input", {bubbles: true}))
+    // this.el.querySelector('input').addEventListener('input', this.onInput.bind(this))
+  },
+
+  updated() {
   },
 
   setFocus(el) {

@@ -23,7 +23,7 @@ defmodule Livekit.Combobox do
 
   def combobox_input(assigns) do
     ~H"""
-    <input type="text" class={@class} tabindex="0" {@rest} />
+    <input type="text" autocomplete="off" class={@class} name="wat" tabindex="0" {@rest} />
     """
   end
 

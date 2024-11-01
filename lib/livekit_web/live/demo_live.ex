@@ -2,10 +2,13 @@ defmodule LivekitWeb.DemoLive do
   use LivekitWeb, :live_view
   import Livekit.{Dropdown, Modal, Combobox}
   embed_templates "demo_live/*"
+  @options [
+    "Cherry", "Kiwi", "Grapefruit", "Orange", "Banana"
+  ]
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, form_modal_open?: false)}
+    {:ok, assign(socket, form_modal_open?: false, suggestions: [])}
   end
 
   @impl true
@@ -24,7 +27,11 @@ defmodule LivekitWeb.DemoLive do
   end
 
   @impl true
-  def handle_event("search", _params, socket) do
-    {:reply, %{"results" => ["foo", "bar", "baz"]}, socket}
+  def handle_event("async_combobox_search", params, socket) do
+    input = get_in(params, params["_target"])
+    suggestions = Enum.filter(@options, fn option ->
+      String.contains?(option, input)
+    end)
+    {:noreply, assign(socket, %{suggestions: suggestions})}
   end
 end
