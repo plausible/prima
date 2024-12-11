@@ -15,25 +15,29 @@ defmodule Livekit.Combobox do
   end
 
   attr :class, :string, default: ""
-  attr(:rest, :global,
-    include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
-         multiple pattern placeholder readonly required rows size step)
-  )
+  attr :name, :string, required: true
+  attr(:rest, :global, include: ~w(placeholder))
 
   def combobox_input(assigns) do
     ~H"""
-    <input type="text" autocomplete="off" class={@class} name="wat" tabindex="0" {@rest} />
+    <input data-livekit-ref="search_input" type="text" autocomplete="off" class={@class} name={@name <> "_search"} tabindex="0" phx-change="async_combobox_search" phx-debounce={200} {@rest} />
+    <div phx-update="ignore" id={@name <> "_submit_container"}>
+      <input data-livekit-ref="submit_input" type="hidden" autocomplete="off" name={@name} />
+    </div>
     """
   end
 
   slot :inner_block, required: true
   attr :class, :string, default: ""
+  attr :id, :string, default: ""
   attr :transition_enter, :any, default: nil
   attr :transition_leave, :any, default: nil
 
   def combobox_options(assigns) do
     ~H"""
     <div
+      id={@id}
+      phx-update="stream" 
       class={@class}
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}

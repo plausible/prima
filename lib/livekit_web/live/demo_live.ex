@@ -45,6 +45,12 @@ defmodule LivekitWeb.DemoLive do
         String.contains?(option, input)
       end)
 
-    {:noreply, stream(socket, :suggestions, suggestions)}
+    {:noreply, stream(socket, :suggestions, suggestions, reset: true)}
+  end
+
+  @impl true
+  def handle_event("save", params, socket) do
+    IO.inspect(params)
+    {:noreply, socket}
   end
 end
