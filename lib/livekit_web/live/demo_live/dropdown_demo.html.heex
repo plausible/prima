@@ -1,6 +1,6 @@
 <div class="relative inline-block text-left">
   <.dropdown id="demo-dropdown">
-    <.dropdown_button class="inline-flex justify-center rounded-md bg-indigo-600 gap-x-1.5 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+    <.dropdown_trigger class="inline-flex justify-center rounded-md bg-indigo-600 gap-x-1.5 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
       Open Dropdown
       <svg
         class="-mr-1 h-5 w-5 text-whites"
@@ -14,8 +14,8 @@
           clip-rule="evenodd"
         />
       </svg>
-    </.dropdown_button>
-    <.dropdown_items
+    </.dropdown_trigger>
+    <.dropdown_menu
       class="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
       transition_enter={
         {"ease-out duration-100", "transform opacity-0 scale-95",
@@ -34,6 +34,6 @@
           Item 2
         </.dropdown_item>
       </div>
-    </.dropdown_items>
+    </.dropdown_menu>
   </.dropdown>
 </div>

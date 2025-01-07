@@ -5,10 +5,9 @@ defmodule Livekit.Dropdown do
   attr :id, :string, default: ""
   slot :inner_block, required: true
 
-  # TODO: phx-click-away ID is hardcoded
   def dropdown(assigns) do
     ~H"""
-    <div id={@id} phx-hook="Dropdown" phx-click-away={JS.exec("js-hide", to: "#dropdown-items")}>
+    <div id={@id} phx-hook="Dropdown" phx-click-away={JS.dispatch("livekit:close")}>
       {render_slot(@inner_block)}
     </div>
     """
@@ -17,7 +16,7 @@ defmodule Livekit.Dropdown do
   attr :class, :string, default: ""
   slot :inner_block, required: true
 
-  def dropdown_button(assigns) do
+  def dropdown_trigger(assigns) do
     ~H"""
     <button class={@class} type="button" aria-haspopup="menu">
       {render_slot(@inner_block)}
@@ -30,7 +29,7 @@ defmodule Livekit.Dropdown do
   attr :class, :string, default: ""
   slot :inner_block, required: true
 
-  def dropdown_items(assigns) do
+  def dropdown_menu(assigns) do
     ~H"""
     <div
       class={@class}
@@ -38,7 +37,8 @@ defmodule Livekit.Dropdown do
       js-toggle={JS.toggle(in: @transition_enter, out: @transition_leave)}
       js-hide={JS.hide(transition: @transition_leave)}
       role="menu"
-      id="dropdown-items"
+      aria-labelledby="headlessui-menu-button-:Rf6:"
+      aria-activedescendant="headlessui-menu-item-:rc:"
     >
       {render_slot(@inner_block)}
     </div>
