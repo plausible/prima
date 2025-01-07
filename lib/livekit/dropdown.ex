@@ -9,7 +9,7 @@ defmodule Livekit.Dropdown do
   def dropdown(assigns) do
     ~H"""
     <div id={@id} phx-hook="Dropdown" phx-click-away={JS.exec("js-hide", to: "#dropdown-items")}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </div>
     """
   end
@@ -20,7 +20,7 @@ defmodule Livekit.Dropdown do
   def dropdown_button(assigns) do
     ~H"""
     <button class={@class} type="button" aria-haspopup="menu">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </button>
     """
   end
@@ -40,7 +40,7 @@ defmodule Livekit.Dropdown do
       role="menu"
       id="dropdown-items"
     >
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </div>
     """
   end
@@ -51,7 +51,7 @@ defmodule Livekit.Dropdown do
   def dropdown_item(assigns) do
     ~H"""
     <div class={@class} role="menuitem" livekit-state="">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </div>
     """
   end

@@ -13,10 +13,11 @@ defmodule LivekitWeb.DemoLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    socket = socket
-    |> assign(form_modal_open?: false)
-    |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
-    |> stream(:suggestions, [])
+    socket =
+      socket
+      |> assign(form_modal_open?: false)
+      |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
+      |> stream(:suggestions, [])
 
     {:ok, socket}
   end

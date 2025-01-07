@@ -9,7 +9,7 @@ defmodule Livekit.Combobox do
   def combobox(assigns) do
     ~H"""
     <div id={@id} class={@class} phx-hook="Combobox">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </div>
     """
   end
@@ -20,7 +20,17 @@ defmodule Livekit.Combobox do
 
   def combobox_input(assigns) do
     ~H"""
-    <input data-livekit-ref="search_input" type="text" autocomplete="off" class={@class} name={@name <> "_search"} tabindex="0" phx-change="async_combobox_search" phx-debounce={200} {@rest} />
+    <input
+      data-livekit-ref="search_input"
+      type="text"
+      autocomplete="off"
+      class={@class}
+      name={@name <> "_search"}
+      tabindex="0"
+      phx-change="async_combobox_search"
+      phx-debounce={200}
+      {@rest}
+    />
     <div phx-update="ignore" id={@name <> "_submit_container"}>
       <input data-livekit-ref="submit_input" type="hidden" autocomplete="off" name={@name} />
     </div>
@@ -37,14 +47,14 @@ defmodule Livekit.Combobox do
     ~H"""
     <div
       id={@id}
-      phx-update="stream" 
+      phx-update="stream"
       class={@class}
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
       data-livekit-ref="options"
     >
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </div>
     """
   end
@@ -59,7 +69,7 @@ defmodule Livekit.Combobox do
 
     ~H"""
     <div role="option" id={@id} class={@class} data-value={@value}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </div>
     """
   end
