@@ -9,7 +9,6 @@ defmodule Livekit.Modal do
 
   slot :inner_block
 
-  # TODO: phx-mounted does not work - the hook is not registered yet when the livekit:modal:open event is triggered
   def modal(assigns) do
     ~H"""
     <div

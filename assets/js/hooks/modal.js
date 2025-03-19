@@ -24,16 +24,18 @@ export default {
       this.log("modal:close")
       this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
       this.maybeExecJS(this.ref("modal-panel"), "js-hide");
+      this.maybeExecJS(this.ref("modal-loader"), "js-hide");
       if (this.async) {
         this.ref("modal-panel").dataset.livekitDirty = true
       }
-      this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     });
 
-    // On form submission, the panel is removed and the modal is closed
+    // When form in modal is submitted, the panel is removed and the modal is closed.
     this.el.addEventListener("livekit:modal:panel-removed", (_e) => {
       this.log("modal:panel-removed")
-      this.el.dispatchEvent(new Event('livekit:modal:close'))
+      if (!this.panelIsDirty()) {
+        this.el.dispatchEvent(new Event('livekit:modal:close'))
+      }
     });
 
     this.ref("modal-overlay").addEventListener("phx:hide-end", (_e) => {
