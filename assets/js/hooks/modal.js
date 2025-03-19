@@ -1,6 +1,11 @@
 export default {
   mounted() {
+    if (!this.ref("modal-panel")) {
+      this.async = true
+    } 
+
     this.el.addEventListener("livekit:modal:open", (e) => {
+      this.log("modal:open")
       this.maybeExecJS(this.el, "js-show");
       this.maybeExecJS(this.ref("modal-overlay"), "js-show");
       this.maybeExecJS(this.ref("modal-loader"), "js-show");
@@ -10,27 +15,29 @@ export default {
     });
 
     this.el.addEventListener("livekit:modal:panel-mounted", (_e) => {
+      this.log("modal:panel-mounted")
       this.maybeExecJS(this.ref("modal-loader"), "js-hide");
       this.maybeExecJS(this.ref("modal-panel"), "js-show");
-      this.ref("modal-panel").dataset.livekitAsync = true
     })
 
     this.el.addEventListener("livekit:modal:close", (_e) => {
+      this.log("modal:close")
       this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
       this.maybeExecJS(this.ref("modal-panel"), "js-hide");
-      if (this.ref("modal-panel").dataset.livekitAsync) {
+      if (this.async) {
         this.ref("modal-panel").dataset.livekitDirty = true
       }
       this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     });
 
+    // On form submission, the panel is removed and the modal is closed
     this.el.addEventListener("livekit:modal:panel-removed", (_e) => {
-      if (!this.panelIsDirty()) {
-        this.el.dispatchEvent(new Event('livekit:modal:close'))
-      }
+      this.log("modal:panel-removed")
+      this.el.dispatchEvent(new Event('livekit:modal:close'))
     });
 
     this.ref("modal-overlay").addEventListener("phx:hide-end", (_e) => {
+      this.log("modal:overlay-hide-end")
       this.maybeExecJS(this.el, "js-hide");
     });
 
@@ -45,6 +52,7 @@ export default {
     }
   },
 
+  
   panelIsDirty() {
     return this.ref('modal-panel') && this.ref("modal-panel").dataset.livekitDirty
   },
@@ -52,4 +60,8 @@ export default {
   ref(ref) {
     return this.el.querySelector(`[livekit-ref="${ref}"]`);
   },
+
+  log(message) {
+    console.log(`[Livekit ${this.el.id}] ${message}`)
+  }
 };
