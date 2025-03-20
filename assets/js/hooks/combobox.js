@@ -6,7 +6,6 @@ export default {
     this.el.addEventListener('keydown', this.onKey.bind(this))
     this.el.addEventListener('click', this.onClick.bind(this))
     this.el.querySelector('input[data-livekit-ref=search_input]').addEventListener('focus', this.showOptions.bind(this))
-    this.el.querySelector('input[data-livekit-ref=search_input]').addEventListener('blur', this.resetOnBlur.bind(this))
 
     if(document.activeElement === this.el.querySelector('input[data-livekit-ref=search_input]')) {
       this.showOptions()
@@ -37,6 +36,7 @@ export default {
     const value = el.getAttribute('data-value')
     this.el.querySelector('input[data-livekit-ref=submit_input]').value = value
     this.el.querySelector('input[data-livekit-ref=search_input]').value = value
+    this.hideOptions()
   },
 
   onClick(e) {
@@ -65,7 +65,7 @@ export default {
       } else {
         this.setFocus(allOptions[currentFocusIndex + 1])
       }
-    } else if (e.key === "Enter") {
+    } else if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault()
       this.selectOption(this.currentlyFocusedOption())
       this.hideOptions()
@@ -120,6 +120,16 @@ export default {
     const options = this.el.querySelector('[data-livekit-ref=options]')
     this.liveSocket.execJS(options, options.getAttribute('js-show'));
     this.el.querySelector('input[data-livekit-ref=search_input]').select()
+
+    // Add click outside listener
+    const handleClickOutside = (event) => {
+      if (!options.contains(event.target) && !this.el.querySelector('input[data-livekit-ref=search_input]').contains(event.target)) {
+        this.resetOnBlur()
+        document.removeEventListener('click', handleClickOutside)
+      }
+    }
+    
+    document.addEventListener('click', handleClickOutside)
   },
 
   resetOnBlur() {
@@ -128,7 +138,9 @@ export default {
 
     if (submitInput.value.length > 0 && searchInput.value.length > 0) {
       searchInput.value = submitInput.value
-    } else {
+    } else if (searchInput.value.length > 0) {
+      searchInput.value = ''
+      searchInput.dispatchEvent(new Event("input", {bubbles: true}))
       submitInput.value = ''
     }
 

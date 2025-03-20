@@ -52,6 +52,7 @@ defmodule Livekit.Combobox do
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
+      phx-click-away={JS.dispatch("livekit:combobox:reset")}
       data-livekit-ref="options"
     >
       {render_slot(@inner_block)}

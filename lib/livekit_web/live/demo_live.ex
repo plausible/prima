@@ -43,7 +43,7 @@ defmodule LivekitWeb.DemoLive do
 
     suggestions =
       Enum.filter(@options, fn option ->
-        String.contains?(option, input)
+        String.contains?(String.downcase(option), String.downcase(input))
       end)
 
     {:noreply, stream(socket, :suggestions, suggestions, reset: true)}
