@@ -18,11 +18,12 @@ defmodule LivekitWeb.CoreComponents do
   alias Phoenix.LiveView.JS
 
   attr :title, :string, required: true
+  attr :id, :string, required: true
   slot :inner_block, required: true
 
   def demo_section(assigns) do
     ~H"""
-    <div class="space-y-4">
+    <div id={@id} class="space-y-4">
       <div class="border-b border-gray-200 pb-2">
         <h3 class="text-base font-semibold leading-6 text-gray-900">{@title}</h3>
       </div>
