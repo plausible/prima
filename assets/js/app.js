@@ -4,9 +4,7 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
-import Dropdown from "./hooks/dropdown"
-import Modal from "./hooks/modal"
-import Combobox from "./hooks/combobox"
+import { Dropdown, Modal, Combobox } from "./livekit"
 
 
 let Hooks = {}
