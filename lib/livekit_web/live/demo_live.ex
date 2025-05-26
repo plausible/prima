@@ -51,7 +51,6 @@ defmodule LivekitWeb.DemoLive do
 
   @impl true
   def handle_event("save", params, socket) do
-    IO.inspect(params)
     {:noreply, socket}
   end
 end

@@ -19,7 +19,7 @@ export default {
   },
 
   updated() {
-    const focusedDomNode = this.el.querySelector(`[role=option][data-value=${this.focusedOptionBeforeUpdate}]`)
+    const focusedDomNode = this.el.querySelector(`[role=option][data-value="${this.focusedOptionBeforeUpdate}"]`)
     if (this.focusedOptionBeforeUpdate && focusedDomNode) {
       this.setFocus(focusedDomNode)
     } else {

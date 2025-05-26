@@ -16,7 +16,7 @@ defmodule Livekit.Combobox do
 
   attr :class, :string, default: ""
   attr :name, :string, required: true
-  attr(:rest, :global, include: ~w(placeholder))
+  attr(:rest, :global, include: ~w(placeholder, phx-change, phx-target))
 
   def combobox_input(assigns) do
     ~H"""
@@ -27,7 +27,6 @@ defmodule Livekit.Combobox do
       class={@class}
       name={@name <> "_search"}
       tabindex="0"
-      phx-change="async_combobox_search"
       phx-debounce={200}
       {@rest}
     />
@@ -47,7 +46,6 @@ defmodule Livekit.Combobox do
     ~H"""
     <div
       id={@id}
-      phx-update="stream"
       class={@class}
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
