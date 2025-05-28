@@ -48,9 +48,4 @@ defmodule LivekitWeb.DemoLive do
 
     {:noreply, stream(socket, :suggestions, suggestions, reset: true)}
   end
-
-  @impl true
-  def handle_event("save", params, socket) do
-    {:noreply, socket}
-  end
 end

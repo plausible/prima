@@ -16,7 +16,7 @@ defmodule Livekit.Combobox do
 
   attr :class, :string, default: ""
   attr :name, :string, required: true
-  attr(:rest, :global, include: ~w(placeholder, phx-change, phx-target))
+  attr(:rest, :global, include: ~w(placeholder phx-change phx-target))
 
   def combobox_input(assigns) do
     ~H"""
