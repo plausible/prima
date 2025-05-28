@@ -2,23 +2,33 @@ export default {
   mounted() {
     if (!this.ref("modal-panel")) {
       this.async = true
-    } 
+    }
 
     this.el.addEventListener("livekit:modal:open", (e) => {
       this.log("modal:open")
       this.maybeExecJS(this.el, "js-show");
       this.maybeExecJS(this.ref("modal-overlay"), "js-show");
-      this.maybeExecJS(this.ref("modal-loader"), "js-show");
-      if (!this.panelIsDirty()) {
+      if (this.async) {
+        this.maybeExecJS(this.ref("modal-loader"), "js-show");
+      } else {
         this.maybeExecJS(this.ref("modal-panel"), "js-show");
       }
     });
 
-    this.el.addEventListener("livekit:modal:panel-mounted", (_e) => {
-      this.log("modal:panel-mounted")
-      this.maybeExecJS(this.ref("modal-loader"), "js-hide");
-      this.maybeExecJS(this.ref("modal-panel"), "js-show");
-    })
+    if (this.async) {
+      this.el.addEventListener("livekit:modal:panel-mounted", (_e) => {
+        this.log("modal:panel-mounted")
+        this.maybeExecJS(this.ref("modal-loader"), "js-hide");
+        this.maybeExecJS(this.ref("modal-panel"), "js-show");
+      })
+
+      this.el.addEventListener("livekit:modal:panel-removed", (_e) => {
+        this.log("modal:panel-removed")
+        if (!this.panelIsDirty()) {
+          this.el.dispatchEvent(new Event('livekit:modal:close'))
+        }
+      });
+    }
 
     this.el.addEventListener("livekit:modal:close", (_e) => {
       this.log("modal:close")
@@ -30,20 +40,12 @@ export default {
       }
     });
 
-    // When form in modal is submitted, the panel is removed and the modal is closed.
-    this.el.addEventListener("livekit:modal:panel-removed", (_e) => {
-      this.log("modal:panel-removed")
-      if (!this.panelIsDirty()) {
-        this.el.dispatchEvent(new Event('livekit:modal:close'))
-      }
-    });
-
     this.ref("modal-overlay").addEventListener("phx:hide-end", (_e) => {
       this.log("modal:overlay-hide-end")
       this.maybeExecJS(this.el, "js-hide");
     });
 
-    if(Object.hasOwn(this.el.dataset, 'livekitShow')) {
+    if (Object.hasOwn(this.el.dataset, 'livekitShow')) {
       this.el.dispatchEvent(new Event('livekit:modal:open'))
     }
   },
@@ -54,7 +56,6 @@ export default {
     }
   },
 
-  
   panelIsDirty() {
     return this.ref('modal-panel') && this.ref("modal-panel").dataset.livekitDirty
   },
