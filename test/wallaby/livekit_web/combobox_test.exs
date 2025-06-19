@@ -36,8 +36,13 @@ defmodule LiveKitWeb.ComboboxTest do
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
-    # TODO: Fix value assertions - input values don't seem to update as expected
     |> assert_has(@options_container |> Query.visible(false))
+    # Check that both inputs have the selected value
+    # Both inputs are set the same way in JavaScript, so use execute_script for consistency
+    |> execute_script("return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}", fn values ->
+      assert values["search"] == "Apple", "Expected search input value to be 'Apple', got '#{values["search"]}'"
+      assert values["submit"] == "Apple", "Expected submit input value to be 'Apple', got '#{values["submit"]}'"
+    end)
   end
 
   feature "navigates options with keyboard arrows", %{session: session} do
@@ -71,8 +76,12 @@ defmodule LiveKitWeb.ComboboxTest do
     |> send_keys([:enter])
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
-    # TODO: Fix value assertions - input values don't seem to update as expected in tests
-    # |> assert_has(Query.css("#demo-combobox input[data-livekit-ref=search_input][value='Pear']"))
+    # Check that both inputs have the selected value
+    # Both inputs are set the same way in JavaScript, so use execute_script for consistency
+    |> execute_script("return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}", fn values ->
+      assert values["search"] == "Pear", "Expected search input value to be 'Pear', got '#{values["search"]}'"
+      assert values["submit"] == "Pear", "Expected submit input value to be 'Pear', got '#{values["submit"]}'"
+    end)
   end
 
   feature "selects focused option with Tab key", %{session: session} do
@@ -87,8 +96,12 @@ defmodule LiveKitWeb.ComboboxTest do
     |> send_keys([:tab])
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
-    # TODO: Fix value assertions - input values don't seem to update as expected in tests
-    # |> assert_has(Query.css("#demo-combobox input[data-livekit-ref=search_input][value='Mango']"))
+    # Check that both inputs have the selected value
+    # Both inputs are set the same way in JavaScript, so use execute_script for consistency
+    |> execute_script("return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}", fn values ->
+      assert values["search"] == "Mango", "Expected search input value to be 'Mango', got '#{values["search"]}'"
+      assert values["submit"] == "Mango", "Expected submit input value to be 'Mango', got '#{values["submit"]}'"
+    end)
   end
 
   feature "focuses option on mouse hover", %{session: session} do

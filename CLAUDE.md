@@ -123,3 +123,6 @@ end
 - Custom Tailwind plugin provides `livekit-active` and `livekit-not-active` variants
 - Components use `livekit-state` attribute to trigger CSS state changes
 - Heroicons integrated for consistent icon usage
+
+## Wallaby Testing Tips
+- For hidden elements in Wallaby, use Query.visible(false)
