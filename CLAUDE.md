@@ -76,11 +76,14 @@ end
 ## Development Workflow
 
 ### Testing Strategy
-- **ExUnit tests** for component logic and rendering
-- **Wallaby tests** for complex UI interactions, especially:
+- **ExUnit tests** for simple component logic and rendering
+- **Wallaby tests** for complex UI interactions and components with JavaScript behavior, especially:
   - Modal transitions and overlay behavior  
-  - Dropdown keyboard navigation
+  - Dropdown keyboard navigation and interactions
+  - Combobox search and selection behavior
   - Form integration and race conditions
+  
+**Important**: Due to the interactive nature of Livekit components (heavy JavaScript integration, DOM manipulation, keyboard navigation), prefer Wallaby tests over unit tests for component testing. Components rely on Phoenix LiveView hooks and client-side behavior that can only be properly tested in a browser environment.
 
 ### Frontend Build System
 - **esbuild** with two configurations:
