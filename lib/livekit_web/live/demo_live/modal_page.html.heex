@@ -1,25 +1,85 @@
-<div class="space-y-8">
-  <div class="border-b border-gray-200 pb-6">
-    <h1 class="text-3xl font-bold text-gray-900 mb-4">Modal</h1>
-    <p class="text-lg text-gray-600 mb-4">
-      Dialog/popup component with overlay, form integration, and browser history support.
-    </p>
-    <p class="text-gray-600 leading-relaxed">
-      The Modal component creates accessible dialog experiences with proper focus trapping, ARIA attributes, and backdrop management. 
-      It supports form integration with validation states, async operations with loading indicators, and optional browser history integration 
-      for deep-linking to modal states. The component handles escape key closing, backdrop clicks, and maintains focus within the modal during interaction.
-    </p>
+<div class="prose prose-slate">
+  <div class="border-b border-gray-200 mb-6">
+    <h1>Modal</h1>
+  </div>
+  
+  <p class="lead">
+    Dialog/popup component with overlay, form integration, and browser history support.
+  </p>
+
+  <h2>Basic Usage</h2>
+  <p>
+    The simplest modal implementation uses three main components: the modal container, overlay backdrop, and content panel.
+    The modal remains hidden until triggered by a JavaScript event, then displays with smooth CSS transitions.
+  </p>
+
+  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
+    <.modal_demo />
   </div>
 
-  <.demo_section title="Simple Modal" id="simple-modal">
-    <.modal_demo />
-  </.demo_section>
+  <p>
+    Start with a trigger button that calls <code>Livekit.Modal.open("modal-id")</code> to dispatch
+    the open event. The modal container wraps your content and handles the show/hide logic automatically through Phoenix LiveView's
+    JavaScript commands.
+  </p>
 
-  <.demo_section title="Form Modal with Async Loading" id="async-form-modal">
+  <pre><code><%= LivekitWeb.CodeExamples.modal_basic_modal() %></code></pre>
+
+  <p>
+    The modal automatically handles focus trapping, escape key closing, and backdrop clicks. Add CSS transitions
+    to the overlay and panel for smooth entrance and exit animations. The modal maintains accessibility standards
+    with proper ARIA attributes and focus management.
+  </p>
+
+  <h2>Form Integration with Loading States</h2>
+  <p>
+    For complex interactions involving forms and async operations, modals can integrate with LiveView's state management
+    to provide loading indicators and synchronized backend state. This approach is essential for user feedback during
+    network requests or validation processes.
+  </p>
+
+  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
     <.form_modal_demo {assigns} />
-  </.demo_section>
+  </div>
 
-  <.demo_section title="Modal with Browser History" id="modal-history">
+  <p>
+    The <code>on_close</code> attribute lets you chain JavaScript commands with LiveView events,
+    enabling backend state synchronization when the modal closes. This pattern ensures your server-side state stays
+    consistent with the modal's visibility.
+  </p>
+
+  <pre><code><%= LivekitWeb.CodeExamples.modal_form_modal_events() %></code></pre>
+
+  <p>
+    The modal loader component displays a spinner during async operations, while conditional rendering of the modal panel
+    based on backend state prevents race conditions. This approach is particularly useful for form submissions that
+    require server validation.
+  </p>
+
+  <pre><code><%= LivekitWeb.CodeExamples.modal_form_modal_template() %></code></pre>
+
+  <h2>Browser History Integration</h2>
+  <p>
+    Browser history integration enables modals to work with the browser's back and forward buttons, making modal
+    states bookmarkable and shareable through URLs. This creates a more native web experience where users can
+    navigate modal states just like any other page.
+  </p>
+
+  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
     <.history_modal_demo {assigns} />
-  </.demo_section>
+  </div>
+
+  <p>
+    When integrated with Phoenix LiveView routing, modals can respond to URL changes and update the browser's
+    address bar. Users can bookmark modal URLs, share them with others, or use the back button to close modals
+    naturally. This approach treats modal states as first-class navigation destinations.
+  </p>
+
+  <pre><code><%= LivekitWeb.CodeExamples.modal_history_routes() %></code></pre>
+
+  <p>
+    The modal's visibility becomes tied to the current route, allowing deep linking to modal states.
+    Navigation events automatically open or close the modal based on URL changes, creating seamless
+    integration with the browser's navigation system.
+  </p>
 </div>
