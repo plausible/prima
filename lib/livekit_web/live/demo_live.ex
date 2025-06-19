@@ -16,6 +16,7 @@ defmodule LivekitWeb.DemoLive do
     socket =
       socket
       |> assign(form_modal_open?: false)
+      |> assign(async_modal_open?: false)
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
       |> stream(:suggestions, [])
 
@@ -38,6 +39,17 @@ defmodule LivekitWeb.DemoLive do
   end
 
   @impl true
+  def handle_event("open-async-modal", _params, socket) do
+    Process.send_after(self(), :show_async_modal, 1000)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("close-async-modal", _params, socket) do
+    {:noreply, assign(socket, async_modal_open?: false)}
+  end
+
+  @impl true
   def handle_event("async_combobox_search", params, socket) do
     input = get_in(params, params["_target"])
 
@@ -47,5 +59,10 @@ defmodule LivekitWeb.DemoLive do
       end)
 
     {:noreply, stream(socket, :suggestions, suggestions, reset: true)}
+  end
+
+  @impl true
+  def handle_info(:show_async_modal, socket) do
+    {:noreply, assign(socket, async_modal_open?: true)}
   end
 end
