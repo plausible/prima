@@ -34,6 +34,7 @@ defmodule LivekitWeb.CoreComponents do
     """
   end
 
+
   attr :id, :string, default: "flash", doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil

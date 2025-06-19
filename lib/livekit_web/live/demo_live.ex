@@ -23,7 +23,7 @@ defmodule LivekitWeb.DemoLive do
   end
 
   @impl true
-  def handle_params(_params, _, socket) do
+  def handle_params(_params, _uri, socket) do
     {:noreply, socket}
   end
 

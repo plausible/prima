@@ -13,8 +13,11 @@ defmodule LivekitWeb.Router do
   scope "/", LivekitWeb do
     pipe_through :browser
 
-    live "/demo", DemoLive
-    live "/demo/history-modal", DemoLive, :history_modal
+    live "/demo", DemoLive, :introduction
+    live "/demo/dropdown", DemoLive, :dropdown
+    live "/demo/modal", DemoLive, :modal
+    live "/demo/modal/history", DemoLive, :modal_history
+    live "/demo/combobox", DemoLive, :combobox
 
     get "/", PageController, :home
   end

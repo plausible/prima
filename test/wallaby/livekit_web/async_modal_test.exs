@@ -9,7 +9,7 @@ defmodule LiveKitWeb.AsyncModalTest do
 
   feature "shows modal when button is clicked", %{session: session} do
     session
-    |> visit("/demo")
+    |> visit("/demo/modal")
     |> assert_has(@modal_container |> Query.visible(false))
     |> assert_has(@modal_overlay |> Query.visible(false))
      # In async mode, panel is not mounted in the DOM until the modal is opened
@@ -31,7 +31,7 @@ defmodule LiveKitWeb.AsyncModalTest do
 
   feature "closes modal when user hits escape key", %{session: session} do
     session
-    |> visit("/demo")
+    |> visit("/demo/modal")
     |> click(Query.css("#async-form-modal button"))
     |> assert_has(@modal_panel |> Query.visible(true))
     |> send_keys([:escape])
@@ -43,7 +43,7 @@ defmodule LiveKitWeb.AsyncModalTest do
 
   feature "modal can be closed from the backend (e.g. when form is submitted)", %{session: session} do
     session
-    |> visit("/demo")
+    |> visit("/demo/modal")
     |> click(Query.css("#async-form-modal button"))
     |> assert_has(@modal_panel |> Query.visible(true))
     |> click(Query.button("Save"))
@@ -55,7 +55,7 @@ defmodule LiveKitWeb.AsyncModalTest do
 
   feature "race condition - when old modal is closed and new one opened quickly, only new one is shown", %{session: session} do
     session
-    |> visit("/demo")
+    |> visit("/demo/modal")
     |> click(Query.css("#async-form-modal #open-form-modal-button"))
     |> assert_has(@modal_panel |> Query.visible(true))
     |> execute_script("document.querySelector('form h2').innerHTML = 'Dirty Modal'")

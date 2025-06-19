@@ -1,0 +1,25 @@
+<div class="space-y-8">
+  <div class="border-b border-gray-200 pb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-4">Modal</h1>
+    <p class="text-lg text-gray-600 mb-4">
+      Dialog/popup component with overlay, form integration, and browser history support.
+    </p>
+    <p class="text-gray-600 leading-relaxed">
+      The Modal component creates accessible dialog experiences with proper focus trapping, ARIA attributes, and backdrop management. 
+      It supports form integration with validation states, async operations with loading indicators, and optional browser history integration 
+      for deep-linking to modal states. The component handles escape key closing, backdrop clicks, and maintains focus within the modal during interaction.
+    </p>
+  </div>
+
+  <.demo_section title="Simple Modal" id="simple-modal">
+    <.modal_demo />
+  </.demo_section>
+
+  <.demo_section title="Form Modal with Async Loading" id="async-form-modal">
+    <.form_modal_demo {assigns} />
+  </.demo_section>
+
+  <.demo_section title="Modal with Browser History" id="modal-history">
+    <.history_modal_demo {assigns} />
+  </.demo_section>
+</div>

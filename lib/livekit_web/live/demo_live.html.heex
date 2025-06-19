@@ -1,25 +1,23 @@
-<div class="space-y-16">
-  <.demo_section id="dropdown" title="Dropdown">
-    <.dropdown_demo />
-  </.demo_section>
-
-  <.demo_section id="simple-modal" title="Simple Modal">
-    <.modal_demo />
-  </.demo_section>
-
-  <.demo_section id="async-form-modal" title="Async form modal">
-    <.form_modal_demo {assigns} />
-  </.demo_section>
-
-  <.demo_section id="modal-with-history" title="Modal with history">
-    <.history_modal_demo {assigns} />
-  </.demo_section>
-
-  <.demo_section id="combobox" title="Combobox">
-    <.combobox_demo {assigns} />
-  </.demo_section>
-
-  <.demo_section id="async-combobox" title="Async Combobox">
-    <.async_combobox_demo {assigns} />
-  </.demo_section>
+<div class="flex min-h-screen">
+  <.sidebar current_action={@live_action} />
+  
+  <main class="flex-1 bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto px-8 py-12">
+    <div :if={@live_action == :introduction}>
+      <.introduction />
+    </div>
+    
+    <div :if={@live_action == :dropdown}>
+      <.dropdown_page />
+    </div>
+    
+    <div :if={@live_action == :modal or @live_action == :modal_history}>
+      <.modal_page {assigns} />
+    </div>
+    
+    <div :if={@live_action == :combobox}>
+      <.combobox_page {assigns} />
+    </div>
+    </div>
+  </main>
 </div>

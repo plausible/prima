@@ -1,0 +1,76 @@
+<nav class="w-64 bg-white border-r border-gray-200 p-6 shadow-sm">
+  <h2 class="text-xl font-bold text-gray-900 mb-6">Livekit</h2>
+
+  <.link
+    navigate="/demo"
+    class={[
+      "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+      @current_action == :introduction && "bg-blue-100 text-blue-700",
+      @current_action != :introduction && "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+    ]}
+  >
+    <.icon
+      name="hero-home"
+      class={
+        "mr-3 h-5 w-5 flex-shrink-0 " <>
+        if(@current_action == :introduction, do: "text-blue-500", else: "text-gray-400 group-hover:text-gray-500")
+      }
+    /> Introduction
+  </.link>
+
+  <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4 px-3">
+    Components
+  </h3>
+  <div class="mt-1 space-y-1">
+    <.link
+      navigate="/demo/dropdown"
+      class={[
+        "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+        @current_action == :dropdown && "bg-blue-100 text-blue-700",
+        @current_action != :dropdown && "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+      ]}
+    >
+      <.icon
+        name="hero-chevron-down"
+        class={
+        "mr-3 h-5 w-5 flex-shrink-0 " <>
+        if(@current_action == :dropdown, do: "text-blue-500", else: "text-gray-400 group-hover:text-gray-500")
+      }
+      /> Dropdown
+    </.link>
+
+    <.link
+      navigate="/demo/modal"
+      class={[
+        "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+        @current_action == :modal && "bg-blue-100 text-blue-700",
+        @current_action != :modal && "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+      ]}
+    >
+      <.icon
+        name="hero-window"
+        class={
+        "mr-3 h-5 w-5 flex-shrink-0 " <>
+        if(@current_action == :modal, do: "text-blue-500", else: "text-gray-400 group-hover:text-gray-500")
+      }
+      /> Modal
+    </.link>
+
+    <.link
+      navigate="/demo/combobox"
+      class={[
+        "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+        @current_action == :combobox && "bg-blue-100 text-blue-700",
+        @current_action != :combobox && "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+      ]}
+    >
+      <.icon
+        name="hero-magnifying-glass"
+        class={
+        "mr-3 h-5 w-5 flex-shrink-0 " <>
+        if(@current_action == :combobox, do: "text-blue-500", else: "text-gray-400 group-hover:text-gray-500")
+      }
+      /> Combobox
+    </.link>
+  </div>
+</nav>

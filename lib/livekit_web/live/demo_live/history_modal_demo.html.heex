@@ -1,15 +1,15 @@
 <.link
   class="inline-flex justify-center rounded-md bg-indigo-600 disabled:bg-gray-400 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-  patch={~p"/demo/history-modal"}
+  patch={~p"/demo/modal/history"}
 >
   Open Modal
 </.link>
 
 <.modal
-  :if={@live_action == :history_modal}
+  :if={@live_action == :modal_history}
   show
   id="demo-history-modal"
-  on_close={JS.patch(~p"/demo")}
+  on_close={JS.patch(~p"/demo/modal")}
   class="relative z-10"
 >
   <.modal_overlay
@@ -21,7 +21,7 @@
   <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
     <div class="flex min-h-full items-end justify-center p-4 sm:items-center sm:p-0">
       <svg
-        :if={!@live_action == :history_modal}
+        :if={!@live_action == :modal_history}
         class="w-8 h-8 mr-2 text-white/50 animate-spin fill-white"
         viewBox="0 0 100 100"
         fill="none"
@@ -38,7 +38,7 @@
       </svg>
 
       <.modal_panel
-        :if={@live_action == :history_modal}
+        :if={@live_action == :modal_history}
         id="demo-history-modal-panel"
         class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6"
         transition_enter={
