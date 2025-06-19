@@ -1,0 +1,17 @@
+<button phx-click={Livekit.Modal.open("demo-modal")}>
+  Open Modal
+</button>
+
+<.modal id="demo-modal">
+  <.modal_overlay class="fixed inset-0 bg-gray-500 bg-opacity-75" />
+  
+  <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+    <div class="flex min-h-full items-center justify-center p-4">
+      <.modal_panel id="demo-modal-panel" class="bg-white rounded-lg p-6">
+        <h3>Modal Title</h3>
+        <p>Modal content goes here</p>
+        <button phx-click={Livekit.Modal.close()}>Close</button>
+      </.modal_panel>
+    </div>
+  </div>
+</.modal>

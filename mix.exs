@@ -36,7 +36,7 @@ defmodule Livekit.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.7"},
+      {:phoenix, "~> 1.7.18"},
       {:phoenix_html, "~> 4.2"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.0"},
@@ -47,7 +47,8 @@ defmodule Livekit.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:wallaby, "~> 0.30", runtime: false, only: :test}
+      {:wallaby, "~> 0.30", runtime: false, only: :test},
+      {:tidewave, "~> 0.1", only: :dev}
     ]
   end
 

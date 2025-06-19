@@ -31,6 +31,10 @@ defmodule LivekitWeb.Endpoint do
     plug Phoenix.CodeReloader
   end
 
+  if Code.ensure_loaded?(Tidewave) do
+    plug Tidewave
+  end
+
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
