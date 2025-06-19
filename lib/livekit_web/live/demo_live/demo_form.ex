@@ -1,5 +1,5 @@
 defmodule LivekitWeb.DemoLive.DemoForm do
-  use Phoenix.LiveComponent, global_prefixes: ~w(x-)
+  use LivekitWeb, :live_component
 
   def update(_assigns, socket) do
     socket = assign(socket, %{form: to_form(%{"name" => ""})})
@@ -24,10 +24,10 @@ defmodule LivekitWeb.DemoLive.DemoForm do
           />
         </div>
         <div class="mt-5 sm:mt-6">
-          <button
+          <.button
             phx-click="close-form-modal"
             type="button"
-            class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            class="w-full"
           >
             <svg
               class="w-4 h-4 mr-2 text-white/50 animate-spin fill-white hidden phx-click-loading:inline-block"
@@ -45,7 +45,7 @@ defmodule LivekitWeb.DemoLive.DemoForm do
               />
             </svg>
             Save
-          </button>
+          </.button>
         </div>
       </.form>
     </div>

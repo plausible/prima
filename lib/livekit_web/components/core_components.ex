@@ -138,6 +138,26 @@ defmodule LivekitWeb.CoreComponents do
     """
   end
 
+  attr :class, :string, default: nil
+  attr :rest, :global
+
+  slot :inner_block, required: true
+
+  def button_link(assigns) do
+    ~H"""
+    <.link
+      class={[
+        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
+        "text-sm font-semibold leading-6 text-white active:text-white/80",
+        @class
+      ]}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+
   @doc """
   Renders an input with label and error messages.
 

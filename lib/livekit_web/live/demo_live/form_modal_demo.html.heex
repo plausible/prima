@@ -1,15 +1,10 @@
-<button
+<.button
   id="open-form-modal-button"
   type="button"
   phx-click={Livekit.Modal.open("demo-form-modal") |> JS.push("open-form-modal")}
-  class="inline-flex justify-center rounded-md bg-indigo-600 disabled:bg-gray-400 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
 >
   Open Modal
-</button>
-<div class="mt-2">
-  Backend state: <span :if={@form_modal_open?}>Open</span>
-  <span :if={!@form_modal_open?}>Closed</span>
-</div>
+</.button>
 
 <.modal id="demo-form-modal" on_close={JS.push("close-form-modal")} class="relative z-10">
   <.modal_overlay
