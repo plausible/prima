@@ -42,7 +42,7 @@ mix assets.deploy       # Minified production build with digest
 The library follows a three-layer pattern for each component:
 1. **Phoenix Component** (`lib/livekit/*.ex`) - Server-side rendering and LiveView integration
 2. **JavaScript Hook** (`assets/js/hooks/*.js`) - Client-side behavior and DOM manipulation  
-3. **CSS Integration** - Tailwind-based styling with custom `livekit` plugin
+3. **CSS Integration** - Tailwind-based styling with standard data attribute selectors
 
 ### Component Structure
 ```elixir
@@ -65,8 +65,8 @@ end
 
 ### Custom Data Attributes
 - `livekit-ref` - Component instance identifier
-- `livekit-state` - Component state for CSS variants
-- Used by Tailwind plugin for state-based styling variants
+- `data-focus` - Focus state for dropdown items (true/false)
+- Standard data attributes for component state management
 
 ### Current Components
 - **Modal** - Dialog/popup with overlay (`lib/livekit/modal.ex`)
@@ -89,7 +89,7 @@ end
 - **esbuild** with two configurations:
   - `default` - Demo app development
   - `library` - Library export for distribution
-- **Tailwind CSS** with custom `livekit` plugin for component states
+- **Tailwind CSS** with standard data attribute selectors for component states
 - Assets are built automatically during development
 
 ### Demo Application
@@ -120,8 +120,8 @@ end
 - Keep library components free of demo-specific dependencies
 
 ### Styling Approach
-- Custom Tailwind plugin provides `livekit-active` and `livekit-not-active` variants
-- Components use `livekit-state` attribute to trigger CSS state changes
+- Standard Tailwind data attribute selectors (e.g., `data-[focus=true]:`) for component state styling
+- Components use standard HTML data attributes for state management
 - Heroicons integrated for consistent icon usage
 
 ## Wallaby Testing Tips

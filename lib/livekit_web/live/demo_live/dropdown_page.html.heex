@@ -28,7 +28,7 @@
   
   <h3>Highlighting Active Items</h3>
   <p>
-    Use the <code>livekit-active</code> and <code>livekit-not-active</code> CSS variants to style dropdown items based on their focus state. These variants are provided by Livekit's custom Tailwind plugin and respond to keyboard navigation and hover states.
+    Use the <code>data-focus</code> data attribute selector to style dropdown items based on their focus state. The <code>data-focus:</code> variant applies when an item has focus (via keyboard navigation or hover), responding to keyboard navigation and hover states.
   </p>
 
   <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
@@ -36,13 +36,13 @@
   </div>
 
   <p>
-    The <code>livekit-active</code> variant applies when an item has focus (via keyboard navigation or hover), while <code>livekit-not-active</code> applies to all other items. This creates a clear visual indication of the currently focused item.
+    Items without focus use their default styling, while items with the <code>data-focus</code> attribute get the enhanced styling. This creates a clear visual indication of the currently focused item without requiring separate styles for unfocused states.
   </p>
 
   <Livekit.CodeBlock.code_block file="dropdown/styled_dropdown.heex" />
 
   <p>
-    You can customize the active state styling by modifying the <code>livekit-active:</code> classes. Common patterns include background color changes, text color variations, and subtle animations to enhance the user experience.
+    You can customize the focused state styling by modifying the <code>data-focus:</code> classes. Common patterns include background color changes, text color variations, and subtle animations to enhance the user experience.
   </p>
 
   <h3>Menu Positioning</h3>

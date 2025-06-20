@@ -52,11 +52,11 @@ defmodule LiveKitWeb.DropdownTest do
     |> assert_has(@dropdown_menu |> Query.visible(true))
     # Send arrow keys to navigate (no active items initially in dropdown)
     |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[livekit-state=active]"))
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
     # Arrow down to next item
     |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:last-child[livekit-state=active]"))
-    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:first-child[livekit-state=active]"))
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:last-child[data-focus]"))
+    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
   end
 
   feature "keyboard navigation with arrow keys going up", %{session: session} do
@@ -66,11 +66,11 @@ defmodule LiveKitWeb.DropdownTest do
     |> assert_has(@dropdown_menu |> Query.visible(true))
     # First go down to activate first item, then up to test wrap-around
     |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[livekit-state=active]"))
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
     # Arrow up should wrap to last item
     |> send_keys([:up_arrow])
-    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:last-child[livekit-state=active]"))
-    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:first-child[livekit-state=active]"))
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:last-child[data-focus]"))
+    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
   end
 
   feature "mouse hover activates dropdown items", %{session: session} do
@@ -79,18 +79,128 @@ defmodule LiveKitWeb.DropdownTest do
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     # Initially no item should be active
-    |> refute_has(Query.css("#demo-dropdown [role=menuitem][livekit-state=active]"))
+    |> refute_has(Query.css("#demo-dropdown [role=menuitem][data-focus]"))
     # Hovering over first item should activate it
     |> execute_script("document.querySelector('#demo-dropdown [role=menuitem]:first-child').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))")
-    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[livekit-state=active]"))
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
     # Hovering over second item should activate it and deactivate first
     |> execute_script("document.querySelector('#demo-dropdown [role=menuitem]:last-child').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))")
-    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:last-child[livekit-state=active]"))
-    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:first-child[livekit-state=active]"))
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:last-child[data-focus]"))
+    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
   end
 
   # Note: Removed focus test as Wallaby doesn't have a simple focused() query
 
-  # TODO: Fix active state management test
-  # feature "closing dropdown removes active state from items", %{session: session} do
+  feature "focus state behavior when reopening dropdown", %{session: session} do
+    session
+    |> visit("/demo/dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Activate an item with arrow key
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
+    # Close dropdown with escape key
+    |> send_keys([:escape])
+    |> assert_has(@dropdown_menu |> Query.visible(false))
+    # Wait for the close animation and event handlers to complete
+    |> execute_script("return new Promise(resolve => setTimeout(resolve, 300))")
+    # Reopen dropdown by clicking button
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Check that focus state is cleared - the first item should not have data-focus attribute
+    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
+  end
+
+  feature "keyboard navigation with Enter and Space keys (no selection behavior)", %{session: session} do
+    session
+    |> visit("/demo/dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Navigate to first item and press enter - dropdown should remain open (no selection behavior)
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
+    |> send_keys([:enter])
+    # Dropdown should remain open as it doesn't handle Enter for selection
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Navigate to second item and press space - dropdown should remain open
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:last-child[data-focus]"))
+    |> send_keys([:space])
+    # Dropdown should remain open as it doesn't handle Space for selection
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+  end
+
+  feature "mouse click on dropdown item does not close dropdown", %{session: session} do
+    session
+    |> visit("/demo/dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Click on first dropdown item - dropdown should remain open (no built-in selection behavior)
+    |> click(Query.css("#demo-dropdown [role=menuitem]:first-child"))
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+  end
+
+  feature "keyboard navigation wraps around (last to first, first to last)", %{session: session} do
+    session
+    |> visit("/demo/dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Navigate down to first item
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
+    # Arrow up from first should wrap to last item
+    |> send_keys([:up_arrow])
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:last-child[data-focus]"))
+    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
+    # Arrow down from last should wrap to first item
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
+    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:last-child[data-focus]"))
+  end
+
+  feature "hover deactivates keyboard-activated items", %{session: session} do
+    session
+    |> visit("/demo/dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Activate first item with keyboard
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
+    # Hover over second item should activate it and deactivate first
+    |> execute_script("document.querySelector('#demo-dropdown [role=menuitem]:last-child').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))")
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]:last-child[data-focus]"))
+    |> refute_has(Query.css("#demo-dropdown [role=menuitem]:first-child[data-focus]"))
+  end
+
+  feature "focus returns to trigger button when dropdown closes", %{session: session} do
+    session
+    |> visit("/demo/dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Close with escape
+    |> send_keys([:escape])
+    |> assert_has(@dropdown_menu |> Query.visible(false))
+    # Verify focus is on trigger button (we can test this by sending a key that would open the dropdown)
+    |> send_keys([:enter])
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+  end
+
+  feature "supports accessible role and aria attributes", %{session: session} do
+    session
+    |> visit("/demo/dropdown")
+    |> assert_has(Query.css("#demo-dropdown [aria-haspopup=menu]"))
+    |> click(@dropdown_button)
+    |> assert_has(Query.css("#demo-dropdown [role=menu]"))
+    |> assert_has(Query.css("#demo-dropdown [role=menuitem]") |> Query.count(2))
+  end
+
+  feature "dropdown menu initially has no active items", %{session: session} do
+    session
+    |> visit("/demo/dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Initially no items should have focus state
+    |> refute_has(Query.css("#demo-dropdown [role=menuitem][data-focus]"))
+  end
+
 end
