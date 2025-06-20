@@ -15,10 +15,10 @@ defmodule Livekit.Modal do
       </.button>
 
       <.modal id="my-modal">
-        <.modal_overlay class="fixed inset-0 bg-gray-500 bg-opacity-75" />
+        <.modal_overlay class="fixed inset-0 bg-gray-500/75" />
         <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div class="flex min-h-full items-end justify-center p-4">
-            <.modal_panel id="my-modal-panel" class="relative transform overflow-hidden rounded-lg bg-white">
+            <.modal_panel id="my-modal-panel" class="relative overflow-hidden rounded-lg bg-white">
               <p>Modal content</p>
             </.modal_panel>
           </div>
@@ -128,7 +128,7 @@ defmodule Livekit.Modal do
   ## Example
 
       <.modal_overlay
-        class="fixed inset-0 bg-gray-500 bg-opacity-75"
+        class="fixed inset-0 bg-gray-500/75"
         transition_enter={{"ease-out duration-300", "opacity-0", "opacity-100"}}
         transition_leave={{"ease-in duration-200", "opacity-100", "opacity-0"}}
       />
@@ -195,7 +195,7 @@ defmodule Livekit.Modal do
 
       <.modal_panel
         id="my-panel"
-        class="relative transform overflow-hidden rounded-lg bg-white"
+        class="relative overflow-hidden rounded-lg bg-white"
         transition_enter={{"ease-out duration-300", "opacity-0 scale-95", "opacity-100 scale-100"}}
       >
         <h2>Modal Title</h2>

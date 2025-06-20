@@ -22,7 +22,7 @@ defmodule Livekit do
   Supports async loading, form integration, and browser history integration.
 
       <.modal id="my-modal">
-        <.modal_overlay class="fixed inset-0 bg-gray-500 bg-opacity-75" />
+        <.modal_overlay class="fixed inset-0 bg-gray-500/75" />
         <.modal_panel id="my-panel" class="bg-white rounded-lg">
           <p>Modal content</p>
         </.modal_panel>
