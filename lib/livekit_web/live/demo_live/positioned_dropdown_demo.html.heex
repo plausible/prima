@@ -1,0 +1,124 @@
+<div class="flex space-x-8 justify-center">
+  <!-- Left-aligned dropdown -->
+  <div class="relative inline-block text-left">
+    <.dropdown id="left-dropdown">
+      <.dropdown_trigger class="inline-flex justify-center rounded-md bg-blue-600 gap-x-1.5 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+        Left Menu
+        <svg
+          class="-mr-1 h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </.dropdown_trigger>
+      <.dropdown_menu
+        class="absolute left-0 z-10 mt-2 w-48 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        transition_enter={
+          {"ease-out duration-100", "transform opacity-0 scale-95",
+           "transform opacity-100 scale-100"}
+        }
+        transition_leave={
+          {"transition ease-in duration-75", "transform opacity-100 scale-100",
+           "transform opacity-0 scale-95"}
+        }
+      >
+        <div class="py-1">
+          <.dropdown_item class="livekit-active:bg-blue-100 livekit-active:text-blue-900 livekit-not-active:text-gray-700 block px-4 py-2 text-sm">
+            Option A
+          </.dropdown_item>
+          <.dropdown_item class="livekit-active:bg-blue-100 livekit-active:text-blue-900 livekit-not-active:text-gray-700 block px-4 py-2 text-sm">
+            Option B
+          </.dropdown_item>
+        </div>
+      </.dropdown_menu>
+    </.dropdown>
+  </div>
+
+  <!-- Right-aligned dropdown -->
+  <div class="relative inline-block text-left">
+    <.dropdown id="right-dropdown">
+      <.dropdown_trigger class="inline-flex justify-center rounded-md bg-green-600 gap-x-1.5 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
+        Right Menu
+        <svg
+          class="-mr-1 h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </.dropdown_trigger>
+      <.dropdown_menu
+        class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        transition_enter={
+          {"ease-out duration-100", "transform opacity-0 scale-95",
+           "transform opacity-100 scale-100"}
+        }
+        transition_leave={
+          {"transition ease-in duration-75", "transform opacity-100 scale-100",
+           "transform opacity-0 scale-95"}
+        }
+      >
+        <div class="py-1">
+          <.dropdown_item class="livekit-active:bg-green-100 livekit-active:text-green-900 livekit-not-active:text-gray-700 block px-4 py-2 text-sm">
+            Option X
+          </.dropdown_item>
+          <.dropdown_item class="livekit-active:bg-green-100 livekit-active:text-green-900 livekit-not-active:text-gray-700 block px-4 py-2 text-sm">
+            Option Y
+          </.dropdown_item>
+        </div>
+      </.dropdown_menu>
+    </.dropdown>
+  </div>
+
+  <!-- Bottom-aligned dropdown -->
+  <div class="relative inline-block text-left">
+    <.dropdown id="bottom-dropdown">
+      <.dropdown_trigger class="inline-flex justify-center rounded-md bg-purple-600 gap-x-1.5 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600">
+        Bottom Menu
+        <svg
+          class="-mr-1 h-5 w-5 rotate-180"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </.dropdown_trigger>
+      <.dropdown_menu
+        class="absolute bottom-full right-0 z-10 mb-2 w-48 origin-bottom-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        transition_enter={
+          {"ease-out duration-100", "transform opacity-0 scale-95",
+           "transform opacity-100 scale-100"}
+        }
+        transition_leave={
+          {"transition ease-in duration-75", "transform opacity-100 scale-100",
+           "transform opacity-0 scale-95"}
+        }
+      >
+        <div class="py-1">
+          <.dropdown_item class="livekit-active:bg-purple-100 livekit-active:text-purple-900 livekit-not-active:text-gray-700 block px-4 py-2 text-sm">
+            Option 1
+          </.dropdown_item>
+          <.dropdown_item class="livekit-active:bg-purple-100 livekit-active:text-purple-900 livekit-not-active:text-gray-700 block px-4 py-2 text-sm">
+            Option 2
+          </.dropdown_item>
+        </div>
+      </.dropdown_menu>
+    </.dropdown>
+  </div>
+</div>
