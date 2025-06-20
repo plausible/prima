@@ -41,7 +41,7 @@ defmodule LivekitWeb.DemoLive do
   @impl true
   def handle_event("open-async-modal", _params, socket) do
     Process.send_after(self(), :show_async_modal, 1000)
-    {:noreply, socket}
+    {:noreply, assign(socket, async_modal_open?: false)}
   end
 
   @impl true
