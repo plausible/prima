@@ -1,4 +1,5 @@
-defmodule LivekitWeb.Endpoint do
+  defmodule LivekitWeb.Endpoint do
+  @moduledoc false
   use Phoenix.Endpoint, otp_app: :livekit
 
   # The session will be stored in the cookie and signed,

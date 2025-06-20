@@ -1,7 +1,6 @@
-const MODE = 'async'
-
 export default {
   mounted() {
+    this.mode = this.getMode()
     this.el.addEventListener('mouseover', this.onHover.bind(this))
     this.el.addEventListener('keydown', this.onKey.bind(this))
     this.el.addEventListener('click', this.onClick.bind(this))
@@ -78,8 +77,15 @@ export default {
     }
   },
 
+  getMode() {
+    const searchInput = this.el.querySelector('input[data-livekit-ref=search_input]')
+    const hasPhxChange = searchInput.hasAttribute('phx-change')
+    
+    return hasPhxChange ? 'async' : 'frontend'
+  },
+
   onInput(e) {
-    if (MODE === 'async') {
+    if (this.mode === 'async') {
       const options = this.el.querySelector('[data-livekit-ref=options]')
       this.liveSocket.execJS(options, options.getAttribute('js-show'));
     } else {
@@ -116,12 +122,12 @@ export default {
   },
 
   showOptions() {
-    this.focusFirstOption()
     const options = this.el.querySelector('[data-livekit-ref=options]')
     this.liveSocket.execJS(options, options.getAttribute('js-show'));
     this.el.querySelector('input[data-livekit-ref=search_input]').select()
+    
+    this.focusFirstOption()
 
-    // Add click outside listener
     const handleClickOutside = (event) => {
       if (!options.contains(event.target) && !this.el.querySelector('input[data-livekit-ref=search_input]').contains(event.target)) {
         this.resetOnBlur()

@@ -1,4 +1,5 @@
 defmodule LivekitWeb.PageController do
+  @moduledoc false
   use LivekitWeb, :controller
 
   def home(conn, _params) do

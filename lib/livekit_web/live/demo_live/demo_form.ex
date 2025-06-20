@@ -1,4 +1,5 @@
 defmodule LivekitWeb.DemoLive.DemoForm do
+  @moduledoc false
   use LivekitWeb, :live_component
 
   def update(_assigns, socket) do

@@ -27,8 +27,25 @@ defmodule LiveKitWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
   end
 
-  # TODO: Fix filtering behavior - combobox seems to be in async mode
-  # feature "filters options based on search input", %{session: session} do
+  feature "filters options based on search input", %{session: session} do
+    session
+    |> visit("/demo/combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    |> assert_has(@all_options |> Query.count(4))
+    # Type "app" - should show Apple and Pineapple (both contain "app")
+    |> fill_in(@search_input, with: "app")
+    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple']") |> Query.visible(true))
+    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pineapple']") |> Query.visible(true))
+    |> refute_has(Query.css("#demo-combobox [role=option][data-value='Pear']") |> Query.visible(true))
+    |> refute_has(Query.css("#demo-combobox [role=option][data-value='Mango']") |> Query.visible(true))
+    # Clear and type "p" - should show Pear, Pineapple, Apple (contains "p")
+    |> fill_in(@search_input, with: "p")
+    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple']") |> Query.visible(true))
+    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pear']") |> Query.visible(true))
+    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pineapple']") |> Query.visible(true))
+    |> refute_has(Query.css("#demo-combobox [role=option][data-value='Mango']") |> Query.visible(true))
+  end
 
   feature "selects option when clicked", %{session: session} do
     session

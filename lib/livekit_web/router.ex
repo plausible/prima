@@ -1,4 +1,5 @@
 defmodule LivekitWeb.Router do
+  @moduledoc false
   use LivekitWeb, :router
 
   pipeline :browser do

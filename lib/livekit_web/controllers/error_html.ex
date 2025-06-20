@@ -1,4 +1,5 @@
 defmodule LivekitWeb.ErrorHTML do
+  @moduledoc false
   use LivekitWeb, :html
 
   # If you want to customize your error pages,

@@ -13,7 +13,8 @@ defmodule Livekit.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      package: package()
+      package: package(),
+      docs: docs()
     ]
   end
 
@@ -51,7 +52,8 @@ defmodule Livekit.MixProject do
       {:tidewave, "~> 0.1", only: :dev},
       {:makeup, "~> 1.2"},
       {:makeup_elixir, "~> 0.16"},
-      {:makeup_html, "~> 0.1"}
+      {:makeup_html, "~> 0.1"},
+      {:ex_doc, "~> 0.32", only: :dev, runtime: false}
     ]
   end
 
@@ -67,6 +69,7 @@ defmodule Livekit.MixProject do
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind default", "esbuild default", "esbuild library"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      "docs.serve": ["docs", "cmd open doc/index.html"],
       test: [
         "esbuild default",
         "test",
@@ -79,6 +82,25 @@ defmodule Livekit.MixProject do
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
       exclude_patterns: ["lib/livekit_web.ex", "lib/livekit_web"]
+    ]
+  end
+
+  defp docs do
+    [
+      main: "Livekit",
+      source_url: @source_url,
+      homepage_url: @source_url,
+      extras: ["README.md"],
+      groups_for_modules: [
+        "Components": [
+          Livekit.Modal,
+          Livekit.Dropdown,
+          Livekit.Combobox
+        ]
+      ],
+      groups_for_extras: [
+        "Guides": ["README.md"]
+      ]
     ]
   end
 end

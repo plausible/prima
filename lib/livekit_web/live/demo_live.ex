@@ -1,4 +1,5 @@
 defmodule LivekitWeb.DemoLive do
+  @moduledoc false
   use LivekitWeb, :live_view
   import Livekit.{Dropdown, Modal, Combobox}
   embed_templates "demo_live/*"
