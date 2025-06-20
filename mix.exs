@@ -48,7 +48,10 @@ defmodule Livekit.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:wallaby, "~> 0.30", runtime: false, only: :test},
-      {:tidewave, "~> 0.1", only: :dev}
+      {:tidewave, "~> 0.1", only: :dev},
+      {:makeup, "~> 1.2"},
+      {:makeup_elixir, "~> 0.16"},
+      {:makeup_html, "~> 0.1"}
     ]
   end
 

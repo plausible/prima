@@ -1,8 +1,9 @@
 defmodule LivekitWeb.CodeExamples do
   @moduledoc """
-  Provides code examples for the demo application.
-  Files are read at compile-time for better performance.
+  Provides syntax-highlighted code examples for the demo application.
+  Files are read at compile-time and highlighted using Makeup.
   """
+  use Phoenix.Component
 
   @examples_dir "priv/code_examples"
 
@@ -19,9 +20,43 @@ defmodule LivekitWeb.CodeExamples do
   @modal_form_modal_template Path.join([@examples_dir, "modal", "form_modal_template.heex"]) |> File.read!()
   @modal_history_routes Path.join([@examples_dir, "modal", "history_routes.ex"]) |> File.read!()
 
-  def modal_minimal_modal, do: @modal_minimal_modal
-  def modal_basic_modal, do: @modal_basic_modal
-  def modal_form_modal_events, do: @modal_form_modal_events
-  def modal_form_modal_template, do: @modal_form_modal_template
-  def modal_history_routes, do: @modal_history_routes
+  def modal_minimal_modal(assigns \\ %{}) do
+    assigns = assign(assigns, :code, @modal_minimal_modal)
+    
+    ~H"""
+    <Livekit.CodeBlock.code_block code={@code} language={:heex} />
+    """
+  end
+
+  def modal_basic_modal(assigns \\ %{}) do
+    assigns = assign(assigns, :code, @modal_basic_modal)
+    
+    ~H"""
+    <Livekit.CodeBlock.code_block code={@code} language={:heex} />
+    """
+  end
+
+  def modal_form_modal_events(assigns \\ %{}) do
+    assigns = assign(assigns, :code, @modal_form_modal_events)
+    
+    ~H"""
+    <Livekit.CodeBlock.code_block code={@code} language={:heex} />
+    """
+  end
+
+  def modal_form_modal_template(assigns \\ %{}) do
+    assigns = assign(assigns, :code, @modal_form_modal_template)
+    
+    ~H"""
+    <Livekit.CodeBlock.code_block code={@code} language={:heex} />
+    """
+  end
+
+  def modal_history_routes(assigns \\ %{}) do
+    assigns = assign(assigns, :code, @modal_history_routes)
+    
+    ~H"""
+    <Livekit.CodeBlock.code_block code={@code} language={:elixir} />
+    """
+  end
 end
