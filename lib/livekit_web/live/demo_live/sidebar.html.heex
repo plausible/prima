@@ -12,7 +12,7 @@
     <.icon
       name="hero-home"
       class={
-        "mr-3 h-5 w-5 flex-shrink-0 " <>
+        "mr-3 h-5 w-5 shrink-0 " <>
         if(@current_action == :introduction, do: "text-blue-500", else: "text-gray-400 group-hover:text-gray-500")
       }
     /> Introduction
@@ -33,7 +33,7 @@
       <.icon
         name="hero-chevron-down"
         class={
-        "mr-3 h-5 w-5 flex-shrink-0 " <>
+        "mr-3 h-5 w-5 shrink-0 " <>
         if(@current_action == :dropdown, do: "text-blue-500", else: "text-gray-400 group-hover:text-gray-500")
       }
       /> Dropdown
@@ -50,7 +50,7 @@
       <.icon
         name="hero-window"
         class={
-        "mr-3 h-5 w-5 flex-shrink-0 " <>
+        "mr-3 h-5 w-5 shrink-0 " <>
         if(@current_action == :modal, do: "text-blue-500", else: "text-gray-400 group-hover:text-gray-500")
       }
       /> Modal
@@ -67,7 +67,7 @@
       <.icon
         name="hero-magnifying-glass"
         class={
-        "mr-3 h-5 w-5 flex-shrink-0 " <>
+        "mr-3 h-5 w-5 shrink-0 " <>
         if(@current_action == :combobox, do: "text-blue-500", else: "text-gray-400 group-hover:text-gray-500")
       }
       /> Combobox
