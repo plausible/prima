@@ -10,7 +10,7 @@ defmodule Livekit.CodeBlock do
 
       <Livekit.CodeBlock.code_block file="modal/basic_modal.heex" />
 
-      <Livekit.CodeBlock.code_block file="modal/form_modal_events.ex" />
+      <Livekit.CodeBlock.code_block file="modal/async_modal.heex" />
 
       <Livekit.CodeBlock.code_block file="dropdown/advanced_dropdown.heex" />
 
