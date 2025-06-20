@@ -61,8 +61,7 @@ defmodule Livekit.Modal do
 
   def modal_panel(assigns) do
     ~H"""
-    <.focus_wrap
-      id={@id}
+    <div
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
@@ -72,10 +71,14 @@ defmodule Livekit.Modal do
       phx-window-keydown={close()}
       phx-key="escape"
       phx-click-away={close()}
-      class={@class}
     >
-      {render_slot(@inner_block)}
-    </.focus_wrap>
+      <.focus_wrap
+        id={@id}
+        class={@class}
+      >
+        {render_slot(@inner_block)}
+      </.focus_wrap>
+    </div>
     """
   end
 
