@@ -2,59 +2,127 @@ defmodule Livekit.CodeBlock do
   @moduledoc """
   A syntax-highlighted code block component using Makeup.
 
+  Renders code examples from files in `priv/code_examples/` with automatic syntax highlighting
+  based on file extensions. All files are loaded and syntax-highlighted at compile-time for 
+  optimal runtime performance.
+
   ## Examples
 
-      <Livekit.CodeBlock.code_block code={@elixir_code} language={:elixir} />
+      <Livekit.CodeBlock.code_block file="modal/basic_modal.heex" />
 
-      <Livekit.CodeBlock.code_block code={@html_code} language={:html} />
+      <Livekit.CodeBlock.code_block file="modal/form_modal_events.ex" />
+
+      <Livekit.CodeBlock.code_block file="dropdown/advanced_dropdown.heex" />
 
   ## Attributes
 
-    * `code` - The source code to highlight (required)
-    * `language` - The programming language (`:elixir`, `:html`, `:heex`, `:json`, `:diff`)
+    * `file` - Path to file in priv/code_examples/ (required)
     * `class` - Additional CSS classes for the container
   """
   use Phoenix.Component
   import Phoenix.HTML
+  require Logger
 
-  @doc """
-  Renders a syntax-highlighted code block.
-  """
-  attr :code, :string, required: true, doc: "The source code to highlight"
-  attr :language, :atom, default: :elixir, doc: "Programming language for syntax highlighting"
-  attr :class, :string, default: "", doc: "Additional CSS classes"
+  @examples_dir "priv/code_examples"
 
-  def code_block(assigns) do
-    highlighted =
+  # Automatically discover and load all code example files at compile-time with syntax highlighting
+  @code_examples (
+    examples_path = Path.join(File.cwd!(), @examples_dir)
+    
+    detect_language = fn file_path ->
+      case Path.extname(file_path) do
+        ".ex" -> :elixir
+        ".exs" -> :elixir
+        ".heex" -> :heex
+        ".html" -> :html
+        ".htm" -> :html
+        _ -> :elixir
+      end
+    end
+
+    highlight_code = fn content, language ->
       try do
-        case assigns.language do
+        case language do
           :elixir ->
-            Makeup.highlight(assigns.code, lexer: Makeup.Lexers.ElixirLexer)
+            Makeup.highlight(content, lexer: Makeup.Lexers.ElixirLexer)
 
           :html ->
-            Makeup.highlight(assigns.code, lexer: Makeup.Lexers.HTMLLexer)
+            Makeup.highlight(content, lexer: Makeup.Lexers.HTMLLexer)
 
           :heex ->
-            Makeup.highlight(assigns.code, lexer: Makeup.Lexers.HTMLLexer)
+            Makeup.highlight(content, lexer: Makeup.Lexers.HTMLLexer)
 
-          e ->
-            Logger.error("Unknown language: #{e}")
-            escaped_code = assigns.code |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
+          _ ->
+            escaped_code = content |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
             ~s(<pre class="highlight"><code>#{escaped_code}</code></pre>)
         end
       rescue
-        e ->
-          Logger.error("Lexer error: #{e}")
-          escaped_code = assigns.code |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
+        _e ->
+          escaped_code = content |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
           ~s(<pre class="highlight"><code>#{escaped_code}</code></pre>)
       end
+    end
+    
+    if File.exists?(examples_path) do
+      Path.wildcard(Path.join([examples_path, "**", "*"]))
+      |> Enum.filter(&File.regular?/1)
+      |> Enum.map(fn file_path ->
+        relative_path = Path.relative_to(file_path, examples_path)
+        content = File.read!(file_path)
+        language = detect_language.(relative_path)
+        highlighted_content = highlight_code.(content, language)
+        {relative_path, highlighted_content}
+      end)
+      |> Map.new()
+    else
+      %{}
+    end
+  )
 
-    assigns = assign(assigns, :highlighted_code, highlighted)
+  # Add external resources for automatic recompilation during development
+  for {file_path, _content} <- @code_examples do
+    @external_resource Path.join([@examples_dir, file_path])
+  end
+
+  @doc """
+  Renders a syntax-highlighted code block from a file in priv/code_examples/.
+  
+  Syntax highlighting is performed at compile-time for optimal runtime performance.
+  """
+  attr :file, :string, required: true, doc: "Path to file in priv/code_examples/"
+  attr :class, :string, default: "", doc: "Additional CSS classes"
+
+  def code_block(assigns) do
+    highlighted_content = get_highlighted_content(assigns)
+    assigns = assign(assigns, :highlighted_code, highlighted_content)
 
     ~H"""
     <div class={["livekit-code-block", @class]}>
       <%= raw(@highlighted_code) %>
     </div>
     """
+  end
+
+  defp get_highlighted_content(assigns) do
+    case Map.get(@code_examples, assigns.file) do
+      nil ->
+        escaped_error = "Error: Code example file '#{assigns.file}' not found in #{@examples_dir}"
+                       |> Phoenix.HTML.html_escape() 
+                       |> Phoenix.HTML.safe_to_string()
+        ~s(<pre class="highlight"><code>#{escaped_error}</code></pre>)
+      
+      highlighted_content ->
+        highlighted_content
+    end
+  end
+
+  @doc """
+  Returns a list of all available code example files.
+  
+  Useful for development and debugging.
+  """
+  def list_examples do
+    Map.keys(@code_examples)
+    |> Enum.sort()
   end
 end

@@ -126,3 +126,10 @@ end
 
 ## Wallaby Testing Tips
 - For hidden elements in Wallaby, use Query.visible(false)
+
+## Development Guidelines
+
+### Code Comments
+- Remember to not add unnecessary comments
+- Only add comments to document tricky operations or add additional context
+- Pedantic comments are useless
