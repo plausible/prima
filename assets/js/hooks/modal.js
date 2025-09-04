@@ -6,6 +6,7 @@ export default {
 
     this.el.addEventListener("livekit:modal:open", (e) => {
       this.log("modal:open")
+      this.preventBodyScroll()
       this.maybeExecJS(this.el, "js-show");
       this.maybeExecJS(this.ref("modal-overlay"), "js-show");
       if (this.async) {
@@ -32,6 +33,7 @@ export default {
 
     this.el.addEventListener("livekit:modal:close", (_e) => {
       this.log("modal:close")
+      this.restoreBodyScroll()
       this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
       this.maybeExecJS(this.ref("modal-panel"), "js-hide");
       this.maybeExecJS(this.ref("modal-loader"), "js-hide");
@@ -66,5 +68,19 @@ export default {
 
   log(message) {
     console.log(`[Livekit ${this.el.id}] ${message}`)
+  },
+
+  preventBodyScroll() {
+    this.originalBodyOverflow = document.body.style.overflow
+    this.originalBodyPaddingRight = document.body.style.paddingRight
+    
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    document.body.style.paddingRight = scrollBarWidth + 'px'
+  },
+
+  restoreBodyScroll() {
+    document.body.style.overflow = this.originalBodyOverflow || ''
+    document.body.style.paddingRight = this.originalBodyPaddingRight || ''
   }
 };
