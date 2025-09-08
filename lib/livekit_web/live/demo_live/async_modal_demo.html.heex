@@ -6,10 +6,6 @@
 >
   Open Async Modal
 </.button>
-<div class="mt-2">
-  Backend state: <span :if={@async_modal_open?}>Open</span>
-  <span :if={!@async_modal_open?}>Closed</span>
-</div>
 
 <.modal id="demo-form-modal" on_close={JS.push("close-async-modal")} class="relative z-10">
   <.modal_overlay

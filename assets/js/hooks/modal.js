@@ -4,7 +4,7 @@ export default {
       this.async = true
     }
 
-    this.el.addEventListener("livekit:modal:open", (e) => {
+    this.el.addEventListener("livekit:modal:open", (_e) => {
       this.log("modal:open")
       this.preventBodyScroll()
       this.maybeExecJS(this.el, "js-show");

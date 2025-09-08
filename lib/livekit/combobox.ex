@@ -41,6 +41,8 @@ defmodule Livekit.Combobox do
   attr :id, :string, default: ""
   attr :transition_enter, :any, default: nil
   attr :transition_leave, :any, default: nil
+  attr(:rest, :global)
+
 
   def combobox_options(assigns) do
     ~H"""
@@ -52,6 +54,7 @@ defmodule Livekit.Combobox do
       js-hide={JS.hide(transition: @transition_leave)}
       phx-click-away={JS.dispatch("livekit:combobox:reset")}
       data-livekit-ref="options"
+      {@rest}
     >
       {render_slot(@inner_block)}
     </div>
