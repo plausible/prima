@@ -5,3 +5,7 @@
 <div :if={@live_action == :simple_modal}>
   <.simple_modal_fixture />
 </div>
+
+<div :if={@live_action == :async_modal}>
+  <.async_modal_fixture {assigns} />
+</div>

@@ -1,7 +1,7 @@
 defmodule LivekitWeb.FixturesLive do
   @moduledoc false
   use LivekitWeb, :live_view
-  import Livekit.{Dropdown, Modal, Combobox}
+  import Livekit.{Dropdown, Modal}
   embed_templates "fixtures_live/*"
 
   @options [
