@@ -14,7 +14,8 @@ defmodule Livekit.MixProject do
       aliases: aliases(),
       deps: deps(),
       package: package(),
-      docs: docs()
+      docs: docs(),
+      compilers: [:phoenix_live_view] ++ Mix.compilers()
     ]
   end
 
@@ -37,6 +38,7 @@ defmodule Livekit.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:lazy_html, ">= 0.0.0", only: :test},
       {:phoenix, "~> 1.7.18"},
       {:phoenix_html, "~> 4.2"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},

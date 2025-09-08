@@ -13,10 +13,6 @@ export default {
     this.el.querySelector('input').addEventListener('input', this.onInput.bind(this))
   },
 
-  beforeUpdate() {
-    this.focusedOptionBeforeUpdate = this.currentlyFocusedOption()?.dataset.value
-  },
-
   updated() {
     const focusedDomNode = this.el.querySelector(`[role=option][data-value="${this.focusedOptionBeforeUpdate}"]`)
     if (this.focusedOptionBeforeUpdate && focusedDomNode) {
@@ -88,6 +84,7 @@ export default {
     if (this.mode === 'async') {
       const options = this.el.querySelector('[data-livekit-ref=options]')
       this.liveSocket.execJS(options, options.getAttribute('js-show'));
+      this.focusedOptionBeforeUpdate = this.currentlyFocusedOption()?.dataset.value
     } else {
       const q = e.target.value.toLowerCase()
       const allOptions = this.el.querySelectorAll('[role=option]')

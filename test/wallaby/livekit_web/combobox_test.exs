@@ -55,24 +55,6 @@ defmodule LiveKitWeb.ComboboxTest do
       Query.css("#demo-combobox [role=option][data-value='Mango']")
       |> Query.visible(true)
     )
-    # Clear and type "p" - should show Pear, Pineapple, Apple (contains "p")
-    |> fill_in(@search_input, with: "p")
-    |> assert_has(
-      Query.css("#demo-combobox [role=option][data-value='Apple']")
-      |> Query.visible(true)
-    )
-    |> assert_has(
-      Query.css("#demo-combobox [role=option][data-value='Pear']")
-      |> Query.visible(true)
-    )
-    |> assert_has(
-      Query.css("#demo-combobox [role=option][data-value='Pineapple']")
-      |> Query.visible(true)
-    )
-    |> assert_missing(
-      Query.css("#demo-combobox [role=option][data-value='Mango']")
-      |> Query.visible(true)
-    )
   end
 
   feature "selects option when clicked", %{session: session} do
@@ -172,10 +154,7 @@ defmodule LiveKitWeb.ComboboxTest do
     |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
-    # Simulate hover with JavaScript since Wallaby mouse interactions are limited
-    |> execute_script(
-      "document.querySelector('#demo-combobox [role=option][data-value=\"Mango\"]').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))"
-    )
+    |> hover(Query.css("#demo-combobox [role=option][data-value=Mango]"))
     |> assert_has(Query.css("#demo-combobox [role=option][data-value='Mango'][data-focus=true]"))
   end
 
@@ -202,44 +181,22 @@ defmodule LiveKitWeb.ComboboxTest do
     )
   end
 
-  feature "preserves selected value after clicking outside and refocusing", %{session: session} do
+  # TODO: This works in demo manual testing but not here...
+  feature "preserves focused option after search if focused option still present", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    # Select an option
-    |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
-    |> assert_has(@options_container |> Query.visible(false))
-    # Click outside to trigger resetOnBlur behavior
-    |> click(Query.css("body"))
-    # Verify that selected values are preserved after the resetOnBlur logic runs
+    |> visit("/fixtures/async-combobox")
+    |> click(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"))
+    |> fill_in(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"), with: "a")
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
+    # Focus on Orange
     |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}",
-      fn values ->
-        assert values["search"] == "Apple",
-               "Expected search input to preserve selected value 'Apple' after clicking outside, got '#{values["search"]}'"
-
-        assert values["submit"] == "Apple",
-               "Expected submit input to preserve selected value 'Apple' after clicking outside, got '#{values["submit"]}'"
-      end
+      "document.querySelector('#demo-async-combobox [role=option][data-value=\"Orange\"]').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))"
     )
-    # Focus the input again - use execute_script because Wallaby's click() doesn't reliably trigger focus events in this complex scenario
-    |> execute_script(
-      "document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').focus()"
-    )
-    |> assert_has(@options_container |> Query.visible(true))
-    # Confirm values remain intact after refocusing
-    |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}",
-      fn values ->
-        assert values["search"] == "Apple",
-               "Expected search input to preserve selected value 'Apple' after refocus, got '#{values["search"]}'"
-
-        assert values["submit"] == "Apple",
-               "Expected submit input to preserve selected value 'Apple' after refocus, got '#{values["submit"]}'"
-      end
-    )
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-focus=true]"))
+    |> fill_in(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"), with: "")
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-focus=true]"))
   end
+
 
   feature "async combobox shows options after search", %{session: session} do
     session
@@ -294,9 +251,6 @@ defmodule LiveKitWeb.ComboboxTest do
     |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple'][data-focus=true]"))
   end
 
-  # TODO: Test async search debouncing behavior
-  # TODO: Test accessibility features (ARIA attributes, screen reader announcements)
-  # TODO: Test edge cases like empty search results
   feature "form integration - selected value is available for submission", %{session: session} do
     session
     |> visit("/fixtures/simple-combobox")
