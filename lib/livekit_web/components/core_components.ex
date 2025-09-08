@@ -20,7 +20,6 @@ defmodule LivekitWeb.CoreComponents do
     """
   end
 
-
   attr :id, :string, default: "flash", doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
@@ -366,6 +365,7 @@ defmodule LivekitWeb.CoreComponents do
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
     )
   end
+
   @doc """
   Translates an error message using gettext.
   """

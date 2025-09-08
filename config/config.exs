@@ -27,8 +27,7 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ],
   library: [
-    args:
-      ~w(js/livekit.js --bundle --format=esm --target=es2017 --outdir=../priv/static/assets),
+    args: ~w(js/livekit.js --bundle --format=esm --target=es2017 --outdir=../priv/static/assets),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
@@ -57,5 +56,4 @@ config :phoenix, :json_library, Jason
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
 
-config :livekit, LivekitWeb.Endpoint,
-  server: true
+config :livekit, LivekitWeb.Endpoint, server: true

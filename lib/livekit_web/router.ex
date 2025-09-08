@@ -20,6 +20,10 @@ defmodule LivekitWeb.Router do
     live "/demo/modal/history", DemoLive, :modal_history
     live "/demo/combobox", DemoLive, :combobox
 
+    if Mix.env() in [:dev, :test] do
+      live "/test/dropdown", TestLive, :dropdown
+    end
+
     get "/", PageController, :home
   end
 end

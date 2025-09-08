@@ -43,7 +43,6 @@ defmodule Livekit.Combobox do
   attr :transition_leave, :any, default: nil
   attr(:rest, :global)
 
-
   def combobox_options(assigns) do
     ~H"""
     <div

@@ -1,23 +1,23 @@
 <div class="flex min-h-screen">
   <.sidebar current_action={@live_action} />
-  
+
   <main class="flex-1 bg-gray-50 min-h-screen">
     <div class="max-w-3xl px-12 py-12">
-    <div :if={@live_action == :introduction}>
-      <.introduction />
-    </div>
-    
-    <div :if={@live_action == :dropdown}>
-      <.dropdown_page />
-    </div>
-    
-    <div :if={@live_action == :modal or @live_action == :modal_history}>
-      <.modal_page {assigns} />
-    </div>
-    
-    <div :if={@live_action == :combobox}>
-      <.combobox_page {assigns} />
-    </div>
+      <div :if={@live_action == :introduction}>
+        <.introduction />
+      </div>
+
+      <div :if={@live_action == :dropdown}>
+        <.dropdown_page />
+      </div>
+
+      <div :if={@live_action == :modal or @live_action == :modal_history}>
+        <.modal_page {assigns} />
+      </div>
+
+      <div :if={@live_action == :combobox}>
+        <.combobox_page {assigns} />
+      </div>
     </div>
   </main>
 </div>

@@ -1,6 +1,4 @@
-<.button_link
-  patch={~p"/demo/modal/history"}
-  phx-click={Livekit.Modal.open("demo-history-modal")}>
+<.button_link patch={~p"/demo/modal/history"} phx-click={Livekit.Modal.open("demo-history-modal")}>
   Open Modal
 </.button_link>
 
@@ -77,11 +75,7 @@
           </div>
         </div>
         <div class="mt-5 sm:mt-6">
-          <.button
-            phx-click={Livekit.Modal.close()}
-            type="button"
-            class="w-full"
-          >
+          <.button phx-click={Livekit.Modal.close()} type="button" class="w-full">
             Go back to dashboard
           </.button>
         </div>

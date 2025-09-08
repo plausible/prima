@@ -24,8 +24,8 @@ defmodule Livekit.Dropdown do
     """
   end
 
-  attr :transition_enter, :any, default: {}
-  attr :transition_leave, :any, default: {}
+  attr :transition_enter, :any, default: nil
+  attr :transition_leave, :any, default: nil
   attr :class, :string, default: ""
   slot :inner_block, required: true
 

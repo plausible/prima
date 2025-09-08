@@ -35,16 +35,40 @@ defmodule LiveKitWeb.ComboboxTest do
     |> assert_has(@all_options |> Query.count(4))
     # Type "app" - should show Apple and Pineapple (both contain "app")
     |> fill_in(@search_input, with: "app")
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple']") |> Query.visible(true))
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pineapple']") |> Query.visible(true))
-    |> refute_has(Query.css("#demo-combobox [role=option][data-value='Pear']") |> Query.visible(true))
-    |> refute_has(Query.css("#demo-combobox [role=option][data-value='Mango']") |> Query.visible(true))
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Apple']")
+      |> Query.visible(true)
+    )
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Pineapple']")
+      |> Query.visible(true)
+    )
+    |> refute_has(
+      Query.css("#demo-combobox [role=option][data-value='Pear']")
+      |> Query.visible(true)
+    )
+    |> refute_has(
+      Query.css("#demo-combobox [role=option][data-value='Mango']")
+      |> Query.visible(true)
+    )
     # Clear and type "p" - should show Pear, Pineapple, Apple (contains "p")
     |> fill_in(@search_input, with: "p")
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple']") |> Query.visible(true))
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pear']") |> Query.visible(true))
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pineapple']") |> Query.visible(true))
-    |> refute_has(Query.css("#demo-combobox [role=option][data-value='Mango']") |> Query.visible(true))
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Apple']")
+      |> Query.visible(true)
+    )
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Pear']")
+      |> Query.visible(true)
+    )
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Pineapple']")
+      |> Query.visible(true)
+    )
+    |> refute_has(
+      Query.css("#demo-combobox [role=option][data-value='Mango']")
+      |> Query.visible(true)
+    )
   end
 
   feature "selects option when clicked", %{session: session} do
@@ -56,10 +80,16 @@ defmodule LiveKitWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
     # Both inputs are set the same way in JavaScript, so use execute_script for consistency
-    |> execute_script("return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}", fn values ->
-      assert values["search"] == "Apple", "Expected search input value to be 'Apple', got '#{values["search"]}'"
-      assert values["submit"] == "Apple", "Expected submit input value to be 'Apple', got '#{values["submit"]}'"
-    end)
+    |> execute_script(
+      "return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}",
+      fn values ->
+        assert values["search"] == "Apple",
+               "Expected search input value to be 'Apple', got '#{values["search"]}'"
+
+        assert values["submit"] == "Apple",
+               "Expected submit input value to be 'Apple', got '#{values["submit"]}'"
+      end
+    )
   end
 
   feature "navigates options with keyboard arrows", %{session: session} do
@@ -95,10 +125,16 @@ defmodule LiveKitWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
     # Both inputs are set the same way in JavaScript, so use execute_script for consistency
-    |> execute_script("return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}", fn values ->
-      assert values["search"] == "Pear", "Expected search input value to be 'Pear', got '#{values["search"]}'"
-      assert values["submit"] == "Pear", "Expected submit input value to be 'Pear', got '#{values["submit"]}'"
-    end)
+    |> execute_script(
+      "return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}",
+      fn values ->
+        assert values["search"] == "Pear",
+               "Expected search input value to be 'Pear', got '#{values["search"]}'"
+
+        assert values["submit"] == "Pear",
+               "Expected submit input value to be 'Pear', got '#{values["submit"]}'"
+      end
+    )
   end
 
   feature "selects focused option with Tab key", %{session: session} do
@@ -115,10 +151,16 @@ defmodule LiveKitWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
     # Both inputs are set the same way in JavaScript, so use execute_script for consistency
-    |> execute_script("return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}", fn values ->
-      assert values["search"] == "Mango", "Expected search input value to be 'Mango', got '#{values["search"]}'"
-      assert values["submit"] == "Mango", "Expected submit input value to be 'Mango', got '#{values["submit"]}'"
-    end)
+    |> execute_script(
+      "return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}",
+      fn values ->
+        assert values["search"] == "Mango",
+               "Expected search input value to be 'Mango', got '#{values["search"]}'"
+
+        assert values["submit"] == "Mango",
+               "Expected submit input value to be 'Mango', got '#{values["submit"]}'"
+      end
+    )
   end
 
   feature "focuses option on mouse hover", %{session: session} do
@@ -127,7 +169,9 @@ defmodule LiveKitWeb.ComboboxTest do
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Simulate hover with JavaScript since Wallaby mouse interactions are limited
-    |> execute_script("document.querySelector('#demo-combobox [role=option][data-value=\"Mango\"]').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))")
+    |> execute_script(
+      "document.querySelector('#demo-combobox [role=option][data-value=\"Mango\"]').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))"
+    )
     |> assert_has(Query.css("#demo-combobox [role=option][data-value='Mango'][data-focus=true]"))
   end
 
@@ -142,10 +186,16 @@ defmodule LiveKitWeb.ComboboxTest do
     |> click(Query.css("body"))
     |> assert_has(@options_container |> Query.visible(false))
     # Check that search input is reset but submit input remains empty
-    |> execute_script("return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}", fn values ->
-      assert values["search"] == "", "Expected search input to be reset to empty, got '#{values["search"]}'"
-      assert values["submit"] == "", "Expected submit input to remain empty, got '#{values["submit"]}'"
-    end)
+    |> execute_script(
+      "return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}",
+      fn values ->
+        assert values["search"] == "",
+               "Expected search input to be reset to empty, got '#{values["search"]}'"
+
+        assert values["submit"] == "",
+               "Expected submit input to remain empty, got '#{values["submit"]}'"
+      end
+    )
   end
 
   feature "preserves selected value after clicking outside and refocusing", %{session: session} do
@@ -159,20 +209,33 @@ defmodule LiveKitWeb.ComboboxTest do
     # Click outside to trigger resetOnBlur behavior
     |> click(Query.css("body"))
     # Verify that selected values are preserved after the resetOnBlur logic runs
-    |> execute_script("return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}", fn values ->
-      assert values["search"] == "Apple", "Expected search input to preserve selected value 'Apple' after clicking outside, got '#{values["search"]}'"
-      assert values["submit"] == "Apple", "Expected submit input to preserve selected value 'Apple' after clicking outside, got '#{values["submit"]}'"
-    end)
+    |> execute_script(
+      "return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}",
+      fn values ->
+        assert values["search"] == "Apple",
+               "Expected search input to preserve selected value 'Apple' after clicking outside, got '#{values["search"]}'"
+
+        assert values["submit"] == "Apple",
+               "Expected submit input to preserve selected value 'Apple' after clicking outside, got '#{values["submit"]}'"
+      end
+    )
     # Focus the input again - use execute_script because Wallaby's click() doesn't reliably trigger focus events in this complex scenario
-    |> execute_script("document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').focus()")
+    |> execute_script(
+      "document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').focus()"
+    )
     |> assert_has(@options_container |> Query.visible(true))
     # Confirm values remain intact after refocusing
-    |> execute_script("return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}", fn values ->
-      assert values["search"] == "Apple", "Expected search input to preserve selected value 'Apple' after refocus, got '#{values["search"]}'"
-      assert values["submit"] == "Apple", "Expected submit input to preserve selected value 'Apple' after refocus, got '#{values["submit"]}'"
-    end)
-  end
+    |> execute_script(
+      "return {search: document.querySelector('#demo-combobox input[data-livekit-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]').value}",
+      fn values ->
+        assert values["search"] == "Apple",
+               "Expected search input to preserve selected value 'Apple' after refocus, got '#{values["search"]}'"
 
+        assert values["submit"] == "Apple",
+               "Expected submit input to preserve selected value 'Apple' after refocus, got '#{values["submit"]}'"
+      end
+    )
+  end
 
   feature "async combobox shows options after search", %{session: session} do
     session
@@ -196,7 +259,9 @@ defmodule LiveKitWeb.ComboboxTest do
     |> visit("/demo/combobox")
     # Focus the async combobox and search for something that won't match any fruits
     |> click(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"))
-    |> fill_in(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"), with: "xyz")
+    |> fill_in(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"),
+      with: "xyz"
+    )
     # Options container should still be visible but contain no options
     |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
     # All fruit options should be filtered out
@@ -217,11 +282,14 @@ defmodule LiveKitWeb.ComboboxTest do
     |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple'][data-focus=true]"))
     # Arrow up from first should wrap to last (Pineapple)
     |> send_keys([:up_arrow])
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pineapple'][data-focus=true]"))
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Pineapple'][data-focus=true]")
+    )
     # Arrow down from last should wrap to first
     |> send_keys([:down_arrow])
     |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple'][data-focus=true]"))
   end
+
   # TODO: Test async search debouncing behavior
   # TODO: Test accessibility features (ARIA attributes, screen reader announcements)
   # TODO: Test edge cases like empty search results
@@ -234,9 +302,15 @@ defmodule LiveKitWeb.ComboboxTest do
     |> click(Query.css("#demo-combobox [role=option][data-value='Pear']"))
     |> assert_has(@options_container |> Query.visible(false))
     # Verify the form input has the correct name and value for submission
-    |> execute_script("const input = document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]'); return {name: input.name, value: input.value}", fn data ->
-      assert data["name"] == "demo-combobox[fruit]", "Expected form input name to be 'demo-combobox[fruit]', got '#{data["name"]}'"
-      assert data["value"] == "Pear", "Expected form input value to be 'Pear', got '#{data["value"]}'"
-    end)
+    |> execute_script(
+      "const input = document.querySelector('#demo-combobox input[data-livekit-ref=submit_input]'); return {name: input.name, value: input.value}",
+      fn data ->
+        assert data["name"] == "demo-combobox[fruit]",
+               "Expected form input name to be 'demo-combobox[fruit]', got '#{data["name"]}'"
+
+        assert data["value"] == "Pear",
+               "Expected form input value to be 'Pear', got '#{data["value"]}'"
+      end
+    )
   end
 end

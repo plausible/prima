@@ -2,9 +2,9 @@
   <div class="border-b border-gray-200 mb-6">
     <h1>Modal</h1>
   </div>
-  
+
   <p>
-    A fully-managed dialog component with accessibility features and smooth transitions. Modals can be 
+    A fully-managed dialog component with accessibility features and smooth transitions. Modals can be
     loaded asynchronously from the server, integrated with forms, and paired with live navigation for deep linking capabilities.
   </p>
 
@@ -24,11 +24,12 @@
   <Livekit.CodeBlock.code_block file="modal/minimal_modal.heex" />
 
   <p>
-    Call <code>Livekit.Modal.open("modal-id")</code> to show the modal. For simple modals like this, the open/closed state is fully managed by Livekit.
+    Call <code>Livekit.Modal.open("modal-id")</code>
+    to show the modal. For simple modals like this, the open/closed state is fully managed by Livekit.
   </p>
 
   <h2>Advanced Usage</h2>
-  
+
   <h3>Async Loading</h3>
   <p>
     Asynchronous modals enable server-side data fetching before displaying content, providing a smooth user experience for dynamic modal content. This pattern is ideal when you need to load user-specific data, perform database queries, or fetch content that depends on user actions.
@@ -39,16 +40,23 @@
   </div>
 
   <p>
-    The async modal pattern uses a two-phase approach. Initially, only the modal backdrop and loading spinner are shown via <code>.modal_loader</code>. The actual modal content in <code>.modal_panel</code> is rendered conditionally based on the liveview assigns once the async loading operation is complete.
+    The async modal pattern uses a two-phase approach. Initially, only the modal backdrop and loading spinner are shown via <code>.modal_loader</code>. The actual modal content in
+    <code>.modal_panel</code>
+    is rendered conditionally based on the liveview assigns once the async loading operation is complete.
   </p>
 
   <Livekit.CodeBlock.code_block file="modal/async_modal.heex" />
 
   <p>
-    To implement async modals, your trigger button needs a <code>phx-click</code> event that pushes to your LiveView (e.g., <code>JS.push("load-modal-data")</code>) in addition to calling <code>Livekit.Modal.open("modal-id")</code>. The modal component requires an <code>on_close</code> handler to synchronize the closed state with your LiveView.
+    To implement async modals, your trigger button needs a <code>phx-click</code>
+    event that pushes to your LiveView (e.g., <code>JS.push("load-modal-data")</code>) in addition to calling <code>Livekit.Modal.open("modal-id")</code>. The modal component requires an
+    <code>on_close</code>
+    handler to synchronize the closed state with your LiveView.
   </p>
 
-  <p>In your LiveView's handle_event, perform your async operations (database queries, API calls, etc.) and render the modal content conditionally after updating the liveview assigns.</p>
+  <p>
+    In your LiveView's handle_event, perform your async operations (database queries, API calls, etc.) and render the modal content conditionally after updating the liveview assigns.
+  </p>
 
   <p>
     This pattern works particularly well for edit forms, detail views, confirmation dialogs with dynamic content, and any scenario where modal content depends on server-side state or computations.
@@ -64,7 +72,8 @@
   </div>
 
   <p>
-    Use the <code>on_close</code> attribute to chain JavaScript commands with LiveView events for backend state synchronization.
+    Use the <code>on_close</code>
+    attribute to chain JavaScript commands with LiveView events for backend state synchronization.
   </p>
 
   <Livekit.CodeBlock.code_block file="modal/form_modal_template.heex" />
@@ -83,5 +92,4 @@
   </p>
 
   <Livekit.CodeBlock.code_block file="modal/history_routes.ex" />
-
 </div>

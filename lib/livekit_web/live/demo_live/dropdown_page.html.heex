@@ -2,7 +2,7 @@
   <div class="border-b border-gray-200 mb-6">
     <h1>Dropdown</h1>
   </div>
-  
+
   <p>
     An interactive menu component with keyboard navigation and customizable positioning. Dropdowns provide
     flexible menu interfaces with full accessibility support, including arrow key navigation, automatic focus management,
@@ -11,7 +11,10 @@
 
   <h2>Quick Start</h2>
   <p>
-    The most basic dropdown requires three components: <code>.dropdown</code>, <code>.dropdown_trigger</code>, and <code>.dropdown_menu</code> with <code>.dropdown_item</code> elements.
+    The most basic dropdown requires three components: <code>.dropdown</code>, <code>.dropdown_trigger</code>, and
+    <code>.dropdown_menu</code>
+    with <code>.dropdown_item</code>
+    elements.
   </p>
 
   <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
@@ -25,10 +28,13 @@
   </p>
 
   <h2>Styling</h2>
-  
+
   <h3>Highlighting Active Items</h3>
   <p>
-    Use the <code>data-focus</code> data attribute selector to style dropdown items based on their focus state. The <code>data-focus:</code> variant applies when an item has focus (via keyboard navigation or hover), responding to keyboard navigation and hover states.
+    Use the <code>data-focus</code>
+    data attribute selector to style dropdown items based on their focus state. The
+    <code>data-focus:</code>
+    variant applies when an item has focus (via keyboard navigation or hover), responding to keyboard navigation and hover states.
   </p>
 
   <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
@@ -36,13 +42,15 @@
   </div>
 
   <p>
-    Items without focus use their default styling, while items with the <code>data-focus</code> attribute get the enhanced styling. This creates a clear visual indication of the currently focused item without requiring separate styles for unfocused states.
+    Items without focus use their default styling, while items with the <code>data-focus</code>
+    attribute get the enhanced styling. This creates a clear visual indication of the currently focused item without requiring separate styles for unfocused states.
   </p>
 
   <Livekit.CodeBlock.code_block file="dropdown/styled_dropdown.heex" />
 
   <p>
-    You can customize the focused state styling by modifying the <code>data-focus:</code> classes. Common patterns include background color changes, text color variations, and subtle animations to enhance the user experience.
+    You can customize the focused state styling by modifying the <code>data-focus:</code>
+    classes. Common patterns include background color changes, text color variations, and subtle animations to enhance the user experience.
   </p>
 
   <h3>Menu Positioning</h3>
@@ -55,9 +63,10 @@
   </div>
 
   <p>
-    Use classes like <code>origin-top-left</code>, <code>origin-top-right</code>, or <code>origin-bottom-left</code> to control the transform origin for smooth animations. Combine with <code>left-0</code>, <code>right-0</code>, or other positioning utilities as needed.
+    Use classes like <code>origin-top-left</code>, <code>origin-top-right</code>, or
+    <code>origin-bottom-left</code>
+    to control the transform origin for smooth animations. Combine with <code>left-0</code>, <code>right-0</code>, or other positioning utilities as needed.
   </p>
 
   <Livekit.CodeBlock.code_block file="dropdown/positioned_dropdown.heex" />
-
 </div>

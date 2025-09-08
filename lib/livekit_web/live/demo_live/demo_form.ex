@@ -25,11 +25,7 @@ defmodule LivekitWeb.DemoLive.DemoForm do
           />
         </div>
         <div class="mt-5 sm:mt-6">
-          <.button
-            phx-click="close-form-modal"
-            type="button"
-            class="w-full"
-          >
+          <.button phx-click="close-form-modal" type="button" class="w-full">
             <svg
               class="w-4 h-4 mr-2 text-white/50 animate-spin fill-white hidden phx-click-loading:inline-block"
               viewBox="0 0 100 100"

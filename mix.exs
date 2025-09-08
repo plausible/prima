@@ -72,7 +72,7 @@ defmodule Livekit.MixProject do
       "docs.serve": ["docs", "cmd open doc/index.html"],
       test: [
         "esbuild default",
-        "test",
+        "test"
       ]
     ]
   end
@@ -92,14 +92,14 @@ defmodule Livekit.MixProject do
       homepage_url: @source_url,
       extras: ["README.md"],
       groups_for_modules: [
-        "Components": [
+        Components: [
           Livekit.Modal,
           Livekit.Dropdown,
           Livekit.Combobox
         ]
       ],
       groups_for_extras: [
-        "Guides": ["README.md"]
+        Guides: ["README.md"]
       ]
     ]
   end

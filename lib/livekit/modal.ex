@@ -216,10 +216,7 @@ defmodule Livekit.Modal do
       phx-key="escape"
       phx-click-away={close()}
     >
-      <.focus_wrap
-        id={@id}
-        class={@class}
-      >
+      <.focus_wrap id={@id} class={@class}>
         {render_slot(@inner_block)}
       </.focus_wrap>
     </div>
