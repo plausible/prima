@@ -18,7 +18,7 @@ defmodule Livekit.Dropdown do
 
   def dropdown_trigger(assigns) do
     ~H"""
-    <button class={@class} type="button" aria-haspopup="menu">
+    <button class={@class} type="button" aria-haspopup="menu" aria-expanded="false">
       {render_slot(@inner_block)}
     </button>
     """
@@ -37,8 +37,6 @@ defmodule Livekit.Dropdown do
       js-toggle={JS.toggle(in: @transition_enter, out: @transition_leave)}
       js-hide={JS.hide(transition: @transition_leave)}
       role="menu"
-      aria-labelledby="headlessui-menu-button-:Rf6:"
-      aria-activedescendant="headlessui-menu-item-:rc:"
     >
       {render_slot(@inner_block)}
     </div>
