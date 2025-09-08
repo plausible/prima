@@ -182,7 +182,9 @@ defmodule LiveKitWeb.ComboboxTest do
   end
 
   # TODO: This works in demo manual testing but not here...
-  feature "preserves focused option after search if focused option still present", %{session: session} do
+  feature "preserves focused option after search if focused option still present", %{
+    session: session
+  } do
     session
     |> visit("/fixtures/async-combobox")
     |> click(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"))
@@ -192,11 +194,14 @@ defmodule LiveKitWeb.ComboboxTest do
     |> execute_script(
       "document.querySelector('#demo-async-combobox [role=option][data-value=\"Orange\"]').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))"
     )
-    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-focus=true]"))
+    |> assert_has(
+      Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-focus=true]")
+    )
     |> fill_in(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"), with: "")
-    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-focus=true]"))
+    |> assert_has(
+      Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-focus=true]")
+    )
   end
-
 
   feature "async combobox shows options after search", %{session: session} do
     session
