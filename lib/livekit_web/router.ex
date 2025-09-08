@@ -24,6 +24,8 @@ defmodule LivekitWeb.Router do
       live "/fixtures/dropdown", FixturesLive, :dropdown
       live "/fixtures/simple-modal", FixturesLive, :simple_modal
       live "/fixtures/async-modal", FixturesLive, :async_modal
+      live "/fixtures/simple-combobox", FixturesLive, :simple_combobox
+      live "/fixtures/async-combobox", FixturesLive, :async_combobox
     end
 
     get "/", PageController, :home

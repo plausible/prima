@@ -2,6 +2,10 @@ defmodule LiveKitWeb.ComboboxTest do
   use ExUnit.Case, async: true
   use Wallaby.Feature
 
+  def assert_missing(session, query) do
+    assert_has(session, query |> Query.count(0))
+  end
+
   @combobox_container Query.css("#demo-combobox")
   @search_input Query.css("#demo-combobox input[data-livekit-ref=search_input]")
   @options_container Query.css("#demo-combobox [data-livekit-ref=options]")
@@ -9,7 +13,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "shows combobox options when input is focused", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> assert_has(@combobox_container)
     |> assert_has(@search_input)
     |> assert_has(@options_container |> Query.visible(false))
@@ -20,7 +24,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "hides options when clicking outside combobox", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> click(Query.css("body"))
@@ -29,7 +33,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "filters options based on search input", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(@all_options |> Query.count(4))
@@ -43,11 +47,11 @@ defmodule LiveKitWeb.ComboboxTest do
       Query.css("#demo-combobox [role=option][data-value='Pineapple']")
       |> Query.visible(true)
     )
-    |> refute_has(
+    |> assert_missing(
       Query.css("#demo-combobox [role=option][data-value='Pear']")
       |> Query.visible(true)
     )
-    |> refute_has(
+    |> assert_missing(
       Query.css("#demo-combobox [role=option][data-value='Mango']")
       |> Query.visible(true)
     )
@@ -65,7 +69,7 @@ defmodule LiveKitWeb.ComboboxTest do
       Query.css("#demo-combobox [role=option][data-value='Pineapple']")
       |> Query.visible(true)
     )
-    |> refute_has(
+    |> assert_missing(
       Query.css("#demo-combobox [role=option][data-value='Mango']")
       |> Query.visible(true)
     )
@@ -73,7 +77,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "selects option when clicked", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
@@ -94,7 +98,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "navigates options with keyboard arrows", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(@all_options |> Query.count(4))
@@ -113,7 +117,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "selects focused option with Enter key", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Navigate to second option
@@ -139,7 +143,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "selects focused option with Tab key", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Navigate to third option
@@ -165,7 +169,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "focuses option on mouse hover", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Simulate hover with JavaScript since Wallaby mouse interactions are limited
@@ -177,7 +181,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "resets search input when losing focus without selection", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Type something in search input without selecting
@@ -200,7 +204,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "preserves selected value after clicking outside and refocusing", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Select an option
@@ -239,7 +243,7 @@ defmodule LiveKitWeb.ComboboxTest do
 
   feature "async combobox shows options after search", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/async-combobox")
     # Focus on the async combobox and type a search term
     |> click(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"))
     |> fill_in(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"), with: "an")
@@ -249,14 +253,14 @@ defmodule LiveKitWeb.ComboboxTest do
     |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
     |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Banana']"))
     # Should not find options that don't contain "an" (Cherry, Kiwi, Grapefruit)
-    |> refute_has(Query.css("#demo-async-combobox [role=option][data-value='Cherry']"))
-    |> refute_has(Query.css("#demo-async-combobox [role=option][data-value='Kiwi']"))
-    |> refute_has(Query.css("#demo-async-combobox [role=option][data-value='Grapefruit']"))
+    |> assert_missing(Query.css("#demo-async-combobox [role=option][data-value='Cherry']"))
+    |> assert_missing(Query.css("#demo-async-combobox [role=option][data-value='Kiwi']"))
+    |> assert_missing(Query.css("#demo-async-combobox [role=option][data-value='Grapefruit']"))
   end
 
   feature "async combobox handles search with no results", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/async-combobox")
     # Focus the async combobox and search for something that won't match any fruits
     |> click(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"))
     |> fill_in(Query.css("#demo-async-combobox input[data-livekit-ref=search_input]"),
@@ -265,16 +269,16 @@ defmodule LiveKitWeb.ComboboxTest do
     # Options container should still be visible but contain no options
     |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
     # All fruit options should be filtered out
-    |> refute_has(Query.css("#demo-async-combobox [role=option][data-value='Cherry']"))
-    |> refute_has(Query.css("#demo-async-combobox [role=option][data-value='Kiwi']"))
-    |> refute_has(Query.css("#demo-async-combobox [role=option][data-value='Grapefruit']"))
-    |> refute_has(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
-    |> refute_has(Query.css("#demo-async-combobox [role=option][data-value='Banana']"))
+    |> assert_missing(Query.css("#demo-async-combobox [role=option][data-value='Cherry']"))
+    |> assert_missing(Query.css("#demo-async-combobox [role=option][data-value='Kiwi']"))
+    |> assert_missing(Query.css("#demo-async-combobox [role=option][data-value='Grapefruit']"))
+    |> assert_missing(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
+    |> assert_missing(Query.css("#demo-async-combobox [role=option][data-value='Banana']"))
   end
 
   feature "keyboard navigation wrapping (last to first, first to last)", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(@all_options |> Query.count(4))
@@ -295,7 +299,7 @@ defmodule LiveKitWeb.ComboboxTest do
   # TODO: Test edge cases like empty search results
   feature "form integration - selected value is available for submission", %{session: session} do
     session
-    |> visit("/demo/combobox")
+    |> visit("/fixtures/simple-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Select an option

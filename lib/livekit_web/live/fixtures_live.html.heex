@@ -9,3 +9,11 @@
 <div :if={@live_action == :async_modal}>
   <.async_modal_fixture {assigns} />
 </div>
+
+<div :if={@live_action == :simple_combobox}>
+  <.simple_combobox_fixture />
+</div>
+
+<div :if={@live_action == :async_combobox}>
+  <.async_combobox_fixture {assigns} />
+</div>

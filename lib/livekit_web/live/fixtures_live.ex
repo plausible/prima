@@ -1,7 +1,7 @@
 defmodule LivekitWeb.FixturesLive do
   @moduledoc false
   use LivekitWeb, :live_view
-  import Livekit.{Dropdown, Modal}
+  import Livekit.{Dropdown, Modal, Combobox}
   embed_templates "fixtures_live/*"
 
   @options [
@@ -16,7 +16,6 @@ defmodule LivekitWeb.FixturesLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(form_modal_open?: false)
       |> assign(async_modal_open?: false)
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
       |> stream(:suggestions, [])
@@ -27,16 +26,6 @@ defmodule LivekitWeb.FixturesLive do
   @impl true
   def handle_params(_params, _uri, socket) do
     {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("open-form-modal", _params, socket) do
-    {:noreply, assign(socket, form_modal_open?: true)}
-  end
-
-  @impl true
-  def handle_event("close-form-modal", _params, socket) do
-    {:noreply, assign(socket, form_modal_open?: false)}
   end
 
   @impl true

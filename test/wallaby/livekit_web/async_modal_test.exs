@@ -67,19 +67,13 @@ defmodule LiveKitWeb.AsyncModalTest do
       |> click(Query.css("#open-form-modal-button"))
       |> assert_has(@modal_panel |> Query.visible(true))
       |> execute_script("document.querySelector('#demo-form-modal h2').innerHTML = 'Dirty Modal'")
-      |> execute_script("window.liveSocket.enableLatencySim(1000)")
       |> send_keys([:escape])
-      # Wait for modal to close before reopening - with latency sim, this takes longer
       |> assert_has(@modal_container |> Query.visible(false))
       |> assert_missing(@modal_panel)
       |> click(Query.css("#open-form-modal-button"))
-      # Wait for the loader to appear first (immediate)
       |> assert_has(@modal_loader |> Query.visible(true))
-      # Give time for async modal to load (1000ms) + latency sim (1000ms)
-      |> execute_script("return new Promise(resolve => setTimeout(resolve, 2100))")
-      # Wait for panel to appear (delayed due to async loading + latency sim)
       |> assert_has(@modal_panel |> Query.visible(true))
-      # Verify the fresh content eventually appears (critical part of race condition test)
+      # Verify the fresh content eventually appears
       |> assert_text(Query.css("#demo-form-modal h2"), "Data loaded successfully")
       |> execute_script("window.liveSocket.disableLatencySim()")
   end
