@@ -8,7 +8,7 @@ defmodule LiveKitWeb.SimpleModalTest do
 
   feature "shows modal when button is clicked", %{session: session} do
     session
-    |> visit("/demo/modal")
+    |> visit("/fixtures/simple-modal")
     |> assert_has(@modal_container |> Query.visible(false))
     |> assert_has(@modal_overlay |> Query.visible(false))
     |> assert_has(@modal_panel |> Query.visible(false))
@@ -20,7 +20,7 @@ defmodule LiveKitWeb.SimpleModalTest do
 
   feature "closes modal when user clicks close button", %{session: session} do
     session
-    |> visit("/demo/modal")
+    |> visit("/fixtures/simple-modal")
     |> click(Query.css("#simple-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
     |> assert_has(@modal_overlay |> Query.visible(true))
@@ -33,7 +33,7 @@ defmodule LiveKitWeb.SimpleModalTest do
 
   feature "closes modal when user hits escape key", %{session: session} do
     session
-    |> visit("/demo/modal")
+    |> visit("/fixtures/simple-modal")
     |> click(Query.css("#simple-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
     |> assert_has(@modal_overlay |> Query.visible(true))
@@ -46,7 +46,7 @@ defmodule LiveKitWeb.SimpleModalTest do
 
   feature "prevents body scroll when modal is open", %{session: session} do
     session
-    |> visit("/demo/modal")
+    |> visit("/fixtures/simple-modal")
     |> execute_script("return document.body.style.overflow", fn overflow ->
       assert overflow == ""
     end)

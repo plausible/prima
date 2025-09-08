@@ -22,6 +22,7 @@ defmodule LivekitWeb.Router do
 
     if Mix.env() in [:dev, :test] do
       live "/fixtures/dropdown", FixturesLive, :dropdown
+      live "/fixtures/simple-modal", FixturesLive, :simple_modal
     end
 
     get "/", PageController, :home

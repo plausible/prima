@@ -1,0 +1,31 @@
+<div id="simple-modal">
+  <.button type="button" phx-click={Livekit.Modal.open("demo-modal")}>
+    Open Modal
+  </.button>
+
+  <.modal id="demo-modal">
+    <.modal_overlay />
+
+    <div>
+      <div>
+        <.modal_panel id="demo-modal-panel">
+          <div>
+            <button
+              phx-click={Livekit.Modal.close()}
+              testing-ref="close-button"
+            >
+              Close
+            </button>
+            <h3 id="demo-modal-title">Good news</h3>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+          </div>
+          <div>
+            <.button phx-click={Livekit.Modal.close()} type="button">
+              Got it
+            </.button>
+          </div>
+        </.modal_panel>
+      </div>
+    </div>
+  </.modal>
+</div>
