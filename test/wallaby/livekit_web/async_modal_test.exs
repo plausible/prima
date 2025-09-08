@@ -29,8 +29,15 @@ defmodule LiveKitWeb.AsyncModalTest do
   end
 
   feature "closes modal when user clicks close button", %{session: session} do
-    # TODO
-    assert true
+    session
+    |> visit("/fixtures/async-modal")
+    |> click(Query.css("#open-form-modal-button"))
+    |> assert_has(@modal_panel |> Query.visible(true))
+    |> click(Query.css("[testing-ref=close-button]"))
+    |> assert_has(@modal_container |> Query.visible(false))
+    |> assert_has(@modal_overlay |> Query.visible(false))
+    # Panel is removed from the DOM when the modal is closed
+    |> assert_missing(@modal_panel)
   end
 
   feature "closes modal when user hits escape key", %{session: session} do
@@ -61,20 +68,19 @@ defmodule LiveKitWeb.AsyncModalTest do
 
   feature "race condition - when old modal is closed and new one opened quickly, only new one is shown",
           %{session: session} do
-    session =
-      session
-      |> visit("/fixtures/async-modal")
-      |> click(Query.css("#open-form-modal-button"))
-      |> assert_has(@modal_panel |> Query.visible(true))
-      |> execute_script("document.querySelector('#demo-form-modal h2').innerHTML = 'Dirty Modal'")
-      |> send_keys([:escape])
-      |> assert_has(@modal_container |> Query.visible(false))
-      |> assert_missing(@modal_panel)
-      |> click(Query.css("#open-form-modal-button"))
-      |> assert_has(@modal_loader |> Query.visible(true))
-      |> assert_has(@modal_panel |> Query.visible(true))
-      # Verify the fresh content eventually appears
-      |> assert_text(Query.css("#demo-form-modal h2"), "Data loaded successfully")
-      |> execute_script("window.liveSocket.disableLatencySim()")
+    session
+    |> visit("/fixtures/async-modal")
+    |> click(Query.css("#open-form-modal-button"))
+    |> assert_has(@modal_panel |> Query.visible(true))
+    |> execute_script("document.querySelector('#demo-form-modal h2').innerHTML = 'Dirty Modal'")
+    |> send_keys([:escape])
+    |> assert_has(@modal_container |> Query.visible(false))
+    |> assert_missing(@modal_panel)
+    |> click(Query.css("#open-form-modal-button"))
+    |> assert_has(@modal_loader |> Query.visible(true))
+    |> assert_has(@modal_panel |> Query.visible(true))
+    # Verify the fresh content eventually appears
+    |> assert_text(Query.css("#demo-form-modal h2"), "Data loaded successfully")
+    |> execute_script("window.liveSocket.disableLatencySim()")
   end
 end
