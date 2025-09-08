@@ -126,6 +126,15 @@ end
 
 ## Wallaby Testing Tips
 - For hidden elements in Wallaby, use Query.visible(false)
+- **Performance optimization**: Avoid `refute_has()` calls as they wait for Wallaby's default 3-second timeout. Use the `assert_missing/2` helper instead:
+  ```elixir
+  # Usage - fast and semantic:
+  |> assert_missing(Query.css("#element[data-focus]"))
+  
+  # Instead of slow:
+  |> refute_has(Query.css("#element[data-focus]"))  # waits 3000ms
+  ```
+- **JavaScript debugging**: Enable JS console logging with `Application.put_env(:wallaby, :js_logger, nil)` - more convenient than modifying config files
 
 ## Development Guidelines
 

@@ -1,8 +1,8 @@
-defmodule LivekitWeb.TestLive do
+defmodule LivekitWeb.FixturesLive do
   @moduledoc false
   use LivekitWeb, :live_view
   import Livekit.{Dropdown, Modal, Combobox}
-  embed_templates "test_live/*"
+  embed_templates "fixtures_live/*"
 
   @options [
     "Cherry",

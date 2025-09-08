@@ -21,7 +21,7 @@ defmodule LivekitWeb.Router do
     live "/demo/combobox", DemoLive, :combobox
 
     if Mix.env() in [:dev, :test] do
-      live "/test/dropdown", TestLive, :dropdown
+      live "/fixtures/dropdown", FixturesLive, :dropdown
     end
 
     get "/", PageController, :home
