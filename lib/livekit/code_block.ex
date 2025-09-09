@@ -12,45 +12,15 @@ defmodule Livekit.CodeBlock do
 
                    detect_language = fn file_path ->
                      case Path.extname(file_path) do
-                       ".ex" -> :elixir
-                       ".exs" -> :elixir
-                       ".heex" -> :heex
-                       ".html" -> :html
-                       ".htm" -> :html
-                       _ -> :elixir
+                       ".ex" -> "elixir"
+                       ".heex" -> "heex"
                      end
                    end
 
                    highlight_code = fn content, language ->
-                     try do
-                       case language do
-                         :elixir ->
-                           Makeup.highlight(content, lexer: Makeup.Lexers.ElixirLexer)
-
-                         :html ->
-                           Makeup.highlight(content, lexer: Makeup.Lexers.HTMLLexer)
-
-                         :heex ->
-                           Makeup.highlight(content, lexer: Makeup.Lexers.HTMLLexer)
-
-                         _ ->
-                           escaped_code =
-                             content
-                             |> Phoenix.HTML.html_escape()
-                             |> Phoenix.HTML.safe_to_string()
-
-                           ~s(<pre class="highlight"><code>#{escaped_code}</code></pre>)
-                       end
-                     rescue
-                       _e ->
-                         escaped_code =
-                           content |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
-
-                         ~s(<pre class="highlight"><code>#{escaped_code}</code></pre>)
-                     end
+                    Autumn.highlight!(content, language: language, theme: "vscode_dark")
                    end
 
-                   if File.exists?(examples_path) do
                      Path.wildcard(Path.join([examples_path, "**", "*"]))
                      |> Enum.filter(&File.regular?/1)
                      |> Enum.map(fn file_path ->
@@ -61,9 +31,6 @@ defmodule Livekit.CodeBlock do
                        {relative_path, highlighted_content}
                      end)
                      |> Map.new()
-                   else
-                     %{}
-                   end
                  )
 
   # Add external resources for automatic recompilation during development
@@ -84,7 +51,7 @@ defmodule Livekit.CodeBlock do
     assigns = assign(assigns, :highlighted_code, highlighted_content)
 
     ~H"""
-    <div class={["livekit-code-block", @class]}>
+    <div class={["text-sm", @class]}>
       {raw(@highlighted_code)}
     </div>
     """
@@ -103,15 +70,5 @@ defmodule Livekit.CodeBlock do
       highlighted_content ->
         highlighted_content
     end
-  end
-
-  @doc """
-  Returns a list of all available code example files.
-
-  Useful for development and debugging.
-  """
-  def list_examples do
-    Map.keys(@code_examples)
-    |> Enum.sort()
   end
 end

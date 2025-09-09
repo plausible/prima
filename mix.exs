@@ -48,13 +48,10 @@ defmodule Livekit.MixProject do
       {:tailwind, "~> 0.3.0", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
+      {:autumn, "~> 0.5"},
       {:wallaby, "~> 0.30", runtime: false, only: :test},
       {:tidewave, "~> 0.1", only: :dev},
-      {:makeup, "~> 1.2"},
-      {:makeup_elixir, "~> 0.16"},
-      {:makeup_html, "~> 0.1"},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false}
     ]
   end
