@@ -50,7 +50,7 @@ defmodule LivekitWeb.DemoLive.DemoForm do
   end
 
   def handle_event("save", _params, socket) do
-    send(self(), "close-form-modal")
+    send(self(), :close_form_modal)
 
     {:noreply, socket}
   end

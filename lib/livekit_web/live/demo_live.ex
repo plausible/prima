@@ -41,8 +41,7 @@ defmodule LivekitWeb.DemoLive do
 
   @impl true
   def handle_event("open-async-modal", _params, socket) do
-    Process.send_after(self(), :show_async_modal, 1000)
-    {:noreply, assign(socket, async_modal_open?: false)}
+    {:noreply, assign(socket, async_modal_open?: true)}
   end
 
   @impl true
@@ -63,7 +62,7 @@ defmodule LivekitWeb.DemoLive do
   end
 
   @impl true
-  def handle_info(:show_async_modal, socket) do
-    {:noreply, assign(socket, async_modal_open?: true)}
+  def handle_info(:close_form_modal, socket) do
+    {:noreply, assign(socket, form_modal_open?: false)}
   end
 end

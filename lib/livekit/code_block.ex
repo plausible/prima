@@ -18,7 +18,7 @@ defmodule Livekit.CodeBlock do
                    end
 
                    highlight_code = fn content, language ->
-                    Autumn.highlight!(content, language: language, theme: "vscode_dark")
+                    Autumn.highlight!(content, language: language, theme: "molokai")
                    end
 
                      Path.wildcard(Path.join([examples_path, "**", "*"]))
