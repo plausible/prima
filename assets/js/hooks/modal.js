@@ -4,9 +4,13 @@ export default {
       this.async = true
     }
 
+    this.setupAriaRelationships()
+
     this.el.addEventListener("livekit:modal:open", (_e) => {
       this.log("modal:open")
+      this.storeFocusedElement()
       this.preventBodyScroll()
+      this.el.removeAttribute('aria-hidden')
       this.maybeExecJS(this.el, "js-show");
       this.maybeExecJS(this.ref("modal-overlay"), "js-show");
       if (this.async) {
@@ -21,6 +25,15 @@ export default {
         this.log("modal:panel-mounted")
         this.maybeExecJS(this.ref("modal-loader"), "js-hide");
         this.maybeExecJS(this.ref("modal-panel"), "js-show");
+        // Set up ARIA relationships for async modal since title element is now available
+        this.setupAriaRelationships()
+        // Ensure aria-hidden is removed for async modals 
+        this.el.removeAttribute('aria-hidden')
+        
+        // Set up focus management for the async panel
+        this.ref("modal-panel").addEventListener("phx:show-end", (_e) => {
+          this.focusFirstElement()
+        });
       })
 
       this.el.addEventListener("livekit:modal:panel-removed", (_e) => {
@@ -45,7 +58,16 @@ export default {
     this.ref("modal-overlay").addEventListener("phx:hide-end", (_e) => {
       this.log("modal:overlay-hide-end")
       this.maybeExecJS(this.el, "js-hide");
+      this.el.setAttribute('aria-hidden', 'true')
+      this.restoreFocusedElement()
     });
+
+    // Focus management - when panel is shown, focus first element
+    if (this.ref("modal-panel")) {
+      this.ref("modal-panel").addEventListener("phx:show-end", (_e) => {
+        this.focusFirstElement()
+      });
+    }
 
     if (Object.hasOwn(this.el.dataset, 'livekitShow')) {
       this.el.dispatchEvent(new Event('livekit:modal:open'))
@@ -82,5 +104,40 @@ export default {
   restoreBodyScroll() {
     document.body.style.overflow = this.originalBodyOverflow || ''
     document.body.style.paddingRight = this.originalBodyPaddingRight || ''
+  },
+
+  setupAriaRelationships() {
+    const modalId = this.el.id
+    const titleElement = this.ref('modal-title')
+    
+    if (titleElement) {
+      // Generate ID for the title if it doesn't have one
+      if (!titleElement.id) {
+        titleElement.id = `${modalId}-title`
+      }
+      
+      // Set aria-labelledby on the modal container
+      this.el.setAttribute('aria-labelledby', titleElement.id)
+    }
+  },
+
+  storeFocusedElement() {
+    this.previouslyFocusedElement = document.activeElement
+  },
+
+  restoreFocusedElement() {
+    if (this.previouslyFocusedElement && this.previouslyFocusedElement.focus) {
+      this.previouslyFocusedElement.focus()
+    }
+  },
+
+  focusFirstElement() {
+    const focusableElements = this.ref("modal-panel").querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus()
+    }
   }
 };

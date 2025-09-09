@@ -103,6 +103,8 @@ defmodule Livekit.Modal do
       phx-hook="Modal"
       class={@class}
       role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
     >
       {render_slot(@inner_block)}
     </div>
@@ -274,5 +276,34 @@ defmodule Livekit.Modal do
   """
   def close() do
     JS.dispatch("livekit:modal:close")
+  end
+
+  attr :class, :string, default: ""
+  slot :inner_block, required: true
+
+  @doc """
+  A title component for the modal.
+
+  This component provides the accessible title for the modal dialog.
+  It automatically generates an ID that will be referenced by the modal
+  container's aria-labelledby attribute.
+
+  ## Attributes
+
+    * `class` - CSS classes for styling the title
+
+  ## Example
+
+      <.modal_title class="text-lg font-semibold">
+        Confirm Action
+      </.modal_title>
+
+  """
+  def modal_title(assigns) do
+    ~H"""
+    <h3 livekit-ref="modal-title" class={@class}>
+      {render_slot(@inner_block)}
+    </h3>
+    """
   end
 end

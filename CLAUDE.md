@@ -17,24 +17,22 @@ mix assets.setup        # Install Tailwind and esbuild
 
 ### Development
 ```bash
+# Check if server is already running at localhost:4000 before starting
 mix phx.server          # Start development server (demo app at localhost:4000)
 mix assets.build        # Build assets for development
 ```
 
 ### Testing
 ```bash
-mix test                # Run ExUnit tests (includes esbuild default build)
+mix test                    # Run ExUnit tests (includes esbuild default build)
+mix test path/to/file       # Run ExUnit tests for a single file
+mix test path/to/file:123   # Run a single ExUnit test starting on the given line number
 ```
 
 For Wallaby browser tests specifically:
 - Tests are in `test/wallaby/livekit_web/`
 - ChromeDriver-based integration tests for UI interactions
 - Run with standard `mix test` command
-
-### Build & Deploy
-```bash
-mix assets.deploy       # Minified production build with digest
-```
 
 ## Architecture & Component Patterns
 

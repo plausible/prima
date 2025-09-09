@@ -66,13 +66,30 @@ defmodule LiveKitWeb.AsyncModalTest do
     |> assert_missing(@modal_panel)
   end
 
+  feature "async modal has proper ARIA attributes and relationships", %{session: session} do
+    session
+    |> visit("/fixtures/async-modal")
+    # Modal should have proper ARIA attributes even when hidden
+    |> assert_has(Query.css("#demo-form-modal[role=dialog][aria-modal=true][aria-hidden=true]") |> Query.visible(false))
+    |> click(Query.css("#open-form-modal-button"))
+    |> assert_has(@modal_overlay |> Query.visible(true))
+    # Wait for async content to load
+    |> assert_has(@modal_panel |> Query.visible(true))
+    # Modal should have aria-labelledby pointing to auto-generated title ID
+    |> assert_has(Query.css("#demo-form-modal[aria-labelledby='demo-form-modal-title']"))
+    # The title element should exist with matching ID
+    |> assert_has(Query.css("#demo-form-modal-title"))
+    # Modal should not have aria-hidden when open
+    |> assert_has(Query.css("#demo-form-modal:not([aria-hidden])"))
+  end
+
   feature "race condition - when old modal is closed and new one opened quickly, only new one is shown",
           %{session: session} do
     session
     |> visit("/fixtures/async-modal")
     |> click(Query.css("#open-form-modal-button"))
     |> assert_has(@modal_panel |> Query.visible(true))
-    |> execute_script("document.querySelector('#demo-form-modal h2').innerHTML = 'Dirty Modal'")
+    |> execute_script("document.querySelector('#demo-form-modal [livekit-ref=\"modal-title\"]').innerHTML = 'Dirty Modal'")
     |> send_keys([:escape])
     |> assert_has(@modal_container |> Query.visible(false))
     |> assert_missing(@modal_panel)
@@ -80,7 +97,7 @@ defmodule LiveKitWeb.AsyncModalTest do
     |> assert_has(@modal_loader |> Query.visible(true))
     |> assert_has(@modal_panel |> Query.visible(true))
     # Verify the fresh content eventually appears
-    |> assert_text(Query.css("#demo-form-modal h2"), "Data loaded successfully")
+    |> assert_text(Query.css("#demo-form-modal [livekit-ref=\"modal-title\"]"), "Data loaded successfully")
     |> execute_script("window.liveSocket.disableLatencySim()")
   end
 end

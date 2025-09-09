@@ -61,4 +61,55 @@ defmodule LiveKitWeb.SimpleModalTest do
       assert overflow == ""
     end)
   end
+
+  feature "modal has proper ARIA attributes", %{session: session} do
+    session
+    |> visit("/fixtures/simple-modal")
+    # Modal should have role="dialog" and aria-modal="true" even when hidden
+    |> assert_has(Query.css("#simple-modal #demo-modal[role=dialog][aria-modal=true]") |> Query.visible(false))
+  end
+
+  feature "auto-generates ARIA label relationships", %{session: session} do
+    session
+    |> visit("/fixtures/simple-modal")
+    |> click(Query.css("#simple-modal button"))
+    |> assert_has(@modal_container |> Query.visible(true))
+    # Modal should have auto-generated aria-labelledby pointing to modal title
+    |> assert_has(Query.css("#simple-modal #demo-modal[aria-labelledby='demo-modal-title']"))
+    # The title element should exist with matching ID
+    |> assert_has(Query.css("#simple-modal #demo-modal-title"))
+  end
+
+  feature "focus management when modal opens and closes", %{session: session} do
+    session
+    |> visit("/fixtures/simple-modal")
+    # Focus the trigger button first
+    |> execute_script("document.querySelector('#simple-modal button').focus()")
+    |> assert_has(Query.css("#simple-modal button:focus"))
+    |> click(Query.css("#simple-modal button"))
+    |> assert_has(@modal_container |> Query.visible(true))
+    # Focus should move into the modal (to the first focusable element - close button)
+    |> assert_has(Query.css("#simple-modal [testing-ref=close-button]:focus"))
+    # Close with escape key
+    |> send_keys([:escape])
+    |> assert_has(@modal_container |> Query.visible(false))
+    # Focus should return to the trigger button
+    |> assert_has(Query.css("#simple-modal button:focus"))
+  end
+
+  feature "manages aria-hidden state for background content", %{session: session} do
+    session
+    |> visit("/fixtures/simple-modal")
+    # Initially modal should be hidden
+    |> assert_has(Query.css("#simple-modal #demo-modal[aria-hidden=true]") |> Query.visible(false))
+    |> click(Query.css("#simple-modal button"))
+    |> assert_has(@modal_container |> Query.visible(true))
+    # When modal is open, it should not have aria-hidden
+    |> assert_has(Query.css("#simple-modal #demo-modal:not([aria-hidden])"))
+    # Close modal
+    |> send_keys([:escape])
+    |> assert_has(@modal_container |> Query.visible(false))
+    # Modal should have aria-hidden=true again when closed
+    |> assert_has(Query.css("#simple-modal #demo-modal[aria-hidden=true]") |> Query.visible(false))
+  end
 end
