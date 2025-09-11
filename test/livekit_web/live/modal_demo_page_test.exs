@@ -45,7 +45,7 @@ defmodule LivekitWeb.ModalDemoPageTest do
     test "applies syntax highlighting to code examples", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/demo/modal")
 
-      assert html =~ "highlight"
+      assert html =~ "athl"
       assert html =~ "livekit-code-block"
     end
   end

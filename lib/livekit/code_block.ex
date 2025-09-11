@@ -18,7 +18,7 @@ defmodule Livekit.CodeBlock do
                    end
 
                    highlight_code = fn content, language ->
-                    Autumn.highlight!(content, language: language, theme: "molokai")
+                    Autumn.highlight!(content, language: language, formatter: {:html_inline, theme: "molokai"})
                    end
 
                      Path.wildcard(Path.join([examples_path, "**", "*"]))
@@ -51,7 +51,7 @@ defmodule Livekit.CodeBlock do
     assigns = assign(assigns, :highlighted_code, highlighted_content)
 
     ~H"""
-    <div class={["text-sm", @class]}>
+    <div class={["livekit-code-block", "text-sm", @class]}>
       {raw(@highlighted_code)}
     </div>
     """
