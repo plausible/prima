@@ -279,6 +279,7 @@ defmodule Livekit.Modal do
   end
 
   attr :class, :string, default: ""
+  attr :as, :any, default: nil
   slot :inner_block, required: true
 
   @doc """
@@ -291,6 +292,7 @@ defmodule Livekit.Modal do
   ## Attributes
 
     * `class` - CSS classes for styling the title
+    * `as` - Custom function component to render instead of default h3 tag
 
   ## Example
 
@@ -298,12 +300,24 @@ defmodule Livekit.Modal do
         Confirm Action
       </.modal_title>
 
+      # With custom component
+      <.modal_title as={&my_custom_heading/1}>
+        Custom Title
+      </.modal_title>
+
   """
   def modal_title(assigns) do
-    ~H"""
-    <h3 livekit-ref="modal-title" class={@class}>
-      {render_slot(@inner_block)}
-    </h3>
-    """
+    assigns = assign(assigns, %{
+      "livekit-ref": "modal-title"
+    })
+
+    if assigns[:as] do
+      {as, assigns} = Map.pop(assigns, :as)
+      as.(assigns)
+    else
+      dynamic_tag(Map.merge(assigns, %{
+        tag_name: "h3"
+      }))
+    end
   end
 end
