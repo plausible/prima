@@ -14,14 +14,24 @@ defmodule Livekit.Dropdown do
   end
 
   attr :class, :string, default: ""
+  attr :as, :any, default: nil
   slot :inner_block, required: true
 
   def dropdown_trigger(assigns) do
-    ~H"""
-    <button class={@class} type="button" aria-haspopup="menu" aria-expanded="false">
-      {render_slot(@inner_block)}
-    </button>
-    """
+    assigns = assign(assigns, %{
+      "aria-haspopup": "menu",
+      "aria-expanded": "false",
+    })
+
+    if assigns[:as] do
+      {as, assigns} = Map.pop(assigns, :as)
+      as.(assigns)
+    else
+      dynamic_tag(Map.merge(assigns, %{
+        tag_name: "button",
+        type: "button"
+        }))
+    end
   end
 
   attr :transition_enter, :any, default: nil

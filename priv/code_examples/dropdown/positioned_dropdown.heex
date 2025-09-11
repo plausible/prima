@@ -1,7 +1,7 @@
 <!-- Left-aligned dropdown -->
 <div class="relative">
   <.dropdown id="left-dropdown">
-    <.dropdown_trigger class="px-4 py-2 bg-blue-600 text-white rounded">
+    <.dropdown_trigger as={&button/1}>
       Left Menu
     </.dropdown_trigger>
     
@@ -19,7 +19,7 @@
 <!-- Right-aligned dropdown -->
 <div class="relative">
   <.dropdown id="right-dropdown">
-    <.dropdown_trigger class="px-4 py-2 bg-green-600 text-white rounded">
+    <.dropdown_trigger as={&button/1}>
       Right Menu
     </.dropdown_trigger>
     
@@ -37,7 +37,7 @@
 <!-- Bottom-aligned dropdown -->
 <div class="relative">
   <.dropdown id="bottom-dropdown">
-    <.dropdown_trigger class="px-4 py-2 bg-purple-600 text-white rounded">
+    <.dropdown_trigger as={&button/1}>
       Bottom Menu
     </.dropdown_trigger>
     

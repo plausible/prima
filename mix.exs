@@ -89,7 +89,7 @@ defmodule Livekit.MixProject do
       main: "Livekit",
       source_url: @source_url,
       homepage_url: @source_url,
-      extras: ["README.md"],
+      extras: ["README.md", "tutorial.livemd"],
       groups_for_modules: [
         Components: [
           Livekit.Modal,
