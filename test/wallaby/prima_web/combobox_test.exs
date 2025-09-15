@@ -181,23 +181,29 @@ defmodule PrimaWeb.ComboboxTest do
     )
   end
 
-  # TODO: This works in demo manual testing but not here...
   feature "preserves focused option after search if focused option still present", %{
     session: session
   } do
     session
     |> visit("/fixtures/async-combobox")
+    # Start with search that will show Orange as the focused option
     |> click(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"))
-    |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"), with: "a")
-    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
-    # Focus on Orange
-    |> execute_script(
-      "document.querySelector('#demo-async-combobox [role=option][data-value=\"Orange\"]').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))"
+    |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"),
+      with: "Orange"
     )
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
+    # Orange should be automatically focused as the only/first option
     |> assert_has(
       Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-focus=true]")
     )
-    |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"), with: "")
+    # Now search for "a" which should match multiple fruits but Orange should stay focused
+    |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"), with: "a")
+    # Wait for async search to complete and verify Orange is still focused (preserved)
+    # Even though there are multiple options including Banana, Orange should remain focused
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Banana']"))
     |> assert_has(
       Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-focus=true]")
     )
