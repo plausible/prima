@@ -39,7 +39,7 @@ For Wallaby browser tests specifically:
 ### Core Architecture
 The library follows a three-layer pattern for each component:
 1. **Phoenix Component** (`lib/prima/*.ex`) - Server-side rendering and LiveView integration
-2. **JavaScript Hook** (`assets/js/hooks/*.js`) - Client-side behavior and DOM manipulation  
+2. **JavaScript Hook** (`assets/js/hooks/*.js`) - Client-side behavior and DOM manipulation
 3. **CSS Integration** - Tailwind-based styling with standard data attribute selectors
 
 ### Component Structure
@@ -47,7 +47,7 @@ The library follows a three-layer pattern for each component:
 # Standard component pattern
 defmodule Prima.ComponentName do
   use Phoenix.Component
-  
+
   # Main component function with slots and attributes
   attr :id, :string, required: true
   slot :inner_block, required: true
@@ -76,11 +76,11 @@ end
 ### Testing Strategy
 - **ExUnit tests** for simple component logic and rendering
 - **Wallaby tests** for complex UI interactions and components with JavaScript behavior, especially:
-  - Modal transitions and overlay behavior  
+  - Modal transitions and overlay behavior
   - Dropdown keyboard navigation and interactions
   - Combobox search and selection behavior
   - Form integration and race conditions
-  
+
 **Important**: Due to the interactive nature of Prima components (heavy JavaScript integration, DOM manipulation, keyboard navigation), prefer Wallaby tests over unit tests for component testing. Components rely on Phoenix LiveView hooks and client-side behavior that can only be properly tested in a browser environment.
 
 ### Frontend Build System
@@ -95,7 +95,7 @@ end
 - Structured with sidebar navigation and separate component pages:
   - `/demo` - Introduction page
   - `/demo/dropdown` - Dropdown component demos
-  - `/demo/modal` - Modal component demos  
+  - `/demo/modal` - Modal component demos
   - `/demo/combobox` - Combobox component demos
   - `/demo/history-modal` - History modal demos
 - Serves as development environment and living documentation
@@ -128,7 +128,7 @@ end
   ```elixir
   # Usage - fast and semantic:
   |> assert_missing(Query.css("#element[data-focus]"))
-  
+
   # Instead of slow:
   |> refute_has(Query.css("#element[data-focus]"))  # waits 3000ms
   ```

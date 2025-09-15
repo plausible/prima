@@ -27,9 +27,9 @@ export default {
         this.maybeExecJS(this.ref("modal-panel"), "js-show");
         // Set up ARIA relationships for async modal since title element is now available
         this.setupAriaRelationships()
-        // Ensure aria-hidden is removed for async modals 
+        // Ensure aria-hidden is removed for async modals
         this.el.removeAttribute('aria-hidden')
-        
+
         // Set up focus management for the async panel
         this.ref("modal-panel").addEventListener("phx:show-end", (_e) => {
           this.focusFirstElement()
@@ -95,7 +95,7 @@ export default {
   preventBodyScroll() {
     this.originalBodyOverflow = document.body.style.overflow
     this.originalBodyPaddingRight = document.body.style.paddingRight
-    
+
     const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
     document.body.style.overflow = 'hidden'
     document.body.style.paddingRight = scrollBarWidth + 'px'
@@ -109,13 +109,13 @@ export default {
   setupAriaRelationships() {
     const modalId = this.el.id
     const titleElement = this.ref('modal-title')
-    
+
     if (titleElement) {
       // Generate ID for the title if it doesn't have one
       if (!titleElement.id) {
         titleElement.id = `${modalId}-title`
       }
-      
+
       // Set aria-labelledby on the modal container
       this.el.setAttribute('aria-labelledby', titleElement.id)
     }
@@ -135,7 +135,7 @@ export default {
     const focusableElements = this.ref("modal-panel").querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     )
-    
+
     if (focusableElements.length > 0) {
       focusableElements[0].focus()
     }

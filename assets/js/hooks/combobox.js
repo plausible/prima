@@ -76,7 +76,7 @@ export default {
   getMode() {
     const searchInput = this.el.querySelector('input[data-prima-ref=search_input]')
     const hasPhxChange = searchInput.hasAttribute('phx-change')
-    
+
     return hasPhxChange ? 'async' : 'frontend'
   },
 
@@ -122,7 +122,7 @@ export default {
     const options = this.el.querySelector('[data-prima-ref=options]')
     this.liveSocket.execJS(options, options.getAttribute('js-show'));
     this.el.querySelector('input[data-prima-ref=search_input]').select()
-    
+
     this.focusFirstOption()
 
     const handleClickOutside = (event) => {
@@ -131,7 +131,7 @@ export default {
         document.removeEventListener('click', handleClickOutside)
       }
     }
-    
+
     document.addEventListener('click', handleClickOutside)
   },
 
