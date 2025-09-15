@@ -40,6 +40,7 @@ Use components in your templates:
   <:title>Modal Title</:title>
   <p>Modal content goes here</p>
 </Prima.Modal.modal>
+```
 
 ## Development
 
