@@ -18,19 +18,22 @@ defmodule Prima.Dropdown do
   slot :inner_block, required: true
 
   def dropdown_trigger(assigns) do
-    assigns = assign(assigns, %{
-      "aria-haspopup": "menu",
-      "aria-expanded": "false",
-    })
+    assigns =
+      assign(assigns, %{
+        "aria-haspopup": "menu",
+        "aria-expanded": "false"
+      })
 
     if assigns[:as] do
       {as, assigns} = Map.pop(assigns, :as)
       as.(assigns)
     else
-      dynamic_tag(Map.merge(assigns, %{
-        tag_name: "button",
-        type: "button"
-        }))
+      dynamic_tag(
+        Map.merge(assigns, %{
+          tag_name: "button",
+          type: "button"
+        })
+      )
     end
   end
 

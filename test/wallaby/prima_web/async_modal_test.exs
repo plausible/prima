@@ -70,7 +70,10 @@ defmodule PrimaWeb.AsyncModalTest do
     session
     |> visit("/fixtures/async-modal")
     # Modal should have proper ARIA attributes even when hidden
-    |> assert_has(Query.css("#demo-form-modal[role=dialog][aria-modal=true][aria-hidden=true]") |> Query.visible(false))
+    |> assert_has(
+      Query.css("#demo-form-modal[role=dialog][aria-modal=true][aria-hidden=true]")
+      |> Query.visible(false)
+    )
     |> click(Query.css("#open-form-modal-button"))
     |> assert_has(@modal_overlay |> Query.visible(true))
     # Wait for async content to load
@@ -89,7 +92,9 @@ defmodule PrimaWeb.AsyncModalTest do
     |> visit("/fixtures/async-modal")
     |> click(Query.css("#open-form-modal-button"))
     |> assert_has(@modal_panel |> Query.visible(true))
-    |> execute_script("document.querySelector('#demo-form-modal [prima-ref=\"modal-title\"]').innerHTML = 'Dirty Modal'")
+    |> execute_script(
+      "document.querySelector('#demo-form-modal [prima-ref=\"modal-title\"]').innerHTML = 'Dirty Modal'"
+    )
     |> send_keys([:escape])
     |> assert_has(@modal_container |> Query.visible(false))
     |> assert_missing(@modal_panel)
@@ -97,7 +102,10 @@ defmodule PrimaWeb.AsyncModalTest do
     |> assert_has(@modal_loader |> Query.visible(true))
     |> assert_has(@modal_panel |> Query.visible(true))
     # Verify the fresh content eventually appears
-    |> assert_text(Query.css("#demo-form-modal [prima-ref=\"modal-title\"]"), "Data loaded successfully")
+    |> assert_text(
+      Query.css("#demo-form-modal [prima-ref=\"modal-title\"]"),
+      "Data loaded successfully"
+    )
     |> execute_script("window.liveSocket.disableLatencySim()")
   end
 end

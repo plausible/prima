@@ -173,11 +173,18 @@ defmodule PrimaWeb.DropdownTest do
     session
     |> visit("/fixtures/dropdown")
     # Trigger button should have auto-generated ID and aria-controls
-    |> assert_has(Query.css("#dropdown [aria-haspopup=menu][id='dropdown-trigger'][aria-controls='dropdown-menu']"))
+    |> assert_has(
+      Query.css(
+        "#dropdown [aria-haspopup=menu][id='dropdown-trigger'][aria-controls='dropdown-menu']"
+      )
+    )
     # Menu should have matching ID referenced by aria-controls (check with visible false since menu is initially hidden)
     |> assert_has(Query.css("#dropdown [role=menu][id='dropdown-menu']") |> Query.visible(false))
     # Menu should reference trigger via aria-labelledby
-    |> assert_has(Query.css("#dropdown [role=menu][aria-labelledby='dropdown-trigger']") |> Query.visible(false))
+    |> assert_has(
+      Query.css("#dropdown [role=menu][aria-labelledby='dropdown-trigger']")
+      |> Query.visible(false)
+    )
   end
 
   feature "auto-generates menuitem IDs and manages aria-activedescendant", %{session: session} do

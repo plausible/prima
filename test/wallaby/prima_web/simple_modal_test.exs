@@ -66,7 +66,10 @@ defmodule PrimaWeb.SimpleModalTest do
     session
     |> visit("/fixtures/simple-modal")
     # Modal should have role="dialog" and aria-modal="true" even when hidden
-    |> assert_has(Query.css("#simple-modal #demo-modal[role=dialog][aria-modal=true]") |> Query.visible(false))
+    |> assert_has(
+      Query.css("#simple-modal #demo-modal[role=dialog][aria-modal=true]")
+      |> Query.visible(false)
+    )
   end
 
   feature "auto-generates ARIA label relationships", %{session: session} do
@@ -101,7 +104,10 @@ defmodule PrimaWeb.SimpleModalTest do
     session
     |> visit("/fixtures/simple-modal")
     # Initially modal should be hidden
-    |> assert_has(Query.css("#simple-modal #demo-modal[aria-hidden=true]") |> Query.visible(false))
+    |> assert_has(
+      Query.css("#simple-modal #demo-modal[aria-hidden=true]")
+      |> Query.visible(false)
+    )
     |> click(Query.css("#simple-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
     # When modal is open, it should not have aria-hidden
@@ -110,6 +116,9 @@ defmodule PrimaWeb.SimpleModalTest do
     |> send_keys([:escape])
     |> assert_has(@modal_container |> Query.visible(false))
     # Modal should have aria-hidden=true again when closed
-    |> assert_has(Query.css("#simple-modal #demo-modal[aria-hidden=true]") |> Query.visible(false))
+    |> assert_has(
+      Query.css("#simple-modal #demo-modal[aria-hidden=true]")
+      |> Query.visible(false)
+    )
   end
 end

@@ -18,19 +18,22 @@ defmodule Prima.CodeBlock do
                    end
 
                    highlight_code = fn content, language ->
-                    Autumn.highlight!(content, language: language, formatter: {:html_inline, theme: "molokai"})
+                     Autumn.highlight!(content,
+                       language: language,
+                       formatter: {:html_inline, theme: "molokai"}
+                     )
                    end
 
-                     Path.wildcard(Path.join([examples_path, "**", "*"]))
-                     |> Enum.filter(&File.regular?/1)
-                     |> Enum.map(fn file_path ->
-                       relative_path = Path.relative_to(file_path, examples_path)
-                       content = File.read!(file_path)
-                       language = detect_language.(relative_path)
-                       highlighted_content = highlight_code.(content, language)
-                       {relative_path, highlighted_content}
-                     end)
-                     |> Map.new()
+                   Path.wildcard(Path.join([examples_path, "**", "*"]))
+                   |> Enum.filter(&File.regular?/1)
+                   |> Enum.map(fn file_path ->
+                     relative_path = Path.relative_to(file_path, examples_path)
+                     content = File.read!(file_path)
+                     language = detect_language.(relative_path)
+                     highlighted_content = highlight_code.(content, language)
+                     {relative_path, highlighted_content}
+                   end)
+                   |> Map.new()
                  )
 
   # Add external resources for automatic recompilation during development

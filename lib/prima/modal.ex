@@ -307,17 +307,20 @@ defmodule Prima.Modal do
 
   """
   def modal_title(assigns) do
-    assigns = assign(assigns, %{
-      "prima-ref": "modal-title"
-    })
+    assigns =
+      assign(assigns, %{
+        "prima-ref": "modal-title"
+      })
 
     if assigns[:as] do
       {as, assigns} = Map.pop(assigns, :as)
       as.(assigns)
     else
-      dynamic_tag(Map.merge(assigns, %{
-        tag_name: "h3"
-      }))
+      dynamic_tag(
+        Map.merge(assigns, %{
+          tag_name: "h3"
+        })
+      )
     end
   end
 end
