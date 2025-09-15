@@ -21,20 +21,7 @@ def deps do
 end
 ```
 
-## Quick Start
-
-1. Add Prima to your dependencies and run `mix deps.get`
-
-2. Import Prima components in your Phoenix application:
-
-```elixir
-# In your application's components or live views
-import Prima.Modal
-import Prima.Dropdown
-import Prima.Combobox
-```
-
-3. Include Prima's JavaScript hooks in your application:
+Include Prima's JavaScript hooks in your application:
 
 ```javascript
 // assets/js/app.js
@@ -46,22 +33,13 @@ let liveSocket = new LiveSocket("/live", Socket, {
 })
 ```
 
-4. Use components in your templates:
+Use components in your templates:
 
 ```heex
-<.modal id="my-modal">
+<Prima.Modal.modal id="my-modal">
   <:title>Modal Title</:title>
   <p>Modal content goes here</p>
-</.modal>
-
-<.dropdown id="my-dropdown">
-  <:trigger>
-    <button>Open Menu</button>
-  </:trigger>
-  <:item>Option 1</:item>
-  <:item>Option 2</:item>
-</.dropdown>
-```
+</Prima.Modal.modal>
 
 ## Development
 
