@@ -132,7 +132,16 @@ end
   # Instead of slow:
   |> refute_has(Query.css("#element[data-focus]"))  # waits 3000ms
   ```
-- **JavaScript debugging**: Enable JS console logging with `Application.put_env(:wallaby, :js_logger, nil)` - more convenient than modifying config files
+- **JavaScript debugging**: Enable JS console logging in a test by adding `Application.put_env(:wallaby, :js_logger, :stdio)` at the beginning of the test feature. This allows you to see `console.log()` output from JavaScript hooks during test execution. More convenient than modifying config files:
+  ```elixir
+  feature "my test with logging", %{session: session} do
+    Application.put_env(:wallaby, :js_logger, :stdio)
+
+    session
+    |> visit("/some-page")
+    # ... rest of test
+  end
+  ```
 
 ## Development Guidelines
 
