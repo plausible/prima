@@ -81,7 +81,7 @@ export default {
     const items = this.getAllMenuItems()
     const currentIndex = this.getCurrentFocusIndex(items)
     const targetIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1
-    this.setActive(items[targetIndex])
+    this.setFocus(items[targetIndex])
   },
 
   navigateDown(e) {
@@ -89,7 +89,7 @@ export default {
     const items = this.getAllMenuItems()
     const currentIndex = this.getCurrentFocusIndex(items)
     const targetIndex = currentIndex === items.length - 1 ? 0 : currentIndex + 1
-    this.setActive(items[targetIndex])
+    this.setFocus(items[targetIndex])
   },
 
   handleEscape() {
@@ -107,7 +107,7 @@ export default {
 
   handleMouseOver(e) {
     if (e.target.getAttribute('role') === 'menuitem') {
-      this.setActive(e.target)
+      this.setFocus(e.target)
     }
   },
 
@@ -129,7 +129,7 @@ export default {
     return Array.prototype.findIndex.call(items, item => item.hasAttribute('data-focus'))
   },
 
-  setActive(el) {
+  setFocus(el) {
     this.clearFocus()
     el.setAttribute('data-focus', '')
     this.refs.menu.setAttribute('aria-activedescendant', el.id)
