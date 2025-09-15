@@ -1,12 +1,12 @@
-defmodule Livekit.MixProject do
+defmodule Prima.MixProject do
   use Mix.Project
-  @source_url "https://github.com/plausible/livekit"
+  @source_url "https://github.com/plausible/prima"
 
   def project do
     [
-      name: "Livekit",
+      name: "Prima",
       description: "Unstyled, accessible components for LiveView applications",
-      app: :livekit,
+      app: :prima,
       version: "0.1.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -24,7 +24,7 @@ defmodule Livekit.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Livekit.Application, []},
+      mod: {Prima.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -80,21 +80,21 @@ defmodule Livekit.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      exclude_patterns: ["lib/livekit_web.ex", "lib/livekit_web"]
+      exclude_patterns: ["lib/prima_web.ex", "lib/prima_web"]
     ]
   end
 
   defp docs do
     [
-      main: "Livekit",
+      main: "Prima",
       source_url: @source_url,
       homepage_url: @source_url,
       extras: ["README.md", "tutorial.livemd"],
       groups_for_modules: [
         Components: [
-          Livekit.Modal,
-          Livekit.Dropdown,
-          Livekit.Combobox
+          Prima.Modal,
+          Prima.Dropdown,
+          Prima.Combobox
         ]
       ],
       groups_for_extras: [

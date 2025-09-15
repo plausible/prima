@@ -6,7 +6,7 @@ export default {
 
     this.setupAriaRelationships()
 
-    this.el.addEventListener("livekit:modal:open", (_e) => {
+    this.el.addEventListener("prima:modal:open", (_e) => {
       this.log("modal:open")
       this.storeFocusedElement()
       this.preventBodyScroll()
@@ -21,7 +21,7 @@ export default {
     });
 
     if (this.async) {
-      this.el.addEventListener("livekit:modal:panel-mounted", (_e) => {
+      this.el.addEventListener("prima:modal:panel-mounted", (_e) => {
         this.log("modal:panel-mounted")
         this.maybeExecJS(this.ref("modal-loader"), "js-hide");
         this.maybeExecJS(this.ref("modal-panel"), "js-show");
@@ -36,22 +36,22 @@ export default {
         });
       })
 
-      this.el.addEventListener("livekit:modal:panel-removed", (_e) => {
+      this.el.addEventListener("prima:modal:panel-removed", (_e) => {
         this.log("modal:panel-removed")
         if (!this.panelIsDirty()) {
-          this.el.dispatchEvent(new Event('livekit:modal:close'))
+          this.el.dispatchEvent(new Event('prima:modal:close'))
         }
       });
     }
 
-    this.el.addEventListener("livekit:modal:close", (_e) => {
+    this.el.addEventListener("prima:modal:close", (_e) => {
       this.log("modal:close")
       this.restoreBodyScroll()
       this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
       this.maybeExecJS(this.ref("modal-panel"), "js-hide");
       this.maybeExecJS(this.ref("modal-loader"), "js-hide");
       if (this.async) {
-        this.ref("modal-panel").dataset.livekitDirty = true
+        this.ref("modal-panel").dataset.primaDirty = true
       }
     });
 
@@ -69,8 +69,8 @@ export default {
       });
     }
 
-    if (Object.hasOwn(this.el.dataset, 'livekitShow')) {
-      this.el.dispatchEvent(new Event('livekit:modal:open'))
+    if (Object.hasOwn(this.el.dataset, 'primaShow')) {
+      this.el.dispatchEvent(new Event('prima:modal:open'))
     }
   },
 
@@ -81,15 +81,15 @@ export default {
   },
 
   panelIsDirty() {
-    return this.ref('modal-panel') && this.ref("modal-panel").dataset.livekitDirty
+    return this.ref('modal-panel') && this.ref("modal-panel").dataset.primaDirty
   },
 
   ref(ref) {
-    return this.el.querySelector(`[livekit-ref="${ref}"]`);
+    return this.el.querySelector(`[prima-ref="${ref}"]`);
   },
 
   log(message) {
-    console.log(`[Livekit ${this.el.id}] ${message}`)
+    console.log(`[Prima ${this.el.id}] ${message}`)
   },
 
   preventBodyScroll() {

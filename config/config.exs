@@ -8,13 +8,13 @@
 import Config
 
 # Configures the endpoint
-config :livekit, LivekitWeb.Endpoint,
+config :prima, PrimaWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [
-    formats: [html: LivekitWeb.ErrorHTML, json: LivekitWeb.ErrorJSON],
+    formats: [html: PrimaWeb.ErrorHTML, json: PrimaWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Livekit.PubSub,
+  pubsub_server: Prima.PubSub,
   live_view: [signing_salt: "sz6rMHwA"]
 
 # Configure esbuild (the version is required)
@@ -27,7 +27,7 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ],
   library: [
-    args: ~w(js/livekit.js --bundle --format=esm --target=es2017 --outdir=../priv/static/assets),
+    args: ~w(js/prima.js --bundle --format=esm --target=es2017 --outdir=../priv/static/assets),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
@@ -53,4 +53,4 @@ config :logger, :console,
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
 
-config :livekit, LivekitWeb.Endpoint, server: true
+config :prima, PrimaWeb.Endpoint, server: true

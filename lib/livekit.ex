@@ -1,8 +1,8 @@
-defmodule Livekit do
+defmodule Prima do
   @moduledoc """
-  Livekit is a Phoenix LiveView component library providing unstyled, accessible UI components.
+  Prima is a Phoenix LiveView component library providing unstyled, accessible UI components.
 
-  Livekit is designed as a reusable library that developers can integrate into Phoenix
+  Prima is designed as a reusable library that developers can integrate into Phoenix
   applications and style according to their needs. The library follows a philosophy of
   being unstyled by default with maximum customization potential, accessibility-first
   design, and deep Phoenix LiveView integration.
@@ -15,7 +15,7 @@ defmodule Livekit do
 
   ## Available Components
 
-  Livekit currently provides the following components:
+  Prima currently provides the following components:
 
   ### Modal
   A fully-managed dialog component with accessibility features and smooth transitions.
@@ -38,22 +38,22 @@ defmodule Livekit do
 
   Each component follows a three-layer pattern:
 
-  1. **Phoenix Component** (`lib/livekit/*.ex`) - Server-side rendering and LiveView integration
+  1. **Phoenix Component** (`lib/prima/*.ex`) - Server-side rendering and LiveView integration
   2. **JavaScript Hook** (`assets/js/hooks/*.js`) - Client-side behavior and DOM manipulation
-  3. **CSS Integration** - Tailwind-based styling with custom `livekit` plugin
+  3. **CSS Integration** - Tailwind-based styling with custom `prima` plugin
 
   ## Getting Started
 
-  Add Livekit to your Phoenix application:
+  Add Prima to your Phoenix application:
 
-      {:livekit, "~> 0.1.0"}
+      {:prima, "~> 0.1.0"}
 
   Include the JavaScript hooks in your application:
 
-      import { LivekitHooks } from "livekit"
+      import { PrimaHooks } from "prima"
 
       let liveSocket = new LiveSocket("/live", Socket, {
-        hooks: LivekitHooks,
+        hooks: PrimaHooks,
         // ... other options
       })
   """

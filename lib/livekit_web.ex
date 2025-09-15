@@ -1,4 +1,4 @@
-defmodule LivekitWeb do
+defmodule PrimaWeb do
   @moduledoc false
 
   def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
@@ -18,7 +18,7 @@ defmodule LivekitWeb do
     quote do
       use Phoenix.Controller,
         formats: [:html, :json],
-        layouts: [html: LivekitWeb.Layouts]
+        layouts: [html: PrimaWeb.Layouts]
 
       import Plug.Conn
 
@@ -29,7 +29,7 @@ defmodule LivekitWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {LivekitWeb.Layouts, :app}
+        layout: {PrimaWeb.Layouts, :app}
 
       unquote(html_helpers())
     end
@@ -61,7 +61,7 @@ defmodule LivekitWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation
-      import LivekitWeb.CoreComponents
+      import PrimaWeb.CoreComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
@@ -74,9 +74,9 @@ defmodule LivekitWeb do
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
-        endpoint: LivekitWeb.Endpoint,
-        router: LivekitWeb.Router,
-        statics: LivekitWeb.static_paths()
+        endpoint: PrimaWeb.Endpoint,
+        router: PrimaWeb.Router,
+        statics: PrimaWeb.static_paths()
     end
   end
 

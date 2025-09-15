@@ -1,0 +1,61 @@
+<nav class="w-64 bg-white border-r border-gray-200 p-6 shadow-sm sticky top-0 h-screen overflow-y-auto">
+  <h2 class="text-xl font-bold text-gray-900 mb-6">Prima</h2>
+
+  <.link
+    navigate="/demo"
+    class={[
+      "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+      @current_action == :introduction && "bg-blue-100 text-blue-700",
+      @current_action != :introduction && "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+    ]}
+  >
+    Introduction
+  </.link>
+
+   <.link
+    href="https://hexdocs.pm/"
+    class={[
+      "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+    ]}
+  >
+    Hexdocs
+  </.link>
+
+  <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4 px-3">
+    Components
+  </h3>
+  <div class="mt-1 space-y-1">
+    <.link
+      navigate="/demo/dropdown"
+      class={[
+        "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+        @current_action == :dropdown && "bg-blue-100 text-blue-700",
+        @current_action != :dropdown && "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+      ]}
+    >
+      Dropdown
+    </.link>
+
+    <.link
+      navigate="/demo/modal"
+      class={[
+        "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+        @current_action == :modal && "bg-blue-100 text-blue-700",
+        @current_action != :modal && "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+      ]}
+    >
+      Modal
+    </.link>
+
+    <.link
+      navigate="/demo/combobox"
+      class={[
+        "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+        @current_action == :combobox && "bg-blue-100 text-blue-700",
+        @current_action != :combobox && "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+      ]}
+    >
+      Combobox
+    </.link>
+  </div>
+</nav>

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Livekit is a Phoenix LiveView component library providing unstyled, accessible UI components. It's designed as a reusable library that developers can integrate into Phoenix applications and style according to their needs.
+Prima is a Phoenix LiveView component library providing unstyled, accessible UI components. It's designed as a reusable library that developers can integrate into Phoenix applications and style according to their needs.
 
 ## Essential Commands
 
@@ -30,7 +30,7 @@ mix test path/to/file:123   # Run a single ExUnit test starting on the given lin
 ```
 
 For Wallaby browser tests specifically:
-- Tests are in `test/wallaby/livekit_web/`
+- Tests are in `test/wallaby/prima_web/`
 - ChromeDriver-based integration tests for UI interactions
 - Run with standard `mix test` command
 
@@ -38,14 +38,14 @@ For Wallaby browser tests specifically:
 
 ### Core Architecture
 The library follows a three-layer pattern for each component:
-1. **Phoenix Component** (`lib/livekit/*.ex`) - Server-side rendering and LiveView integration
+1. **Phoenix Component** (`lib/prima/*.ex`) - Server-side rendering and LiveView integration
 2. **JavaScript Hook** (`assets/js/hooks/*.js`) - Client-side behavior and DOM manipulation  
 3. **CSS Integration** - Tailwind-based styling with standard data attribute selectors
 
 ### Component Structure
 ```elixir
 # Standard component pattern
-defmodule Livekit.ComponentName do
+defmodule Prima.ComponentName do
   use Phoenix.Component
   
   # Main component function with slots and attributes
@@ -53,7 +53,7 @@ defmodule Livekit.ComponentName do
   slot :inner_block, required: true
   def component_name(assigns) do
     ~H"""
-    <div phx-hook="ComponentName" livekit-ref={@id}>
+    <div phx-hook="ComponentName" prima-ref={@id}>
       <%= render_slot(@inner_block) %>
     </div>
     """
@@ -62,14 +62,14 @@ end
 ```
 
 ### Custom Data Attributes
-- `livekit-ref` - Component instance identifier
+- `prima-ref` - Component instance identifier
 - `data-focus` - Focus state for dropdown items (true/false)
 - Standard data attributes for component state management
 
 ### Current Components
-- **Modal** - Dialog/popup with overlay (`lib/livekit/modal.ex`)
-- **Dropdown** - Menu/select functionality (`lib/livekit/dropdown.ex`)
-- **Combobox** - Searchable input with suggestions (`lib/livekit/combobox.ex`)
+- **Modal** - Dialog/popup with overlay (`lib/prima/modal.ex`)
+- **Dropdown** - Menu/select functionality (`lib/prima/dropdown.ex`)
+- **Combobox** - Searchable input with suggestions (`lib/prima/combobox.ex`)
 
 ## Development Workflow
 
@@ -81,7 +81,7 @@ end
   - Combobox search and selection behavior
   - Form integration and race conditions
   
-**Important**: Due to the interactive nature of Livekit components (heavy JavaScript integration, DOM manipulation, keyboard navigation), prefer Wallaby tests over unit tests for component testing. Components rely on Phoenix LiveView hooks and client-side behavior that can only be properly tested in a browser environment.
+**Important**: Due to the interactive nature of Prima components (heavy JavaScript integration, DOM manipulation, keyboard navigation), prefer Wallaby tests over unit tests for component testing. Components rely on Phoenix LiveView hooks and client-side behavior that can only be properly tested in a browser environment.
 
 ### Frontend Build System
 - **esbuild** with two configurations:
@@ -91,7 +91,7 @@ end
 - Assets are built automatically during development
 
 ### Demo Application
-- Located in `lib/livekit_web/` (excluded from package)
+- Located in `lib/prima_web/` (excluded from package)
 - Structured with sidebar navigation and separate component pages:
   - `/demo` - Introduction page
   - `/demo/dropdown` - Dropdown component demos
@@ -110,11 +110,11 @@ end
 ### JavaScript Integration
 - Minimal JavaScript footprint via Phoenix LiveView hooks
 - JavaScript hooks handle only essential client-side behavior
-- All hooks export to main `assets/js/livekit.js` for easy integration
+- All hooks export to main `assets/js/prima.js` for easy integration
 
 ### Library vs Application Code
-- Library code: `lib/livekit/` (included in package)
-- Demo/development code: `lib/livekit_web/` (excluded from package)
+- Library code: `lib/prima/` (included in package)
+- Demo/development code: `lib/prima_web/` (excluded from package)
 - Keep library components free of demo-specific dependencies
 
 ### Styling Approach

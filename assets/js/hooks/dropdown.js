@@ -10,7 +10,7 @@ export default {
     button.addEventListener('click', this.toggle.bind(this))
     menu.addEventListener('mouseover', this.mouseOver.bind(this))
     this.el.addEventListener('keydown', this.onKey.bind(this))
-    this.el.addEventListener('livekit:close', this.close.bind(this))
+    this.el.addEventListener('prima:close', this.close.bind(this))
     
     // Set up show/hide event listeners to manage aria-expanded
     this.refs.menu.addEventListener('phx:show-start', () => {

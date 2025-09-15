@@ -4,12 +4,12 @@ export default {
     this.el.addEventListener('mouseover', this.onHover.bind(this))
     this.el.addEventListener('keydown', this.onKey.bind(this))
     this.el.addEventListener('click', this.onClick.bind(this))
-    this.el.querySelector('input[data-livekit-ref=search_input]').addEventListener('focus', this.showOptions.bind(this))
+    this.el.querySelector('input[data-prima-ref=search_input]').addEventListener('focus', this.showOptions.bind(this))
 
-    if(document.activeElement === this.el.querySelector('input[data-livekit-ref=search_input]')) {
+    if(document.activeElement === this.el.querySelector('input[data-prima-ref=search_input]')) {
       this.showOptions()
     }
-    this.el.querySelector('input[data-livekit-ref=search_input]').dispatchEvent(new Event("input", {bubbles: true}))
+    this.el.querySelector('input[data-prima-ref=search_input]').dispatchEvent(new Event("input", {bubbles: true}))
     this.el.querySelector('input').addEventListener('input', this.onInput.bind(this))
   },
 
@@ -29,8 +29,8 @@ export default {
 
   selectOption(el) {
     const value = el.getAttribute('data-value')
-    this.el.querySelector('input[data-livekit-ref=submit_input]').value = value
-    this.el.querySelector('input[data-livekit-ref=search_input]').value = value
+    this.el.querySelector('input[data-prima-ref=submit_input]').value = value
+    this.el.querySelector('input[data-prima-ref=search_input]').value = value
     this.hideOptions()
   },
 
@@ -74,7 +74,7 @@ export default {
   },
 
   getMode() {
-    const searchInput = this.el.querySelector('input[data-livekit-ref=search_input]')
+    const searchInput = this.el.querySelector('input[data-prima-ref=search_input]')
     const hasPhxChange = searchInput.hasAttribute('phx-change')
     
     return hasPhxChange ? 'async' : 'frontend'
@@ -82,7 +82,7 @@ export default {
 
   onInput(e) {
     if (this.mode === 'async') {
-      const options = this.el.querySelector('[data-livekit-ref=options]')
+      const options = this.el.querySelector('[data-prima-ref=options]')
       this.liveSocket.execJS(options, options.getAttribute('js-show'));
       this.focusedOptionBeforeUpdate = this.currentlyFocusedOption()?.dataset.value
     } else {
@@ -119,14 +119,14 @@ export default {
   },
 
   showOptions() {
-    const options = this.el.querySelector('[data-livekit-ref=options]')
+    const options = this.el.querySelector('[data-prima-ref=options]')
     this.liveSocket.execJS(options, options.getAttribute('js-show'));
-    this.el.querySelector('input[data-livekit-ref=search_input]').select()
+    this.el.querySelector('input[data-prima-ref=search_input]').select()
     
     this.focusFirstOption()
 
     const handleClickOutside = (event) => {
-      if (!options.contains(event.target) && !this.el.querySelector('input[data-livekit-ref=search_input]').contains(event.target)) {
+      if (!options.contains(event.target) && !this.el.querySelector('input[data-prima-ref=search_input]').contains(event.target)) {
         this.resetOnBlur()
         document.removeEventListener('click', handleClickOutside)
       }
@@ -136,8 +136,8 @@ export default {
   },
 
   resetOnBlur() {
-    const searchInput = this.el.querySelector('input[data-livekit-ref=search_input]')
-    const submitInput = this.el.querySelector('input[data-livekit-ref=submit_input]')
+    const searchInput = this.el.querySelector('input[data-prima-ref=search_input]')
+    const submitInput = this.el.querySelector('input[data-prima-ref=submit_input]')
 
     if (submitInput.value.length > 0 && searchInput.value.length > 0) {
       searchInput.value = submitInput.value
@@ -151,7 +151,7 @@ export default {
   },
 
   hideOptions() {
-    const options = this.el.querySelector('[data-livekit-ref=options]')
+    const options = this.el.querySelector('[data-prima-ref=options]')
     this.liveSocket.execJS(options, options.getAttribute('js-hide'));
     options.addEventListener('phx:hide-end', () => {
       for (const option of this.el.querySelectorAll('[role=option]')) {

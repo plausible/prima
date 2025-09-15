@@ -1,4 +1,4 @@
-# Livekit
+# Prima
 
 A WIP library to provide unstyled, accessible UI components for Phoenix LiveView applications.
 
