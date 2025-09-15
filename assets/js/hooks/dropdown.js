@@ -1,3 +1,16 @@
+const KEYS = {
+  ARROW_UP: 'ArrowUp',
+  ARROW_DOWN: 'ArrowDown',
+  ESCAPE: 'Escape'
+}
+
+const SELECTORS = {
+  BUTTON: '[aria-haspopup="menu"]',
+  MENU: '[role="menu"]',
+  MENUITEM: '[role="menuitem"]',
+  FOCUSED_MENUITEM: '[role="menuitem"][data-focus]'
+}
+
 export default {
   mounted() {
     this.initialize()
@@ -18,9 +31,9 @@ export default {
   },
 
   setupElements() {
-    const button = this.el.querySelector('[aria-haspopup="menu"]')
-    const menu = this.el.querySelector('[role="menu"]')
-    const items = this.el.querySelectorAll('[role="menuitem"]')
+    const button = this.el.querySelector(SELECTORS.BUTTON)
+    const menu = this.el.querySelector(SELECTORS.MENU)
+    const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
 
     this.setupAriaRelationships(button, menu)
     this.refs = { button, menu, items }
@@ -28,16 +41,12 @@ export default {
 
   setupEventListeners() {
     this.listeners = [
-      [this.refs.button, 'click', this.toggle.bind(this)],
-      [this.refs.menu, 'mouseover', this.mouseOver.bind(this)],
-      [this.el, 'keydown', this.onKey.bind(this)],
-      [this.el, 'prima:close', this.close.bind(this)],
-      [this.refs.menu, 'phx:show-start', () => this.refs.button.setAttribute('aria-expanded', 'true')],
-      [this.refs.menu, 'phx:hide-end', () => {
-        this.el.querySelector('[role=menuitem][data-focus]')?.removeAttribute('data-focus')
-        this.refs.menu.removeAttribute('aria-activedescendant')
-        this.refs.button.setAttribute('aria-expanded', 'false')
-      }]
+      [this.refs.button, 'click', this.handleToggle.bind(this)],
+      [this.refs.menu, 'mouseover', this.handleMouseOver.bind(this)],
+      [this.el, 'keydown', this.handleKeydown.bind(this)],
+      [this.el, 'prima:close', this.handleClose.bind(this)],
+      [this.refs.menu, 'phx:show-start', this.handleShowStart.bind(this)],
+      [this.refs.menu, 'phx:hide-end', this.handleHideEnd.bind(this)]
     ]
 
     this.listeners.forEach(([element, event, handler]) => {
@@ -54,52 +63,88 @@ export default {
     }
   },
 
-  onKey(e) {
-    const allItems = Array.from(this.el.querySelectorAll('[role=menuitem]'))
-    const firstItem = allItems[0]
-    const lastItem = allItems[allItems.length - 1]
-    const currentFocusIndex = allItems.findIndex(item => item.hasAttribute('data-focus'))
+  handleKeydown(e) {
+    const keyHandlers = {
+      [KEYS.ARROW_UP]: () => this.navigateUp(e),
+      [KEYS.ARROW_DOWN]: () => this.navigateDown(e),
+      [KEYS.ESCAPE]: () => this.handleEscape()
+    }
 
-    if (e.key === "ArrowUp") {
-      e.preventDefault()
-      if (firstItem.hasAttribute('data-focus')) {
-        this.setActive(lastItem)
-      } else {
-        this.setActive(allItems[currentFocusIndex - 1])
-      }
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      if (lastItem.hasAttribute('data-focus')) {
-        this.setActive(firstItem)
-      } else {
-        this.setActive(allItems[currentFocusIndex + 1])
-      }
-    } else if (e.key === "Escape") {
-      liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute("js-hide"))
-      this.refs.button.focus()
+    const handler = keyHandlers[e.key]
+    if (handler) {
+      handler()
     }
   },
 
-  close() {
-    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute("js-hide"))
+  navigateUp(e) {
+    e.preventDefault()
+    const items = this.getAllMenuItems()
+    const currentIndex = this.getCurrentFocusIndex(items)
+    const targetIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1
+    this.setActive(items[targetIndex])
   },
 
-  toggle() {
-    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute("js-toggle"))
+  navigateDown(e) {
+    e.preventDefault()
+    const items = this.getAllMenuItems()
+    const currentIndex = this.getCurrentFocusIndex(items)
+    const targetIndex = currentIndex === items.length - 1 ? 0 : currentIndex + 1
+    this.setActive(items[targetIndex])
   },
 
-  setActive(el) {
-    this.el.querySelector('[role=menuitem][data-focus]')?.removeAttribute('data-focus')
-    el.setAttribute('data-focus', '')
-
-    // Update aria-activedescendant to point to the active item
-    this.refs.menu.setAttribute('aria-activedescendant', el.id)
+  handleEscape() {
+    this.hideMenu()
+    this.refs.button.focus()
   },
 
-  mouseOver(e) {
+  handleClose() {
+    this.hideMenu()
+  },
+
+  handleToggle() {
+    this.toggleMenu()
+  },
+
+  handleMouseOver(e) {
     if (e.target.getAttribute('role') === 'menuitem') {
       this.setActive(e.target)
     }
+  },
+
+  handleShowStart() {
+    this.refs.button.setAttribute('aria-expanded', 'true')
+  },
+
+  handleHideEnd() {
+    this.clearFocus()
+    this.refs.menu.removeAttribute('aria-activedescendant')
+    this.refs.button.setAttribute('aria-expanded', 'false')
+  },
+
+  getAllMenuItems() {
+    return this.el.querySelectorAll(SELECTORS.MENUITEM)
+  },
+
+  getCurrentFocusIndex(items) {
+    return Array.prototype.findIndex.call(items, item => item.hasAttribute('data-focus'))
+  },
+
+  setActive(el) {
+    this.clearFocus()
+    el.setAttribute('data-focus', '')
+    this.refs.menu.setAttribute('aria-activedescendant', el.id)
+  },
+
+  clearFocus() {
+    this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)?.removeAttribute('data-focus')
+  },
+
+  hideMenu() {
+    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
+  },
+
+  toggleMenu() {
+    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-toggle'))
   },
 
   setupAriaRelationships(button, menu) {
@@ -112,13 +157,12 @@ export default {
     menu.id = menuId
     menu.setAttribute('aria-labelledby', triggerId)
 
-    // Set up menuitem IDs
     this.setupMenuitemIds()
   },
 
   setupMenuitemIds() {
     const dropdownId = this.el.id
-    const items = this.el.querySelectorAll('[role="menuitem"]')
+    const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
 
     items.forEach((item, index) => {
       item.id = `${dropdownId}-item-${index}`
