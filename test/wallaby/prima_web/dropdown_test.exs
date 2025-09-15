@@ -202,4 +202,19 @@ defmodule PrimaWeb.DropdownTest do
     |> send_keys([:down_arrow])
     |> assert_has(Query.css("#dropdown [role=menu][aria-activedescendant='dropdown-item-1']"))
   end
+
+  feature "dropdown remains functional after LiveView reconnection", %{session: session} do
+    session
+    |> visit("/fixtures/dropdown")
+    |> execute_script("window.liveSocket.disconnect()")
+    |> execute_script("window.liveSocket.connect()")
+    # Wait for reconnection by checking for the data attribute that gets set
+    |> assert_has(Query.css(".phx-connected[data-phx-main]"))
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+    |> send_keys([:escape])
+    |> assert_has(@dropdown_menu |> Query.visible(false))
+  end
 end

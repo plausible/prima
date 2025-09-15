@@ -1,31 +1,57 @@
 export default {
   mounted() {
+    this.initialize()
+  },
+
+  reconnected() {
+    this.initialize()
+  },
+
+  destroyed() {
+    this.cleanup()
+  },
+
+  initialize() {
+    this.cleanup()
+    this.setupElements()
+    this.setupEventListeners()
+  },
+
+  setupElements() {
     const button = this.el.querySelector('[aria-haspopup="menu"]')
     const menu = this.el.querySelector('[role="menu"]')
     const items = this.el.querySelectorAll('[role="menuitem"]')
 
     this.setupAriaRelationships(button, menu)
     this.refs = { button, menu, items }
+  },
 
-    button.addEventListener('click', this.toggle.bind(this))
-    menu.addEventListener('mouseover', this.mouseOver.bind(this))
-    this.el.addEventListener('keydown', this.onKey.bind(this))
-    this.el.addEventListener('prima:close', this.close.bind(this))
+  setupEventListeners() {
+    this.listeners = [
+      [this.refs.button, 'click', this.toggle.bind(this)],
+      [this.refs.menu, 'mouseover', this.mouseOver.bind(this)],
+      [this.el, 'keydown', this.onKey.bind(this)],
+      [this.el, 'prima:close', this.close.bind(this)],
+      [this.refs.menu, 'phx:show-start', () => this.refs.button.setAttribute('aria-expanded', 'true')],
+      [this.refs.menu, 'phx:hide-end', () => {
+        this.el.querySelector('[role=menuitem][data-focus]')?.removeAttribute('data-focus')
+        this.refs.menu.removeAttribute('aria-activedescendant')
+        this.refs.button.setAttribute('aria-expanded', 'false')
+      }]
+    ]
 
-    // Set up show/hide event listeners to manage aria-expanded
-    this.refs.menu.addEventListener('phx:show-start', () => {
-      this.refs.button.setAttribute('aria-expanded', 'true')
+    this.listeners.forEach(([element, event, handler]) => {
+      element.addEventListener(event, handler)
     })
+  },
 
-    this.refs.menu.addEventListener('phx:hide-start', () => {
-      this.refs.button.setAttribute('aria-expanded', 'false')
-    })
-
-    // Set up the hide-end event listener on mount
-    this.refs.menu.addEventListener('phx:hide-end', () => {
-      this.el.querySelector('[role=menuitem][data-focus]')?.removeAttribute('data-focus')
-      this.refs.menu.removeAttribute('aria-activedescendant')
-    })
+  cleanup() {
+    if (this.listeners) {
+      this.listeners.forEach(([element, event, handler]) => {
+        element.removeEventListener(event, handler)
+      })
+      this.listeners = []
+    }
   },
 
   onKey(e) {
