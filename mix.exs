@@ -80,7 +80,14 @@ defmodule Prima.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      exclude_patterns: ["lib/prima_web.ex", "lib/prima_web"]
+      exclude_patterns: [
+        "lib/prima_web.ex",
+        "lib/prima_web",
+        "priv/static",
+        "priv/code_examples"
+      ],
+      files: ~w(lib priv mix.exs README.md LICENSE .formatter.exs),
+      extra_files: ~w(assets/js/prima.js)
     ]
   end
 
@@ -89,7 +96,7 @@ defmodule Prima.MixProject do
       main: "Prima",
       source_url: @source_url,
       homepage_url: @source_url,
-      extras: ["README.md", "tutorial.livemd"],
+      extras: ["README.md"],
       groups_for_modules: [
         Components: [
           Prima.Modal,
