@@ -41,7 +41,8 @@
       class={[
         "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
         @current_action in [:modal, :modal_history] && "bg-blue-100 text-blue-700",
-        @current_action not in [:modal, :modal_history] && "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+        @current_action not in [:modal, :modal_history] &&
+          "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
       ]}
     >
       Modal
