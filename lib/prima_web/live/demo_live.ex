@@ -18,6 +18,7 @@ defmodule PrimaWeb.DemoLive do
       socket
       |> assign(form_modal_open?: false)
       |> assign(async_modal_open?: false)
+      |> assign(submitted_form_data: nil)
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
       |> stream(:suggestions, [])
 
@@ -64,5 +65,15 @@ defmodule PrimaWeb.DemoLive do
   @impl true
   def handle_info(:close_form_modal, socket) do
     {:noreply, assign(socket, form_modal_open?: false)}
+  end
+
+  @impl true
+  def handle_info({:form_submitted, form_data}, socket) do
+    socket =
+      socket
+      |> assign(submitted_form_data: form_data)
+      |> assign(form_modal_open?: false)
+
+    {:noreply, socket}
   end
 end

@@ -1,9 +1,10 @@
 defmodule PrimaWeb.DemoLive.DemoForm do
   @moduledoc false
   use PrimaWeb, :live_component
+  import Prima.Combobox
 
   def update(_assigns, socket) do
-    socket = assign(socket, %{form: to_form(%{"name" => ""})})
+    socket = assign(socket, %{form: to_form(%{"name" => "", "category" => ""})})
     {:ok, socket}
   end
 
@@ -24,8 +25,34 @@ defmodule PrimaWeb.DemoLive.DemoForm do
             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           />
         </div>
+        <div class="mt-4">
+          <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
+            Category
+          </label>
+          <.combobox class="relative w-full" id="form-modal-combobox">
+            <.combobox_input
+              name={@form[:category].name}
+              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              placeholder="Select a category..."
+            />
+
+            <.combobox_options
+              transition_leave={{"ease-in duration-100", "opacity-100", "opacity-0"}}
+              class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+            >
+              <%= for option <- ["Technology", "Design", "Marketing", "Sales", "Finance"] do %>
+                <.combobox_option
+                  value={option}
+                  class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
+                >
+                  {option}
+                </.combobox_option>
+              <% end %>
+            </.combobox_options>
+          </.combobox>
+        </div>
         <div class="mt-5 sm:mt-6">
-          <.button phx-click="close-form-modal" type="button" class="w-full">
+          <.button type="submit" class="w-full">
             <svg
               class="w-4 h-4 mr-2 text-white/50 animate-spin fill-white hidden phx-click-loading:inline-block"
               viewBox="0 0 100 100"
@@ -49,8 +76,12 @@ defmodule PrimaWeb.DemoLive.DemoForm do
     """
   end
 
-  def handle_event("save", _params, socket) do
-    send(self(), :close_form_modal)
+  def handle_event("save", params, socket) do
+    name = params["name"] || ""
+    category = params["category"] || ""
+
+    form_data = %{name: name, category: category}
+    send(self(), {:form_submitted, form_data})
 
     {:noreply, socket}
   end
