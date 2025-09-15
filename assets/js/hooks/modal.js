@@ -1,77 +1,127 @@
 export default {
   mounted() {
+    this.initialize()
+  },
+
+  reconnected() {
+    this.initialize()
+  },
+
+  destroyed() {
+    this.cleanup()
+  },
+
+  initialize() {
+    this.cleanup()
+    this.setupElements()
+    this.setupEventListeners()
+    this.checkInitialShow()
+  },
+
+  setupElements() {
     if (!this.ref("modal-panel")) {
       this.async = true
     }
-
     this.setupAriaRelationships()
+  },
 
-    this.el.addEventListener("prima:modal:open", (_e) => {
-      this.log("modal:open")
-      this.storeFocusedElement()
-      this.preventBodyScroll()
-      this.el.removeAttribute('aria-hidden')
-      this.maybeExecJS(this.el, "js-show");
-      this.maybeExecJS(this.ref("modal-overlay"), "js-show");
-      if (this.async) {
-        this.maybeExecJS(this.ref("modal-loader"), "js-show");
-      } else {
-        this.maybeExecJS(this.ref("modal-panel"), "js-show");
-      }
-    });
+  setupEventListeners() {
+    this.listeners = [
+      [this.el, "prima:modal:open", this.handleModalOpen.bind(this)],
+      [this.el, "prima:modal:close", this.handleModalClose.bind(this)],
+      [this.ref("modal-overlay"), "phx:hide-end", this.handleOverlayHideEnd.bind(this)]
+    ]
 
     if (this.async) {
-      this.el.addEventListener("prima:modal:panel-mounted", (_e) => {
-        this.log("modal:panel-mounted")
-        this.maybeExecJS(this.ref("modal-loader"), "js-hide");
-        this.maybeExecJS(this.ref("modal-panel"), "js-show");
-        // Set up ARIA relationships for async modal since title element is now available
-        this.setupAriaRelationships()
-        // Ensure aria-hidden is removed for async modals
-        this.el.removeAttribute('aria-hidden')
-
-        // Set up focus management for the async panel
-        this.ref("modal-panel").addEventListener("phx:show-end", (_e) => {
-          this.focusFirstElement()
-        });
-      })
-
-      this.el.addEventListener("prima:modal:panel-removed", (_e) => {
-        this.log("modal:panel-removed")
-        if (!this.panelIsDirty()) {
-          this.el.dispatchEvent(new Event('prima:modal:close'))
-        }
-      });
+      this.listeners.push(
+        [this.el, "prima:modal:panel-mounted", this.handlePanelMounted.bind(this)],
+        [this.el, "prima:modal:panel-removed", this.handlePanelRemoved.bind(this)]
+      )
     }
-
-    this.el.addEventListener("prima:modal:close", (_e) => {
-      this.log("modal:close")
-      this.restoreBodyScroll()
-      this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
-      this.maybeExecJS(this.ref("modal-panel"), "js-hide");
-      this.maybeExecJS(this.ref("modal-loader"), "js-hide");
-      if (this.async) {
-        this.ref("modal-panel").dataset.primaDirty = true
-      }
-    });
-
-    this.ref("modal-overlay").addEventListener("phx:hide-end", (_e) => {
-      this.log("modal:overlay-hide-end")
-      this.maybeExecJS(this.el, "js-hide");
-      this.el.setAttribute('aria-hidden', 'true')
-      this.restoreFocusedElement()
-    });
 
     // Focus management - when panel is shown, focus first element
     if (this.ref("modal-panel")) {
-      this.ref("modal-panel").addEventListener("phx:show-end", (_e) => {
-        this.focusFirstElement()
-      });
+      this.listeners.push(
+        [this.ref("modal-panel"), "phx:show-end", this.handlePanelShowEnd.bind(this)]
+      )
     }
 
+    this.listeners.forEach(([element, event, handler]) => {
+      element.addEventListener(event, handler)
+    })
+  },
+
+  cleanup() {
+    if (this.listeners) {
+      this.listeners.forEach(([element, event, handler]) => {
+        element.removeEventListener(event, handler)
+      })
+      this.listeners = []
+    }
+  },
+
+  checkInitialShow() {
     if (Object.hasOwn(this.el.dataset, 'primaShow')) {
       this.el.dispatchEvent(new Event('prima:modal:open'))
     }
+  },
+
+  handleModalOpen() {
+    this.log("modal:open")
+    this.storeFocusedElement()
+    this.preventBodyScroll()
+    this.el.removeAttribute('aria-hidden')
+    this.maybeExecJS(this.el, "js-show");
+    this.maybeExecJS(this.ref("modal-overlay"), "js-show");
+    if (this.async) {
+      this.maybeExecJS(this.ref("modal-loader"), "js-show");
+    } else {
+      this.maybeExecJS(this.ref("modal-panel"), "js-show");
+    }
+  },
+
+  handlePanelMounted() {
+    this.log("modal:panel-mounted")
+    this.maybeExecJS(this.ref("modal-loader"), "js-hide");
+    this.maybeExecJS(this.ref("modal-panel"), "js-show");
+    // Set up ARIA relationships for async modal since title element is now available
+    this.setupAriaRelationships()
+    // Ensure aria-hidden is removed for async modals
+    this.el.removeAttribute('aria-hidden')
+
+    // Set up focus management for the async panel - add to tracked listeners
+    const panelShowEndHandler = this.handlePanelShowEnd.bind(this)
+    this.ref("modal-panel").addEventListener("phx:show-end", panelShowEndHandler);
+    this.listeners.push([this.ref("modal-panel"), "phx:show-end", panelShowEndHandler])
+  },
+
+  handlePanelRemoved() {
+    this.log("modal:panel-removed")
+    if (!this.panelIsDirty()) {
+      this.el.dispatchEvent(new Event('prima:modal:close'))
+    }
+  },
+
+  handleModalClose() {
+    this.log("modal:close")
+    this.restoreBodyScroll()
+    this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
+    this.maybeExecJS(this.ref("modal-panel"), "js-hide");
+    this.maybeExecJS(this.ref("modal-loader"), "js-hide");
+    if (this.async) {
+      this.ref("modal-panel").dataset.primaDirty = true
+    }
+  },
+
+  handleOverlayHideEnd() {
+    this.log("modal:overlay-hide-end")
+    this.maybeExecJS(this.el, "js-hide");
+    this.el.setAttribute('aria-hidden', 'true')
+    this.restoreFocusedElement()
+  },
+
+  handlePanelShowEnd() {
+    this.focusFirstElement()
   },
 
   maybeExecJS(el, attribute) {

@@ -121,4 +121,26 @@ defmodule PrimaWeb.SimpleModalTest do
       |> Query.visible(false)
     )
   end
+
+  feature "modal remains functional after LiveView reconnection", %{session: session} do
+    session
+    |> visit("/fixtures/simple-modal")
+    # Test multiple reconnections to see if event listeners accumulate
+    |> execute_script("window.liveSocket.disconnect()")
+    |> execute_script("window.liveSocket.connect()")
+    |> assert_has(Query.css(".phx-connected[data-phx-main]"))
+    # Test basic open/close functionality
+    |> click(Query.css("#simple-modal button"))
+    |> assert_has(@modal_container |> Query.visible(true))
+    |> assert_has(@modal_overlay |> Query.visible(true))
+    |> assert_has(@modal_panel |> Query.visible(true))
+    |> send_keys([:escape])
+    |> assert_has(@modal_container |> Query.visible(false))
+    |> click(Query.css("#simple-modal button"))
+    |> assert_has(@modal_container |> Query.visible(true))
+    # Focus should move into the modal (to the first focusable element)
+    |> assert_has(Query.css("#simple-modal [testing-ref=close-button]:focus"))
+    |> click(Query.css("#simple-modal [testing-ref=close-button]"))
+    |> assert_has(@modal_container |> Query.visible(false))
+  end
 end
