@@ -36,10 +36,16 @@ let liveSocket = new LiveSocket("/live", Socket, {
 Use components in your templates:
 
 ```heex
-<Prima.Modal.modal id="my-modal">
-  <:title>Modal Title</:title>
-  <p>Modal content goes here</p>
-</Prima.Modal.modal>
+<Prima.Dropdown.dropdown id="demo-dropdown">
+  <Prima.Dropdown.dropdown_trigger>
+    Open Dropdown
+  </Prima.Dropdown.dropdown_trigger>
+
+  <Prima.Dropdown.dropdown_menu>
+    <Prima.Dropdown.dropdown_item>Item 1</.dropdown_item>
+    <Prima.Dropdown.dropdown_item>Item 2</.dropdown_item>
+  </Prima.Dropdown.dropdown_menu>
+</Prima.Dropdown.dropdown>
 ```
 
 ## Development
