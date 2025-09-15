@@ -5,7 +5,7 @@
 > **prima** (adj., Latin)
 >
 > First; primary.
-> – Used in alchemical texts chiefly as part of the phrase *prima materia* ("first matter"), denoting the original, undifferentiated substance from which all things are formed and upon which the alchemical work is based.
+> – Used in alchemical texts denoting the original, undifferentiated substance from which all things are formed and upon which the alchemical work is based.
 
 Prima is a Phoenix LiveView component library providing unstyled, accessible UI components. It's designed as a reusable library that developers can integrate into Phoenix applications and style according to their needs.
 
