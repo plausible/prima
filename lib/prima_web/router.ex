@@ -14,6 +14,7 @@ defmodule PrimaWeb.Router do
   scope "/", PrimaWeb do
     pipe_through :browser
 
+    live "/", DemoLive, :introduction
     live "/demo", DemoLive, :introduction
     live "/demo/dropdown", DemoLive, :dropdown
     live "/demo/modal", DemoLive, :modal
@@ -27,7 +28,5 @@ defmodule PrimaWeb.Router do
       live "/fixtures/simple-combobox", FixturesLive, :simple_combobox
       live "/fixtures/async-combobox", FixturesLive, :async_combobox
     end
-
-    get "/", PageController, :home
   end
 end
