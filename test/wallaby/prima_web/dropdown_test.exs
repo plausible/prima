@@ -1,15 +1,10 @@
 defmodule PrimaWeb.DropdownTest do
-  use ExUnit.Case, async: true
-  use Wallaby.Feature
+  use Prima.WallabyCase, async: true
 
   @dropdown_container Query.css("#dropdown")
   @dropdown_button Query.css("#dropdown [aria-haspopup=menu]")
   @dropdown_menu Query.css("#dropdown [role=menu]")
   @dropdown_items Query.css("#dropdown [role=menuitem]")
-
-  def assert_missing(session, query) do
-    assert_has(session, query |> Query.count(0))
-  end
 
   feature "shows dropdown menu when button is clicked", %{session: session} do
     session

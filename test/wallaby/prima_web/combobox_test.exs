@@ -1,10 +1,5 @@
 defmodule PrimaWeb.ComboboxTest do
-  use ExUnit.Case, async: true
-  use Wallaby.Feature
-
-  def assert_missing(session, query) do
-    assert_has(session, query |> Query.count(0))
-  end
+  use Prima.WallabyCase, async: true
 
   @combobox_container Query.css("#demo-combobox")
   @search_input Query.css("#demo-combobox input[data-prima-ref=search_input]")

@@ -1,6 +1,5 @@
 defmodule PrimaWeb.SimpleModalTest do
-  use ExUnit.Case, async: true
-  use Wallaby.Feature
+  use Prima.WallabyCase, async: true
 
   @modal_panel Query.css("#simple-modal [prima-ref=modal-panel]")
   @modal_overlay Query.css("#simple-modal [prima-ref=modal-overlay]")

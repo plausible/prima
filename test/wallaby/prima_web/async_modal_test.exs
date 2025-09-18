@@ -1,10 +1,5 @@
 defmodule PrimaWeb.AsyncModalTest do
-  use ExUnit.Case, async: true
-  use Wallaby.Feature
-
-  def assert_missing(session, query) do
-    assert_has(session, query |> Query.count(0))
-  end
+  use Prima.WallabyCase, async: true
 
   @modal_panel Query.css("#demo-form-modal [prima-ref=modal-panel]")
   @modal_overlay Query.css("#demo-form-modal [prima-ref=modal-overlay]")
