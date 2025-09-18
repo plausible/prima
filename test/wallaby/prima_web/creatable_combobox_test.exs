@@ -210,4 +210,64 @@ defmodule PrimaWeb.CreatableComboboxTest do
       Query.css("#demo-creatable-combobox [role=option][data-value='Apple'][data-focus=true]")
     )
   end
+
+  feature "focus handling when clearing input after filtering to create option only", %{
+    session: session
+  } do
+    session
+    |> visit("/fixtures/creatable-combobox")
+    |> click(@search_input)
+    |> fill_in(@search_input, with: "z")
+    # Only create option should be visible
+    |> assert_has(@create_option |> Query.visible(true))
+    |> assert_has(
+      Query.css("#demo-creatable-combobox [data-prima-ref=create-option][data-focus=true]")
+    )
+    # All regular options should be hidden
+    |> assert_missing(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Apple']")
+      |> Query.visible(true)
+    )
+    |> assert_missing(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Pear']")
+      |> Query.visible(true)
+    )
+    |> assert_missing(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Mango']")
+      |> Query.visible(true)
+    )
+    |> assert_missing(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Pineapple']")
+      |> Query.visible(true)
+    )
+    # Clear the input
+    |> fill_in(@search_input, with: "")
+    # Manually trigger input event since Wallaby doesn't trigger it for empty values
+    |> execute_script(
+      "document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').dispatchEvent(new Event('input', {bubbles: true}))"
+    )
+    # Create option should be hidden (empty input)
+    |> assert_missing(@create_option |> Query.visible(true))
+    # All regular options should be visible again
+    |> assert_has(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Apple']")
+      |> Query.visible(true)
+    )
+    |> assert_has(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Pear']")
+      |> Query.visible(true)
+    )
+    |> assert_has(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Mango']")
+      |> Query.visible(true)
+    )
+    |> assert_has(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Pineapple']")
+      |> Query.visible(true)
+    )
+    # First visible option (Apple) should be focused
+    |> assert_has(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Apple'][data-focus=true]")
+    )
+  end
 end

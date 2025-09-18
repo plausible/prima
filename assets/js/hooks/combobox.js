@@ -98,10 +98,9 @@ export default {
   onInput(e) {
     const searchValue = e.target.value
 
-    // Update create option content and visibility
+    // Update create option content first
     if (this.hasCreateOption) {
       this.updateCreateOption(searchValue)
-      this.updateCreateOptionVisibility(searchValue)
     }
 
     if (this.mode === 'async') {
@@ -123,6 +122,11 @@ export default {
             previouslyFocusedOptionIsHidden = true
           }
         }
+      }
+
+      // Handle create option visibility after regular options are processed
+      if (this.hasCreateOption) {
+        this.updateCreateOptionVisibility(searchValue)
       }
 
       if (previouslyFocusedOptionIsHidden) {
