@@ -1,9 +1,9 @@
 <form>
-  <.combobox class="relative w-64" id="demo-combobox">
+  <.combobox class="relative w-64" id="creatable-combobox">
     <.combobox_input
-      name="demo-combobox[fruit]"
+      name="creatable-combobox[fruit]"
       class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-      placeholder="Type to search..."
+      placeholder="Type to search or create..."
     />
 
     <.combobox_options
@@ -19,6 +19,7 @@
         </.combobox_option>
       <% end %>
 
+      <.creatable_option class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-500 data-focus:bg-indigo-600 data-focus:text-white italic border-t border-gray-200" />
     </.combobox_options>
   </.combobox>
 </form>

@@ -132,6 +132,18 @@ end
   # Instead of slow:
   |> refute_has(Query.css("#element[data-focus]"))  # waits 3000ms
   ```
+- **Arrow key navigation**: Use correct Wallaby syntax for arrow keys in tests:
+  ```elixir
+  # Correct syntax:
+  |> send_keys([:down_arrow])
+  |> send_keys([:up_arrow])
+  |> send_keys([:left_arrow])
+  |> send_keys([:right_arrow])
+
+  # Incorrect (doesn't work):
+  |> send_keys([:arrow_down])    # Wrong
+  |> send_keys([:arrow_up])      # Wrong
+  ```
 - **JavaScript debugging**: Enable JS console logging in a test by adding `Application.put_env(:wallaby, :js_logger, :stdio)` at the beginning of the test feature. This allows you to see `console.log()` output from JavaScript hooks during test execution. More convenient than modifying config files:
   ```elixir
   feature "my test with logging", %{session: session} do

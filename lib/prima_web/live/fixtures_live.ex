@@ -24,6 +24,11 @@ defmodule PrimaWeb.FixturesLive do
   end
 
   @impl true
+  def handle_params(%{"live_action" => live_action}, _uri, socket) do
+    {:noreply, assign(socket, live_action: live_action)}
+  end
+
+  @impl true
   def handle_params(_params, _uri, socket) do
     {:noreply, socket}
   end

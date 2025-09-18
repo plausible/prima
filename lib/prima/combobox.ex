@@ -74,4 +74,18 @@ defmodule Prima.Combobox do
     </div>
     """
   end
+
+  attr :class, :string, default: ""
+
+  def creatable_option(assigns) do
+    ~H"""
+    <div
+      role="option"
+      data-prima-ref="create-option"
+      data-value="__CREATE__"
+      class={@class}
+    >
+    </div>
+    """
+  end
 end

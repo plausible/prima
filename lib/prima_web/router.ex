@@ -27,6 +27,7 @@ defmodule PrimaWeb.Router do
       live "/fixtures/async-modal", FixturesLive, :async_modal
       live "/fixtures/simple-combobox", FixturesLive, :simple_combobox
       live "/fixtures/async-combobox", FixturesLive, :async_combobox
+      live "/fixtures/creatable-combobox", FixturesLive, :creatable_combobox
     end
   end
 end

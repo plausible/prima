@@ -1,10 +1,14 @@
 export default {
   mounted() {
     this.mode = this.getMode()
+    this.createOption = this.el.querySelector('[data-prima-ref=create-option]')
+    this.hasCreateOption = !!this.createOption
     this.el.addEventListener('mouseover', this.onHover.bind(this))
     this.el.addEventListener('keydown', this.onKey.bind(this))
     this.el.addEventListener('click', this.onClick.bind(this))
     this.el.querySelector('input[data-prima-ref=search_input]').addEventListener('focus', this.showOptions.bind(this))
+
+    this.initializeCreateOption()
 
     if(document.activeElement === this.el.querySelector('input[data-prima-ref=search_input]')) {
       this.showOptions()
@@ -29,8 +33,18 @@ export default {
 
   selectOption(el) {
     const value = el.getAttribute('data-value')
-    this.el.querySelector('input[data-prima-ref=submit_input]').value = value
-    this.el.querySelector('input[data-prima-ref=search_input]').value = value
+    const searchInput = this.el.querySelector('input[data-prima-ref=search_input]')
+    const submitInput = this.el.querySelector('input[data-prima-ref=submit_input]')
+
+    if (value === '__CREATE__') {
+      const searchValue = searchInput.value
+      submitInput.value = searchValue
+      searchInput.value = searchValue
+    } else {
+      submitInput.value = value
+      searchInput.value = value
+    }
+
     this.hideOptions()
   },
 
@@ -41,24 +55,25 @@ export default {
   },
 
   onKey(e) {
-    const allOptions = Array.from(this.el.querySelectorAll('[role=option]'))
-    const firstOption = allOptions[0]
-    const lastOption = allOptions[allOptions.length - 1]
-    const currentFocusIndex = allOptions.findIndex(option => option.getAttribute('data-focus') === 'true')
+    const visibleOptions = Array.from(this.el.querySelectorAll('[role=option]:not([data-hidden])'))
+    const firstOption = visibleOptions[0]
+    const lastOption = visibleOptions[visibleOptions.length - 1]
+    const currentFocusIndex = visibleOptions.findIndex(option => option.getAttribute('data-focus') === 'true')
+
 
     if (e.key === 'ArrowUp') {
       e.preventDefault()
       if (firstOption.getAttribute('data-focus') === 'true') {
         this.setFocus(lastOption)
       } else {
-        this.setFocus(allOptions[currentFocusIndex - 1])
+        this.setFocus(visibleOptions[currentFocusIndex - 1])
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault()
       if (lastOption.getAttribute('data-focus') === 'true') {
         this.setFocus(firstOption)
       } else {
-        this.setFocus(allOptions[currentFocusIndex + 1])
+        this.setFocus(visibleOptions[currentFocusIndex + 1])
       }
     } else if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault()
@@ -81,13 +96,21 @@ export default {
   },
 
   onInput(e) {
+    const searchValue = e.target.value
+
+    // Update create option content and visibility
+    if (this.hasCreateOption) {
+      this.updateCreateOption(searchValue)
+      this.updateCreateOptionVisibility(searchValue)
+    }
+
     if (this.mode === 'async') {
       const options = this.el.querySelector('[data-prima-ref=options]')
       this.liveSocket.execJS(options, options.getAttribute('js-show'));
       this.focusedOptionBeforeUpdate = this.currentlyFocusedOption()?.dataset.value
     } else {
-      const q = e.target.value.toLowerCase()
-      const allOptions = this.el.querySelectorAll('[role=option]')
+      const q = searchValue.toLowerCase()
+      const allOptions = this.el.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
       let previouslyFocusedOptionIsHidden = false
 
       for (const option of allOptions) {
@@ -122,6 +145,13 @@ export default {
     const options = this.el.querySelector('[data-prima-ref=options]')
     this.liveSocket.execJS(options, options.getAttribute('js-show'));
     this.el.querySelector('input[data-prima-ref=search_input]').select()
+
+    // Update create option when showing options
+    if (this.hasCreateOption) {
+      const searchValue = this.el.querySelector('input[data-prima-ref=search_input]').value
+      this.updateCreateOption(searchValue)
+      this.updateCreateOptionVisibility(searchValue)
+    }
 
     this.focusFirstOption()
 
@@ -167,5 +197,48 @@ export default {
 
   currentlyFocusedOption() {
     return this.el.querySelector('[role=option][data-focus=true]')
+  },
+
+  updateCreateOption(searchValue) {
+    if (!this.createOption) return
+    this.createOption.textContent = `Create "${searchValue}"`
+  },
+
+  updateCreateOptionVisibility(searchValue) {
+    if (!this.createOption) return
+
+    if (searchValue.length > 0 && !this.hasExactMatch(searchValue)) {
+      this.showOption(this.createOption)
+    } else {
+      // Check if create option is currently focused before hiding it
+      const createOptionHasFocus = this.createOption.getAttribute('data-focus') === 'true'
+      this.hideOption(this.createOption)
+
+      // If create option was focused, move focus to first visible option
+      if (createOptionHasFocus) {
+        this.focusFirstOption()
+      }
+    }
+  },
+
+  hasExactMatch(searchValue) {
+    const regularOptions = this.el.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
+    const hasStaticMatch = Array.from(regularOptions).some(option =>
+      option.getAttribute('data-value') === searchValue
+    )
+
+    // Also check if search value matches current selected value (submit input)
+    const submitInput = this.el.querySelector('input[data-prima-ref=submit_input]')
+    const hasSelectedMatch = submitInput.value === searchValue
+
+
+    return hasStaticMatch || hasSelectedMatch
+  },
+
+  initializeCreateOption() {
+    if (!this.hasCreateOption) return
+
+    // Hide create option initially since search input starts empty
+    this.hideOption(this.createOption)
   }
 }
