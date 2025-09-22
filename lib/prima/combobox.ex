@@ -61,15 +61,13 @@ defmodule Prima.Combobox do
   end
 
   slot :inner_block, required: true
-  attr :id, :string, default: nil
   attr :class, :string, default: ""
   attr :value, :any, required: true
+  attr(:rest, :global)
 
   def combobox_option(assigns) do
-    assigns = assign(assigns, id: assigns.id || assigns.value)
-
     ~H"""
-    <div role="option" id={@id} class={@class} data-value={@value}>
+    <div role="option" class={@class} data-value={@value} {@rest}>
       {render_slot(@inner_block)}
     </div>
     """

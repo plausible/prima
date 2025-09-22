@@ -58,15 +58,14 @@ defmodule PrimaWeb.DemoLive.AsyncComboboxDemo do
           phx-update="stream"
           id="demo-async-combobox-options"
         >
-          <%= for {id, option} <- @streams.suggestions do %>
-            <.combobox_option
-              id={id}
-              value={option}
-              class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
-            >
-              {option}
-            </.combobox_option>
-          <% end %>
+          <.combobox_option
+            :for={{dom_id, option} <- @streams.suggestions}
+            id={dom_id}
+            value={option}
+            class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
+          >
+            {option}
+          </.combobox_option>
         </.combobox_options>
       </.combobox>
     </form>
