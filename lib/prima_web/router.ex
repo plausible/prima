@@ -15,11 +15,10 @@ defmodule PrimaWeb.Router do
     pipe_through :browser
 
     live "/", DemoLive, :introduction
-    live "/demo", DemoLive, :introduction
-    live "/demo/dropdown", DemoLive, :dropdown
-    live "/demo/modal", DemoLive, :modal
-    live "/demo/modal/history", DemoLive, :modal_history
-    live "/demo/combobox", DemoLive, :combobox
+    live "/dropdown", DemoLive, :dropdown
+    live "/modal", DemoLive, :modal
+    live "/modal/history", DemoLive, :modal_history
+    live "/combobox", DemoLive, :combobox
 
     if Mix.env() in [:dev, :test] do
       live "/fixtures/dropdown", FixturesLive, :dropdown
