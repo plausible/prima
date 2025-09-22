@@ -94,20 +94,22 @@ defmodule Prima.Modal do
   """
   def modal(assigns) do
     ~H"""
-    <div
-      id={@id}
-      js-show={JS.show()}
-      js-hide={@on_close |> JS.hide()}
-      data-prima-show={@show}
-      style="display: none;"
-      phx-hook="Modal"
-      class={@class}
-      role="dialog"
-      aria-modal="true"
-      aria-hidden="true"
-    >
-      {render_slot(@inner_block)}
-    </div>
+    <.portal id={"#{@id}-portal"} target="body">
+      <div
+        id={@id}
+        js-show={JS.show()}
+        js-hide={@on_close |> JS.hide()}
+        data-prima-show={@show}
+        style="display: none;"
+        phx-hook="Modal"
+        class={@class}
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+      >
+        {render_slot(@inner_block)}
+      </div>
+    </.portal>
     """
   end
 
