@@ -19,8 +19,6 @@ defmodule PrimaWeb.DemoLive do
       |> assign(form_modal_open?: false)
       |> assign(async_modal_open?: false)
       |> assign(submitted_form_data: nil)
-      |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
-      |> stream(:suggestions, [])
 
     {:ok, socket}
   end
@@ -48,18 +46,6 @@ defmodule PrimaWeb.DemoLive do
   @impl true
   def handle_event("close-async-modal", _params, socket) do
     {:noreply, assign(socket, async_modal_open?: false)}
-  end
-
-  @impl true
-  def handle_event("async_combobox_search", params, socket) do
-    input = get_in(params, params["_target"])
-
-    suggestions =
-      Enum.filter(@options, fn option ->
-        String.contains?(String.downcase(option), String.downcase(input))
-      end)
-
-    {:noreply, stream(socket, :suggestions, suggestions, reset: true)}
   end
 
   @impl true
