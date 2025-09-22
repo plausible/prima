@@ -4,7 +4,7 @@ defmodule PrimaWeb.ModalDemoPageTest do
 
   describe "modal demo page" do
     test "loads without errors and shows basic page content", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/demo/modal")
+      {:ok, _view, html} = live(conn, "/modal")
 
       assert html =~ "Modal"
       assert html =~ "fully-managed dialog component"
@@ -13,7 +13,7 @@ defmodule PrimaWeb.ModalDemoPageTest do
     end
 
     test "renders minimal modal code example", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/demo/modal")
+      {:ok, _view, html} = live(conn, "/modal")
 
       assert html =~ "Prima.Modal.open"
       assert html =~ "Open Modal"
@@ -21,7 +21,7 @@ defmodule PrimaWeb.ModalDemoPageTest do
     end
 
     test "renders form modal events code example", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/demo/modal")
+      {:ok, _view, html} = live(conn, "/modal")
 
       assert html =~ "handle_event"
       assert html =~ "open-form-modal"
@@ -29,13 +29,13 @@ defmodule PrimaWeb.ModalDemoPageTest do
     end
 
     test "renders form modal template code example", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/demo/modal")
+      {:ok, _view, html} = live(conn, "/modal")
 
       assert html =~ "modal_panel"
     end
 
     test "renders history routes code example", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/demo/modal")
+      {:ok, _view, html} = live(conn, "/modal")
 
       assert html =~ "live_action"
       assert html =~ "show_history_modal"
@@ -43,7 +43,7 @@ defmodule PrimaWeb.ModalDemoPageTest do
     end
 
     test "applies syntax highlighting to code examples", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/demo/modal")
+      {:ok, _view, html} = live(conn, "/modal")
 
       assert html =~ "athl"
       assert html =~ "prima-code-block"

@@ -1,5 +1,5 @@
 <.link
-  patch={~p"/demo/modal/history"}
+  patch={~p"/modal/history"}
   phx-click={Prima.Modal.open("demo-history-modal")}
   class="phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3 text-sm font-semibold leading-6 text-white active:text-white/80"
 >
@@ -9,7 +9,7 @@
 <.modal
   show={@live_action == :modal_history}
   id="demo-history-modal"
-  on_close={JS.patch(~p"/demo/modal")}
+  on_close={JS.patch(~p"/modal")}
   class="relative z-10"
 >
   <.modal_overlay
