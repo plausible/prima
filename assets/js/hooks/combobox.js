@@ -36,10 +36,7 @@ export default {
   },
 
   getOptionsContainer() {
-    const comboboxId = this.el.id
-    if (comboboxId) {
-      return document.querySelector(`[data-prima-ref="options"][id^="${comboboxId}"]`)
-    }
+    return this.el.querySelector('[data-prima-ref="options"]')
   },
 
   setFocus(el) {

@@ -47,22 +47,20 @@ defmodule Prima.Combobox do
 
   def combobox_options(assigns) do
     ~H"""
-    <.portal id={"#{@id}-portal"} target="body">
-      <div
-        id={@id}
-        class={@class}
-        style="display: none;"
-        js-show={JS.show(transition: @transition_enter)}
-        js-hide={JS.hide(transition: @transition_leave)}
-        phx-click-away={JS.dispatch("prima:combobox:reset")}
-        data-prima-ref="options"
-        data-placement={@placement}
-        data-flip={@flip}
-        {@rest}
-      >
-        {render_slot(@inner_block)}
-      </div>
-    </.portal>
+    <div
+      id={@id}
+      class={@class}
+      style="display: none;"
+      js-show={JS.show(transition: @transition_enter)}
+      js-hide={JS.hide(transition: @transition_leave)}
+      phx-click-away={JS.dispatch("prima:combobox:reset")}
+      data-prima-ref="options"
+      data-placement={@placement}
+      data-flip={@flip}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </div>
     """
   end
 
