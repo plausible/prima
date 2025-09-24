@@ -27,8 +27,8 @@
     </div>
   </div>
   
-<!-- Top-start -->
-  <div class="space-y-2 mt-16">
+  <!-- Top-start -->
+  <div class="space-y-2">
     <h4 class="text-sm font-semibold text-gray-700">Top Start</h4>
     <div class="relative">
       <.combobox class="w-48" id="top-start-combobox">
@@ -83,34 +83,32 @@
     </div>
   </div>
   
-<!-- Left with offset -->
-  <div class="space-y-2 flex justify-end">
-    <div class="space-y-2">
-      <h4 class="text-sm font-semibold text-gray-700">Left + 10px offset</h4>
-      <div class="relative">
-        <.combobox class="w-32" id="left-combobox">
-          <.combobox_input
-            name="left[city]"
-            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
-            placeholder="Cities..."
-          />
-          <.combobox_options
-            id="left-options"
-            placement="left"
-            offset={10}
-            class="max-h-48 w-40 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
-          >
-            <%= for option <- ["Paris", "London", "Tokyo", "Sydney"] do %>
-              <.combobox_option
-                value={option}
-                class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-orange-100 data-focus:text-orange-900"
-              >
-                {option}
-              </.combobox_option>
-            <% end %>
-          </.combobox_options>
-        </.combobox>
-      </div>
+  <!-- Left with offset -->
+  <div class="space-y-2">
+    <h4 class="text-sm font-semibold text-gray-700">Left + 10px offset</h4>
+    <div class="relative">
+      <.combobox class="w-32" id="left-combobox">
+        <.combobox_input
+          name="left[city]"
+          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
+          placeholder="Cities..."
+        />
+        <.combobox_options
+          id="left-options"
+          placement="left"
+          offset={10}
+          class="max-h-48 w-40 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
+        >
+          <%= for option <- ["Paris", "London", "Tokyo", "Sydney"] do %>
+            <.combobox_option
+              value={option}
+              class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-orange-100 data-focus:text-orange-900"
+            >
+              {option}
+            </.combobox_option>
+          <% end %>
+        </.combobox_options>
+      </.combobox>
     </div>
   </div>
 </div>
