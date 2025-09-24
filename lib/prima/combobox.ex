@@ -38,25 +38,31 @@ defmodule Prima.Combobox do
 
   slot :inner_block, required: true
   attr :class, :string, default: ""
-  attr :id, :string, default: ""
+  attr :id, :string, required: true
+  attr :placement, :string, default: "bottom-start"
+  attr :flip, :boolean, default: true
   attr :transition_enter, :any, default: nil
   attr :transition_leave, :any, default: nil
   attr(:rest, :global)
 
   def combobox_options(assigns) do
     ~H"""
-    <div
-      id={@id}
-      class={@class}
-      style="display: none;"
-      js-show={JS.show(transition: @transition_enter)}
-      js-hide={JS.hide(transition: @transition_leave)}
-      phx-click-away={JS.dispatch("prima:combobox:reset")}
-      data-prima-ref="options"
-      {@rest}
-    >
-      {render_slot(@inner_block)}
-    </div>
+    <.portal id={"#{@id}-portal"} target="body">
+      <div
+        id={@id}
+        class={@class}
+        style="display: none;"
+        js-show={JS.show(transition: @transition_enter)}
+        js-hide={JS.hide(transition: @transition_leave)}
+        phx-click-away={JS.dispatch("prima:combobox:reset")}
+        data-prima-ref="options"
+        data-placement={@placement}
+        data-flip={@flip}
+        {@rest}
+      >
+        {render_slot(@inner_block)}
+      </div>
+    </.portal>
     """
   end
 

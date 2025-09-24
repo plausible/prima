@@ -25,7 +25,7 @@ defmodule PrimaWeb.DemoLive.AsyncComboboxDemo do
   def render(assigns) do
     ~H"""
     <form phx-submit="save">
-      <.combobox class="relative w-64" id="demo-async-combobox">
+      <.combobox class="w-64" id="demo-async-combobox">
         <div class="relative mt-2 rounded-md shadow-sm">
           <.combobox_input
             name="user[favourite_fruit]"
@@ -54,7 +54,7 @@ defmodule PrimaWeb.DemoLive.AsyncComboboxDemo do
         </div>
 
         <.combobox_options
-          class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+          class="max-h-60 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
           phx-update="stream"
           id="demo-async-combobox-options"
         >

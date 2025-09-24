@@ -1,11 +1,16 @@
+import { computePosition, flip, autoUpdate } from '@floating-ui/dom';
+
 export default {
   mounted() {
     this.mode = this.getMode()
-    this.createOption = this.el.querySelector('[data-prima-ref=create-option]')
+    // Store reference to this combobox's options container
+    this.optionsContainer = this.getOptionsContainer()
+    this.createOption = this.optionsContainer?.querySelector('[data-prima-ref=create-option]')
     this.hasCreateOption = !!this.createOption
-    this.el.addEventListener('mouseover', this.onHover.bind(this))
     this.el.addEventListener('keydown', this.onKey.bind(this))
     this.el.addEventListener('click', this.onClick.bind(this))
+    this.optionsContainer?.addEventListener('click', this.onClick.bind(this))
+    this.optionsContainer?.addEventListener('mouseover', this.onHover.bind(this))
     this.el.querySelector('input[data-prima-ref=search_input]').addEventListener('focus', this.showOptions.bind(this))
 
     this.initializeCreateOption()
@@ -18,7 +23,7 @@ export default {
   },
 
   updated() {
-    const focusedDomNode = this.el.querySelector(`[role=option][data-value="${this.focusedOptionBeforeUpdate}"]`)
+    const focusedDomNode = this.optionsContainer?.querySelector(`[role=option][data-value="${this.focusedOptionBeforeUpdate}"]`)
     if (this.focusedOptionBeforeUpdate && focusedDomNode) {
       this.setFocus(focusedDomNode)
     } else {
@@ -26,8 +31,19 @@ export default {
     }
   },
 
+  destroyed() {
+    this.cleanupAutoUpdate()
+  },
+
+  getOptionsContainer() {
+    const comboboxId = this.el.id
+    if (comboboxId) {
+      return document.querySelector(`[data-prima-ref="options"][id^="${comboboxId}"]`)
+    }
+  },
+
   setFocus(el) {
-    this.el.querySelector('[role=option][data-focus=true]')?.removeAttribute('data-focus')
+    this.optionsContainer?.querySelector('[role=option][data-focus=true]')?.removeAttribute('data-focus')
     el.setAttribute('data-focus', 'true')
   },
 
@@ -55,7 +71,7 @@ export default {
   },
 
   onKey(e) {
-    const visibleOptions = Array.from(this.el.querySelectorAll('[role=option]:not([data-hidden])'))
+    const visibleOptions = Array.from(this.optionsContainer?.querySelectorAll('[role=option]:not([data-hidden])') || [])
     const firstOption = visibleOptions[0]
     const lastOption = visibleOptions[visibleOptions.length - 1]
     const currentFocusIndex = visibleOptions.findIndex(option => option.getAttribute('data-focus') === 'true')
@@ -104,12 +120,12 @@ export default {
     }
 
     if (this.mode === 'async') {
-      const options = this.el.querySelector('[data-prima-ref=options]')
+      const options = this.optionsContainer
       this.liveSocket.execJS(options, options.getAttribute('js-show'));
       this.focusedOptionBeforeUpdate = this.currentlyFocusedOption()?.dataset.value
     } else {
       const q = searchValue.toLowerCase()
-      const allOptions = this.el.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
+      const allOptions = this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
       let previouslyFocusedOptionIsHidden = false
 
       for (const option of allOptions) {
@@ -145,8 +161,59 @@ export default {
     option.setAttribute('data-hidden', 'true')
   },
 
+  async positionOptions() {
+    const input = this.el.querySelector('input[data-prima-ref=search_input]')
+    const options = this.optionsContainer
+
+    if (!options) return
+
+    const placement = options.getAttribute('data-placement') || 'bottom-start'
+    const shouldFlip = options.getAttribute('data-flip') !== 'false'
+
+    const middleware = []
+    if (shouldFlip) {
+      middleware.push(flip())
+    }
+
+    try {
+      const {x, y} = await computePosition(input, options, {
+        placement: placement,
+        middleware: middleware
+      })
+
+      Object.assign(options.style, {
+        position: 'absolute',
+        top: `${y}px`,
+        left: `${x}px`
+      })
+    } catch (error) {
+      console.error('Failed to position combobox options:', error)
+    }
+  },
+
+  setupAutoUpdate() {
+    const input = this.el.querySelector('input[data-prima-ref=search_input]')
+    const options = this.optionsContainer
+
+    if (!options) return
+
+    // Use floating-ui's autoUpdate for automatic repositioning
+    this.cleanup = autoUpdate(input, options, () => {
+      this.positionOptions()
+    })
+  },
+
+  cleanupAutoUpdate() {
+    if (this.cleanup) {
+      this.cleanup()
+      this.cleanup = null
+    }
+  },
+
   showOptions() {
-    const options = this.el.querySelector('[data-prima-ref=options]')
+    const options = this.optionsContainer
+    if (!options) return
+
     this.liveSocket.execJS(options, options.getAttribute('js-show'));
     this.el.querySelector('input[data-prima-ref=search_input]').select()
 
@@ -159,10 +226,19 @@ export default {
 
     this.focusFirstOption()
 
+    // Position options using floating-ui after element is fully rendered
+    requestAnimationFrame(() => {
+      this.positionOptions()
+    })
+
+    // Setup automatic repositioning with floating-ui's autoUpdate
+    this.setupAutoUpdate()
+
     const handleClickOutside = (event) => {
       if (!options.contains(event.target) && !this.el.querySelector('input[data-prima-ref=search_input]').contains(event.target)) {
         this.resetOnBlur()
         document.removeEventListener('click', handleClickOutside)
+        this.cleanupAutoUpdate()
       }
     }
 
@@ -185,22 +261,28 @@ export default {
   },
 
   hideOptions() {
-    const options = this.el.querySelector('[data-prima-ref=options]')
+    const options = this.optionsContainer
+    if (!options) return
+
     this.liveSocket.execJS(options, options.getAttribute('js-hide'));
+
+    // Clean up autoUpdate when hiding
+    this.cleanupAutoUpdate()
+
     options.addEventListener('phx:hide-end', () => {
-      for (const option of this.el.querySelectorAll('[role=option]')) {
+      for (const option of options.querySelectorAll('[role=option]')) {
         this.showOption(option) // reset the state
       }
     })
   },
 
   focusFirstOption() {
-    const firstOption = this.el.querySelector('[role=option]:not([data-hidden])')
+    const firstOption = this.optionsContainer?.querySelector('[role=option]:not([data-hidden])')
     firstOption && this.setFocus(firstOption)
   },
 
   currentlyFocusedOption() {
-    return this.el.querySelector('[role=option][data-focus=true]')
+    return this.optionsContainer?.querySelector('[role=option][data-focus=true]')
   },
 
   updateCreateOption(searchValue) {
@@ -226,7 +308,7 @@ export default {
   },
 
   hasExactMatch(searchValue) {
-    const regularOptions = this.el.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
+    const regularOptions = this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
     const hasStaticMatch = Array.from(regularOptions).some(option =>
       option.getAttribute('data-value') === searchValue
     )

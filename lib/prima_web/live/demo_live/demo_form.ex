@@ -29,7 +29,7 @@ defmodule PrimaWeb.DemoLive.DemoForm do
           <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
             Category
           </label>
-          <.combobox class="relative w-full" id="form-modal-combobox">
+          <.combobox class="w-full" id="form-modal-combobox">
             <.combobox_input
               name={@form[:category].name}
               class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -37,8 +37,9 @@ defmodule PrimaWeb.DemoLive.DemoForm do
             />
 
             <.combobox_options
+              id="form-modal-combobox-options"
               transition_leave={{"ease-in duration-100", "opacity-100", "opacity-0"}}
-              class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+              class="max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
             >
               <%= for option <- ["Technology", "Design", "Marketing", "Sales", "Finance"] do %>
                 <.combobox_option
