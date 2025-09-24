@@ -1,4 +1,4 @@
-import { computePosition, flip, autoUpdate } from '@floating-ui/dom';
+import { computePosition, flip, offset, autoUpdate } from '@floating-ui/dom';
 
 export default {
   mounted() {
@@ -166,8 +166,12 @@ export default {
 
     const placement = options.getAttribute('data-placement') || 'bottom-start'
     const shouldFlip = options.getAttribute('data-flip') !== 'false'
+    const offsetValue = options.getAttribute('data-offset')
 
     const middleware = []
+    if (offsetValue && !isNaN(parseInt(offsetValue))) {
+      middleware.push(offset(parseInt(offsetValue)))
+    }
     if (shouldFlip) {
       middleware.push(flip())
     }

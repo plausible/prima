@@ -93,11 +93,11 @@ end
 ### Demo Application
 - Located in `lib/prima_web/` (excluded from package)
 - Structured with sidebar navigation and separate component pages:
-  - `/demo` - Introduction page
-  - `/demo/dropdown` - Dropdown component demos
-  - `/demo/modal` - Modal component demos
-  - `/demo/combobox` - Combobox component demos
-  - `/demo/history-modal` - History modal demos
+  - `/` - Introduction page
+  - `/dropdown` - Dropdown component demos
+  - `/modal` - Modal component demos
+  - `/combobox` - Combobox component demos
+  - `/history-modal` - History modal demos
 - Serves as development environment and living documentation
 
 ## Key Development Considerations

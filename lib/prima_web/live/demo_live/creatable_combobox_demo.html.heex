@@ -6,7 +6,10 @@
       placeholder="Type to search or create..."
     />
 
-    <.combobox_options id="creatable-combobox-options" class="max-h-60 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50">
+    <.combobox_options
+      id="creatable-combobox-options"
+      class="max-h-60 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
+    >
       <%= for option <- ["Apple", "Pear", "Mango", "Pineapple"] do %>
         <.combobox_option
           value={option}

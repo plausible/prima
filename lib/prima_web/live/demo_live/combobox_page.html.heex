@@ -22,4 +22,17 @@
   <.demo_section title="Async Combobox with Search" id="combobox-async">
     <.live_component module={PrimaWeb.DemoLive.AsyncComboboxDemo} id="async-combobox-demo" />
   </.demo_section>
+
+  <.demo_section title="Positioning & Layout" id="combobox-positioning">
+    <div class="prose prose-sm max-w-none mb-4">
+      <p>
+        Control where the combobox options appear using the <code>placement</code> attribute.
+        The component uses floating-ui for intelligent positioning and automatically flips
+        to prevent overflow. Use <code>offset</code> to add spacing between the input and options.
+      </p>
+    </div>
+    <div class="bg-gray-50 rounded-lg">
+      <.positioned_combobox_demo />
+    </div>
+  </.demo_section>
 </div>
