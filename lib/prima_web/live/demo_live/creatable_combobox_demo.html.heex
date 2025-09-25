@@ -1,24 +1,33 @@
-<form>
+<div class="max-w-sm">
+  <label class="block text-sm font-medium text-gray-700 mb-2">Project Tags</label>
   <.combobox class="w-64" id="creatable-combobox">
     <.combobox_input
-      name="creatable-combobox[fruit]"
-      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-      placeholder="Type to search or create..."
+      name="tag"
+      class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      placeholder="Search or create tags..."
     />
 
     <.combobox_options
       id="creatable-combobox-options"
-      class="max-h-60 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
+      offset={4}
+      class="max-h-60 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none sm:text-sm z-50"
     >
-      <%= for option <- ["Apple", "Pear", "Mango", "Pineapple"] do %>
+      <%= for tag <- ["frontend", "backend", "database", "api", "testing", "performance", "security", "ui-ux"] do %>
         <.combobox_option
-          value={option}
+          value={tag}
           class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
         >
-          {option}
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+            <%= tag %>
+          </span>
         </.combobox_option>
       <% end %>
-      <.creatable_option class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-500 data-focus:bg-indigo-600 data-focus:text-white italic border-t border-gray-200" />
+
+      <.creatable_option class="group relative cursor-default select-none py-2 pl-3 pr-9 text-indigo-600 data-focus:bg-indigo-600 data-focus:text-white border-t border-gray-100 italic" />
     </.combobox_options>
   </.combobox>
-</form>
+
+  <p class="mt-2 text-xs text-gray-500">
+    Type a custom tag name and press Enter to create a new one.
+  </p>
+</div>

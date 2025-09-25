@@ -1,114 +1,88 @@
-<div class="grid grid-cols-2 gap-8 p-8">
-  <!-- Bottom-start (default) -->
-  <div class="space-y-2">
-    <h4 class="text-sm font-semibold text-gray-700">Bottom Start (default)</h4>
-    <div class="relative">
-      <.combobox class="w-48" id="bottom-start-combobox">
-        <.combobox_input
-          name="bottom_start[fruit]"
-          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-          placeholder="Search fruits..."
-        />
-        <.combobox_options
-          id="bottom-start-options"
-          placement="bottom-start"
-          class="max-h-48 w-48 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
-        >
-          <%= for option <- ["Apple", "Banana", "Cherry", "Date"] do %>
-            <.combobox_option
-              value={option}
-              class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-blue-100 data-focus:text-blue-900"
-            >
-              {option}
-            </.combobox_option>
-          <% end %>
-        </.combobox_options>
-      </.combobox>
-    </div>
+<div class="max-w-sm space-y-6">
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-2">Fruit (opens above)</label>
+    <.combobox class="w-64" id="top-combobox">
+      <.combobox_input
+        name="top_fruit"
+        class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+        placeholder="Choose fruit..."
+      />
+
+      <.combobox_options
+        id="top-combobox-options"
+        placement="top-start"
+        offset={4}
+        class="max-h-32 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none sm:text-sm z-50"
+      >
+        <%= for option <- ["Apple", "Banana", "Cherry", "Date"] do %>
+          <.combobox_option
+            value={option}
+            class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
+          >
+            <%= option %>
+          </.combobox_option>
+        <% end %>
+      </.combobox_options>
+    </.combobox>
   </div>
-  
-<!-- Top-start -->
-  <div class="space-y-2">
-    <h4 class="text-sm font-semibold text-gray-700">Top Start</h4>
-    <div class="relative">
-      <.combobox class="w-48" id="top-start-combobox">
-        <.combobox_input
-          name="top_start[color]"
-          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6"
-          placeholder="Search colors..."
-        />
-        <.combobox_options
-          id="top-start-options"
-          placement="top-start"
-          class="max-h-48 w-48 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
-        >
-          <%= for option <- ["Red", "Green", "Blue", "Yellow"] do %>
-            <.combobox_option
-              value={option}
-              class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-green-100 data-focus:text-green-900"
-            >
-              {option}
-            </.combobox_option>
-          <% end %>
-        </.combobox_options>
-      </.combobox>
-    </div>
+
+  <!-- Right Placement -->
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-2">Color (opens to right)</label>
+    <.combobox class="w-64" id="right-combobox">
+      <.combobox_input
+        name="right_color"
+        class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+        placeholder="Choose color..."
+      />
+
+      <.combobox_options
+        id="right-combobox-options"
+        placement="right-start"
+        offset={8}
+        class="max-h-48 w-32 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none sm:text-sm z-50"
+      >
+        <%= for color <- ["Red", "Blue", "Green", "Yellow", "Purple", "Orange"] do %>
+          <.combobox_option
+            value={color}
+            class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
+          >
+            <%= color %>
+          </.combobox_option>
+        <% end %>
+      </.combobox_options>
+    </.combobox>
   </div>
-  
-<!-- Right -->
-  <div class="space-y-2">
-    <h4 class="text-sm font-semibold text-gray-700">Right</h4>
-    <div class="relative">
-      <.combobox class="w-32" id="right-combobox">
-        <.combobox_input
-          name="right[animal]"
-          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6"
-          placeholder="Animals..."
-        />
-        <.combobox_options
-          id="right-options"
-          placement="right"
-          class="max-h-48 w-40 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
-        >
-          <%= for option <- ["Cat", "Dog", "Bird", "Fish"] do %>
-            <.combobox_option
-              value={option}
-              class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-purple-100 data-focus:text-purple-900"
-            >
-              {option}
-            </.combobox_option>
-          <% end %>
-        </.combobox_options>
-      </.combobox>
-    </div>
-  </div>
-  
-<!-- Left with offset -->
-  <div class="space-y-2">
-    <h4 class="text-sm font-semibold text-gray-700">Left + 10px offset</h4>
-    <div class="relative">
-      <.combobox class="w-32" id="left-combobox">
-        <.combobox_input
-          name="left[city]"
-          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
-          placeholder="Cities..."
-        />
-        <.combobox_options
-          id="left-options"
-          placement="left"
-          offset={10}
-          class="max-h-48 w-40 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
-        >
-          <%= for option <- ["Paris", "London", "Tokyo", "Sydney"] do %>
-            <.combobox_option
-              value={option}
-              class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-orange-100 data-focus:text-orange-900"
-            >
-              {option}
-            </.combobox_option>
-          <% end %>
-        </.combobox_options>
-      </.combobox>
-    </div>
+
+  <!-- Bottom with Large Offset -->
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-2">Country (12px offset)</label>
+    <.combobox class="w-64" id="offset-combobox">
+      <.combobox_input
+        name="offset_country"
+        class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+        placeholder="Select country..."
+      />
+
+      <.combobox_options
+        id="offset-combobox-options"
+        placement="bottom-start"
+        offset={12}
+        class="max-h-48 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none sm:text-sm z-50"
+      >
+        <%= for {country, flag} <- [
+          {"United States", "🇺🇸"}, {"Canada", "🇨🇦"}, {"United Kingdom", "🇬🇧"},
+          {"Germany", "🇩🇪"}, {"France", "🇫🇷"}, {"Japan", "🇯🇵"}, {"Australia", "🇦🇺"}
+        ] do %>
+          <.combobox_option
+            value={country}
+            class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
+          >
+            <span class="mr-2"><%= flag %></span><%= country %>
+          </.combobox_option>
+        <% end %>
+      </.combobox_options>
+    </.combobox>
   </div>
 </div>
+
