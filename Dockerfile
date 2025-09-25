@@ -18,11 +18,15 @@ ARG DEBIAN_VERSION=bookworm-20250908-slim
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} AS builder
 
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
+
+# install node.js version 24
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+    && apt-get install -y nodejs
 
 # prepare build dir
 WORKDIR /app
@@ -50,6 +54,9 @@ COPY priv priv
 COPY lib lib
 
 COPY assets assets
+
+# install npm dependencies
+RUN npm install --prefix ./assets
 
 # compile assets
 RUN mix assets.deploy
