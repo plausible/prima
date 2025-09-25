@@ -19,6 +19,12 @@ export default {
   },
 
   setupElements() {
+    this.modalEl = document.getElementById(this.el.id.replace('-portal', ''))
+
+    if (!this.modalEl) {
+      throw new Error(`[Prima Modal] Could not find modal element for portal ${this.el.id}`)
+    }
+
     if (!this.ref("modal-panel")) {
       this.async = true
     }
@@ -27,15 +33,15 @@ export default {
 
   setupEventListeners() {
     this.listeners = [
-      [this.el, "prima:modal:open", this.handleModalOpen.bind(this)],
-      [this.el, "prima:modal:close", this.handleModalClose.bind(this)],
+      [this.modalEl, "prima:modal:open", this.handleModalOpen.bind(this)],
+      [this.modalEl, "prima:modal:close", this.handleModalClose.bind(this)],
       [this.ref("modal-overlay"), "phx:hide-end", this.handleOverlayHideEnd.bind(this)]
     ]
 
     if (this.async) {
       this.listeners.push(
-        [this.el, "prima:modal:panel-mounted", this.handlePanelMounted.bind(this)],
-        [this.el, "prima:modal:panel-removed", this.handlePanelRemoved.bind(this)]
+        [this.modalEl, "prima:modal:panel-mounted", this.handlePanelMounted.bind(this)],
+        [this.modalEl, "prima:modal:panel-removed", this.handlePanelRemoved.bind(this)]
       )
     }
 
@@ -47,7 +53,9 @@ export default {
     }
 
     this.listeners.forEach(([element, event, handler]) => {
-      element.addEventListener(event, handler)
+      if (element) {
+        element.addEventListener(event, handler)
+      }
     })
   },
 
@@ -61,8 +69,8 @@ export default {
   },
 
   checkInitialShow() {
-    if (Object.hasOwn(this.el.dataset, 'primaShow')) {
-      this.el.dispatchEvent(new Event('prima:modal:open'))
+    if (Object.hasOwn(this.modalEl.dataset, 'primaShow')) {
+      this.modalEl.dispatchEvent(new Event('prima:modal:open'))
     }
   },
 
@@ -70,8 +78,8 @@ export default {
     this.log("modal:open")
     this.storeFocusedElement()
     this.preventBodyScroll()
-    this.el.removeAttribute('aria-hidden')
-    this.maybeExecJS(this.el, "js-show");
+    this.modalEl.removeAttribute('aria-hidden')
+    this.maybeExecJS(this.modalEl, "js-show");
     this.maybeExecJS(this.ref("modal-overlay"), "js-show");
     if (this.async) {
       this.maybeExecJS(this.ref("modal-loader"), "js-show");
@@ -84,12 +92,9 @@ export default {
     this.log("modal:panel-mounted")
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     this.maybeExecJS(this.ref("modal-panel"), "js-show");
-    // Set up ARIA relationships for async modal since title element is now available
     this.setupAriaRelationships()
-    // Ensure aria-hidden is removed for async modals
-    this.el.removeAttribute('aria-hidden')
+    this.modalEl.removeAttribute('aria-hidden')
 
-    // Set up focus management for the async panel - add to tracked listeners
     const panelShowEndHandler = this.handlePanelShowEnd.bind(this)
     this.ref("modal-panel").addEventListener("phx:show-end", panelShowEndHandler);
     this.listeners.push([this.ref("modal-panel"), "phx:show-end", panelShowEndHandler])
@@ -98,7 +103,7 @@ export default {
   handlePanelRemoved() {
     this.log("modal:panel-removed")
     if (!this.panelIsDirty()) {
-      this.el.dispatchEvent(new Event('prima:modal:close'))
+      this.modalEl.dispatchEvent(new Event('prima:modal:close'))
     }
   },
 
@@ -115,8 +120,8 @@ export default {
 
   handleOverlayHideEnd() {
     this.log("modal:overlay-hide-end")
-    this.maybeExecJS(this.el, "js-hide");
-    this.el.setAttribute('aria-hidden', 'true')
+    this.maybeExecJS(this.modalEl, "js-hide");
+    this.modalEl.setAttribute('aria-hidden', 'true')
     this.restoreFocusedElement()
   },
 
@@ -135,7 +140,7 @@ export default {
   },
 
   ref(ref) {
-    return this.el.querySelector(`[prima-ref="${ref}"]`);
+    return this.modalEl.querySelector(`[prima-ref="${ref}"]`);
   },
 
   log(message) {
@@ -157,7 +162,7 @@ export default {
   },
 
   setupAriaRelationships() {
-    const modalId = this.el.id
+    const modalId = this.modalEl.id
     const titleElement = this.ref('modal-title')
 
     if (titleElement) {
@@ -167,7 +172,7 @@ export default {
       }
 
       // Set aria-labelledby on the modal container
-      this.el.setAttribute('aria-labelledby', titleElement.id)
+      this.modalEl.setAttribute('aria-labelledby', titleElement.id)
     }
   },
 
