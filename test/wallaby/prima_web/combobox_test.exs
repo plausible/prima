@@ -316,4 +316,17 @@ defmodule PrimaWeb.ComboboxTest do
       |> Query.visible(true)
     )
   end
+
+  feature "async combobox: options should not show by default without user interaction", %{
+    session: session
+  } do
+    session
+    |> visit("/fixtures/async-combobox")
+    # Options should be hidden initially without any user interaction
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(false))
+    # Search input should be present but not focused
+    |> assert_has(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"))
+    # Verify no options are showing
+    |> assert_missing(Query.css("#demo-async-combobox [role=option]") |> Query.visible(true))
+  end
 end
