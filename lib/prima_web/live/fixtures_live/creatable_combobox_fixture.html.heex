@@ -1,26 +1,22 @@
 <form>
-  <.combobox class="relative w-64" id="demo-creatable-combobox">
+  <.combobox id="demo-creatable-combobox">
     <.combobox_input
       name="demo-creatable-combobox[fruit]"
-      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 cursor-default placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
       placeholder="Type to search or create..."
     />
 
     <.combobox_options
       id="demo-creatable-combobox-options"
-      transition_leave={{"ease-in duration-100", "opacity-100", "opacity-0"}}
-      class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
     >
       <%= for option <- ["Apple", "Pear", "Mango", "Pineapple"] do %>
         <.combobox_option
           value={option}
-          class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
         >
           {option}
         </.combobox_option>
       <% end %>
 
-      <.creatable_option class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-500 data-focus:bg-indigo-600 data-focus:text-white italic border-t border-gray-200" />
+      <.creatable_option />
     </.combobox_options>
   </.combobox>
 </form>

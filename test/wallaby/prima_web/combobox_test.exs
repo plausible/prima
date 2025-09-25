@@ -277,4 +277,43 @@ defmodule PrimaWeb.ComboboxTest do
       end
     )
   end
+
+  feature "async combobox: options reappear when backspacing after selection (working case)", %{
+    session: session
+  } do
+    session
+    |> visit("/fixtures/async-combobox")
+    |> click(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"))
+    |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"),
+      with: "Orange"
+    )
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
+    |> assert_has(
+      Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-focus=true]")
+    )
+    |> send_keys([:enter])
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(false))
+    |> send_keys([:backspace])
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
+  end
+
+  feature "frontend combobox: options should reappear when backspacing after selection (bug case)",
+          %{
+            session: session
+          } do
+    session
+    |> visit("/fixtures/simple-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple'][data-focus=true]"))
+    |> send_keys([:enter])
+    |> assert_has(@options_container |> Query.visible(false))
+    |> send_keys([:backspace])
+    |> assert_has(@options_container |> Query.visible(true))
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Apple']")
+      |> Query.visible(true)
+    )
+  end
 end

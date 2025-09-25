@@ -121,6 +121,20 @@ export default {
       this.liveSocket.execJS(options, options.getAttribute('js-show'));
       this.focusedOptionBeforeUpdate = this.currentlyFocusedOption()?.dataset.value
     } else {
+      // Show options container if input has content (fixes backspace bug)
+      if (searchValue.length > 0) {
+        const options = this.optionsContainer
+        this.liveSocket.execJS(options, options.getAttribute('js-show'));
+
+        // Position options after showing
+        requestAnimationFrame(() => {
+          this.positionOptions()
+        })
+
+        // Setup automatic repositioning
+        this.setupAutoUpdate()
+      }
+
       const q = searchValue.toLowerCase()
       const allOptions = this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
       let previouslyFocusedOptionIsHidden = false
