@@ -33,6 +33,7 @@ export default {
   },
 
   updated() {
+    this.positionOptions()
     const focusedDomNode = this.optionsContainer?.querySelector(`[role=option][data-value="${this.focusedOptionBeforeUpdate}"]`)
     if (this.focusedOptionBeforeUpdate && focusedDomNode) {
       this.setFocus(focusedDomNode)
@@ -240,7 +241,6 @@ export default {
   setupAutoUpdate() {
     if (!this.optionsContainer) return
 
-    // Use floating-ui's autoUpdate for automatic repositioning
     this.cleanup = autoUpdate(this.searchInput, this.optionsContainer, () => {
       this.positionOptions()
     })
