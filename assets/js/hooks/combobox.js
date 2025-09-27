@@ -113,8 +113,10 @@ export default {
 
   // === EVENT HANDLERS ===
   onClick(e) {
-    if (e.target.getAttribute('role') === 'option') {
-      this.selectOption(e.target)
+    // Use event delegation to find the closest option element
+    const optionElement = e.target.closest('[role="option"]')
+    if (optionElement) {
+      this.selectOption(optionElement)
     }
   },
 
@@ -132,8 +134,10 @@ export default {
   },
 
   onHover(e) {
-    if (e.target.getAttribute('role') === 'option') {
-      this.setFocus(e.target)
+    // Use event delegation to find the closest option element
+    const optionElement = e.target.closest('[role="option"]')
+    if (optionElement) {
+      this.setFocus(optionElement)
     }
   },
 
