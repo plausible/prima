@@ -8,7 +8,7 @@ defmodule PrimaWeb.AsyncModalTest do
 
   feature "shows modal when button is clicked", %{session: session} do
     session
-    |> visit("/fixtures/async-modal")
+    |> visit_fixture("/fixtures/async-modal", "#demo-form-modal")
     |> assert_has(@modal_container |> Query.visible(false))
     |> assert_has(@modal_overlay |> Query.visible(false))
     # In async mode, panel is not mounted in the DOM until the modal is opened
@@ -25,7 +25,7 @@ defmodule PrimaWeb.AsyncModalTest do
 
   feature "closes modal when user clicks close button", %{session: session} do
     session
-    |> visit("/fixtures/async-modal")
+    |> visit_fixture("/fixtures/async-modal", "#demo-form-modal")
     |> click(Query.css("#open-form-modal-button"))
     |> assert_has(@modal_panel |> Query.visible(true))
     |> click(Query.css("[testing-ref=close-button]"))
@@ -37,7 +37,7 @@ defmodule PrimaWeb.AsyncModalTest do
 
   feature "closes modal when user hits escape key", %{session: session} do
     session
-    |> visit("/fixtures/async-modal")
+    |> visit_fixture("/fixtures/async-modal", "#demo-form-modal")
     |> click(Query.css("#open-form-modal-button"))
     |> assert_has(@modal_panel |> Query.visible(true))
     |> send_keys([:escape])
@@ -51,7 +51,7 @@ defmodule PrimaWeb.AsyncModalTest do
     session: session
   } do
     session
-    |> visit("/fixtures/async-modal")
+    |> visit_fixture("/fixtures/async-modal", "#demo-form-modal")
     |> click(Query.css("#open-form-modal-button"))
     |> assert_has(@modal_panel |> Query.visible(true))
     |> click(Query.button("Save"))
@@ -63,7 +63,7 @@ defmodule PrimaWeb.AsyncModalTest do
 
   feature "async modal has proper ARIA attributes and relationships", %{session: session} do
     session
-    |> visit("/fixtures/async-modal")
+    |> visit_fixture("/fixtures/async-modal", "#demo-form-modal")
     # Modal should have proper ARIA attributes even when hidden
     |> assert_has(
       Query.css("#demo-form-modal[role=dialog][aria-modal=true][aria-hidden=true]")
@@ -84,7 +84,7 @@ defmodule PrimaWeb.AsyncModalTest do
   feature "race condition - when old modal is closed and new one opened quickly, only new one is shown",
           %{session: session} do
     session
-    |> visit("/fixtures/async-modal")
+    |> visit_fixture("/fixtures/async-modal", "#demo-form-modal")
     |> click(Query.css("#open-form-modal-button"))
     |> assert_has(@modal_panel |> Query.visible(true))
     |> execute_script(

@@ -1,13 +1,12 @@
 defmodule PrimaWeb.FlexibleMarkupReliabilityTest do
   use Prima.WallabyCase, async: true
 
-  @combobox_container Query.css("#flexible-markup-combobox")
   @search_input Query.css("#flexible-markup-combobox input[data-prima-ref=search_input]")
   @options_container Query.css("#flexible-markup-combobox [data-prima-ref=options]")
 
   feature "verifies the fix: clicking nested elements now works", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Try clicking directly on the option element - this should work
@@ -37,7 +36,7 @@ defmodule PrimaWeb.FlexibleMarkupReliabilityTest do
 
   feature "tests various nested element clicks work with event delegation", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Test clicking on nested text element

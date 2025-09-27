@@ -7,7 +7,7 @@ defmodule PrimaWeb.SimpleModalTest do
 
   feature "shows modal when button is clicked", %{session: session} do
     session
-    |> visit("/fixtures/simple-modal")
+    |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
     |> assert_has(@modal_container |> Query.visible(false))
     |> assert_has(@modal_overlay |> Query.visible(false))
     |> assert_has(@modal_panel |> Query.visible(false))
@@ -19,7 +19,7 @@ defmodule PrimaWeb.SimpleModalTest do
 
   feature "closes modal when user clicks close button", %{session: session} do
     session
-    |> visit("/fixtures/simple-modal")
+    |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
     |> click(Query.css("#simple-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
     |> assert_has(@modal_overlay |> Query.visible(true))
@@ -32,7 +32,7 @@ defmodule PrimaWeb.SimpleModalTest do
 
   feature "closes modal when user hits escape key", %{session: session} do
     session
-    |> visit("/fixtures/simple-modal")
+    |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
     |> click(Query.css("#simple-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
     |> assert_has(@modal_overlay |> Query.visible(true))
@@ -45,7 +45,7 @@ defmodule PrimaWeb.SimpleModalTest do
 
   feature "prevents body scroll when modal is open", %{session: session} do
     session
-    |> visit("/fixtures/simple-modal")
+    |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
     |> execute_script("return document.body.style.overflow", fn overflow ->
       assert overflow == ""
     end)
@@ -73,7 +73,7 @@ defmodule PrimaWeb.SimpleModalTest do
 
   feature "auto-generates ARIA label relationships", %{session: session} do
     session
-    |> visit("/fixtures/simple-modal")
+    |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
     |> click(Query.css("#simple-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
     # Modal should have auto-generated aria-labelledby pointing to modal title
@@ -84,7 +84,7 @@ defmodule PrimaWeb.SimpleModalTest do
 
   feature "focus management when modal opens and closes", %{session: session} do
     session
-    |> visit("/fixtures/simple-modal")
+    |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
     # Focus the trigger button first
     |> execute_script("document.querySelector('#simple-modal button').focus()")
     |> assert_has(Query.css("#simple-modal button:focus"))
@@ -101,7 +101,7 @@ defmodule PrimaWeb.SimpleModalTest do
 
   feature "manages aria-hidden state for background content", %{session: session} do
     session
-    |> visit("/fixtures/simple-modal")
+    |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
     # Initially modal should be hidden
     |> assert_has(
       Query.css("#demo-modal[aria-hidden=true]")
@@ -123,7 +123,7 @@ defmodule PrimaWeb.SimpleModalTest do
 
   feature "modal remains functional after LiveView reconnection", %{session: session} do
     session
-    |> visit("/fixtures/simple-modal")
+    |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
     # Test multiple reconnections to see if event listeners accumulate
     |> execute_script("window.liveSocket.disconnect()")
     |> execute_script("window.liveSocket.connect()")

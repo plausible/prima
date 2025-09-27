@@ -11,7 +11,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
 
   feature "create option is hidden initially when combobox opens", %{session: session} do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> assert_has(@combobox_container)
     |> assert_has(@search_input)
     |> assert_has(@options_container |> Query.visible(false))
@@ -25,7 +25,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
 
   feature "create option appears when typing non-matching text", %{session: session} do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Type something that doesn't match existing options
@@ -38,7 +38,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
 
   feature "create option is hidden when typing exact match", %{session: session} do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Type something that exactly matches an existing option
@@ -56,7 +56,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
     session: session
   } do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Type partial match that also has an exact match
@@ -77,7 +77,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
 
   feature "create option updates text dynamically as user types", %{session: session} do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> fill_in(@search_input, with: "Gr")
     |> assert_has(@create_option |> Query.visible(true))
@@ -92,7 +92,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
 
   feature "selecting create option sets both search and submit inputs", %{session: session} do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> fill_in(@search_input, with: "Strawberry")
     |> assert_has(@create_option |> Query.visible(true))
@@ -116,7 +116,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
 
   feature "selecting create option with keyboard navigation", %{session: session} do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> fill_in(@search_input, with: "Watermelon")
     |> assert_has(@create_option |> Query.visible(true))
@@ -141,7 +141,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
     session: session
   } do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> fill_in(@search_input, with: "Apple")
     # Create option should be hidden because of exact match
@@ -164,7 +164,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
 
   feature "keyboard navigation includes create option when visible", %{session: session} do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> fill_in(@search_input, with: "Grape")
     # Create option should be visible
@@ -182,7 +182,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
 
   feature "focus handling when create option disappears during navigation", %{session: session} do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> fill_in(@search_input, with: "Grape")
     # Create option should be visible and focused
@@ -210,7 +210,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
     session: session
   } do
     session
-    |> visit("/fixtures/creatable-combobox")
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
     |> fill_in(@search_input, with: "z")
     # Only create option should be visible

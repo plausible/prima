@@ -16,6 +16,7 @@ export default {
     this.setupElements()
     this.setupEventListeners()
     this.checkInitialShow()
+    this.el.setAttribute('data-prima-ready', 'true')
   },
 
   setupElements() {

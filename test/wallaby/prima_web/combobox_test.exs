@@ -8,7 +8,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "shows combobox options when input is focused", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> assert_has(@combobox_container)
     |> assert_has(@search_input)
     |> assert_has(@options_container |> Query.visible(false))
@@ -19,7 +19,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "hides options when clicking outside combobox", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> click(Query.css("body"))
@@ -28,7 +28,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "filters options based on search input", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(@all_options |> Query.count(4))
@@ -54,7 +54,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "selects option when clicked", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
@@ -75,7 +75,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "navigates options with keyboard arrows", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(@all_options |> Query.count(4))
@@ -94,7 +94,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "selects focused option with Enter key", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Navigate to second option
@@ -120,7 +120,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "selects focused option with Tab key", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Navigate to third option
@@ -146,7 +146,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "focuses option on mouse hover", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> hover(Query.css("#demo-combobox [role=option][data-value=Mango]"))
@@ -155,7 +155,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "resets search input when losing focus without selection", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Type something in search input without selecting
@@ -180,7 +180,7 @@ defmodule PrimaWeb.ComboboxTest do
     session: session
   } do
     session
-    |> visit("/fixtures/async-combobox")
+    |> visit_fixture("/fixtures/async-combobox", "#demo-async-combobox")
     # Start with search that will show Orange as the focused option
     |> click(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"))
     |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"),
@@ -206,7 +206,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "async combobox shows options after search", %{session: session} do
     session
-    |> visit("/fixtures/async-combobox")
+    |> visit_fixture("/fixtures/async-combobox", "#demo-async-combobox")
     # Focus on the async combobox and type a search term
     |> click(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"))
     |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"), with: "an")
@@ -223,7 +223,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "async combobox handles search with no results", %{session: session} do
     session
-    |> visit("/fixtures/async-combobox")
+    |> visit_fixture("/fixtures/async-combobox", "#demo-async-combobox")
     # Focus the async combobox and search for something that won't match any fruits
     |> click(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"))
     |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"),
@@ -241,7 +241,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "keyboard navigation wrapping (last to first, first to last)", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(@all_options |> Query.count(4))
@@ -259,7 +259,7 @@ defmodule PrimaWeb.ComboboxTest do
 
   feature "form integration - selected value is available for submission", %{session: session} do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Select an option
@@ -282,7 +282,7 @@ defmodule PrimaWeb.ComboboxTest do
     session: session
   } do
     session
-    |> visit("/fixtures/async-combobox")
+    |> visit_fixture("/fixtures/async-combobox", "#demo-async-combobox")
     |> click(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"))
     |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"),
       with: "Orange"
@@ -303,7 +303,7 @@ defmodule PrimaWeb.ComboboxTest do
             session: session
           } do
     session
-    |> visit("/fixtures/simple-combobox")
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple'][data-focus=true]"))
@@ -321,7 +321,7 @@ defmodule PrimaWeb.ComboboxTest do
     session: session
   } do
     session
-    |> visit("/fixtures/async-combobox")
+    |> visit_fixture("/fixtures/async-combobox", "#demo-async-combobox")
     # Options should be hidden initially without any user interaction
     |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(false))
     # Search input should be present but not focused

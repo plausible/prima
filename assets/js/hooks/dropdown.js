@@ -28,6 +28,7 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupEventListeners()
+    this.el.setAttribute('data-prima-ready', 'true')
   },
 
   setupElements() {

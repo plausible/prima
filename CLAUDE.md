@@ -132,6 +132,17 @@ end
   # Instead of slow:
   |> refute_has(Query.css("#element[data-focus]"))  # waits 3000ms
   ```
+- **Hook Readiness**: Always wait for Prima hooks to be fully ready before interacting with components to avoid race conditions. Use `visit_fixture` helper which visits
+the URL and waits for the component with given ID to initialize before continuing with the test:
+  ```elixir
+  session
+  |> visit_fixture("/some-page", "#my-combobox")
+  |> click(Query.css("#my-combobox input"))
+  |> assert_has(Query.css("#my-combobox [role=option]"))
+  ```
+
+  **Why this is needed**: JavaScript hooks need time to set up event listeners after page load. The `visit_fixture/2` helper waits for the `data-prima-ready="true"` attribute that hooks set when fully initialized.
+
 - **Arrow key navigation**: Use correct Wallaby syntax for arrow keys in tests:
   ```elixir
   # Correct syntax:

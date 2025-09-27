@@ -8,7 +8,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "shows combobox options when input is focused", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> assert_has(@combobox_container)
     |> assert_has(@search_input)
     |> assert_has(@options_container |> Query.visible(false))
@@ -19,7 +19,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "selects option by clicking anywhere within complex markup", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Click on the main title text within the option
@@ -38,7 +38,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "selects option by clicking on nested description text", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Click on the high priority option
@@ -57,7 +57,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "selects option by clicking on SVG icon", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Click on the SVG icon within the medium priority option
@@ -76,7 +76,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "selects option by clicking on the container div", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Click on the option itself (testing that basic click still works)
@@ -95,7 +95,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "navigates complex markup options with keyboard arrows", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(@all_options |> Query.count(5))
@@ -122,7 +122,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "selects focused complex markup option with Enter key", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Navigate to backlog option
@@ -149,7 +149,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "filters complex markup options based on search input", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(@all_options |> Query.count(5))
@@ -179,7 +179,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "focuses complex markup option on mouse hover", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Hover over the medium option
@@ -191,8 +191,9 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
 
   feature "ensures form integration works with complex markup", %{session: session} do
     session
-    |> visit("/fixtures/flexible-markup-combobox")
+    |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
     # Select the high priority option
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='high']"))
     # Verify the form input has the correct name and value for submission

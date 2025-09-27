@@ -8,7 +8,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "shows dropdown menu when button is clicked", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> assert_has(@dropdown_container)
     |> assert_has(@dropdown_button |> Query.visible(true))
     |> assert_has(@dropdown_menu |> Query.visible(false))
@@ -19,7 +19,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "hides dropdown menu when button is clicked again", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     |> click(@dropdown_button)
@@ -28,7 +28,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "closes dropdown when clicking outside", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     |> click(Query.css("#outside-area"))
@@ -37,7 +37,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "closes dropdown when pressing escape key", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     |> send_keys([:escape])
@@ -46,7 +46,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "keyboard navigation with arrow keys", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     # Send arrow keys to navigate (no active items initially in dropdown)
@@ -60,7 +60,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "mouse hover activates dropdown items", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     # Initially no item should be active
@@ -80,7 +80,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "focus state behavior when reopening dropdown", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     # Activate an item with arrow key
@@ -98,7 +98,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "keyboard navigation wraps around (last to first, first to last)", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     # Navigate down to first item
@@ -116,7 +116,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "hover deactivates keyboard-activated items", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     # Activate first item with keyboard
@@ -132,7 +132,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "focus returns to trigger button when dropdown closes", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     |> send_keys([:escape])
@@ -144,7 +144,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "supports accessible role and aria attributes", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> assert_has(Query.css("#dropdown [aria-haspopup=menu]"))
     |> click(@dropdown_button)
     |> assert_has(Query.css("#dropdown [role=menu]"))
@@ -153,7 +153,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "aria-expanded reflects dropdown state", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     # Initially dropdown should be collapsed
     |> assert_has(Query.css("#dropdown [aria-haspopup=menu][aria-expanded=false]"))
     # After clicking, dropdown should be expanded
@@ -166,7 +166,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "auto-generates IDs and aria-controls relationship", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     # Trigger button should have auto-generated ID and aria-controls
     |> assert_has(
       Query.css(
@@ -184,7 +184,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "auto-generates menuitem IDs and manages aria-activedescendant", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     # Each menuitem should have auto-generated ID
     |> assert_has(Query.css("#dropdown [role=menuitem][id='dropdown-item-0']"))
@@ -200,7 +200,7 @@ defmodule PrimaWeb.DropdownTest do
 
   feature "dropdown remains functional after LiveView reconnection", %{session: session} do
     session
-    |> visit("/fixtures/dropdown")
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> execute_script("window.liveSocket.disconnect()")
     |> execute_script("window.liveSocket.connect()")
     # Wait for reconnection by checking for the data attribute that gets set

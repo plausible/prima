@@ -11,6 +11,7 @@ export default {
     if (this.mode === 'async') {
       this.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
     }
+    this.el.setAttribute('data-prima-ready', 'true')
   },
 
   initializeDOMCache() {
