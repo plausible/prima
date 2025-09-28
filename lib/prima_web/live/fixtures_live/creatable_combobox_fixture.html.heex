@@ -5,13 +5,9 @@
       placeholder="Type to search or create..."
     />
 
-    <.combobox_options
-      id="demo-creatable-combobox-options"
-    >
+    <.combobox_options id="demo-creatable-combobox-options">
       <%= for option <- ["Apple", "Pear", "Mango", "Pineapple"] do %>
-        <.combobox_option
-          value={option}
-        >
+        <.combobox_option value={option}>
           {option}
         </.combobox_option>
       <% end %>

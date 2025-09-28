@@ -19,14 +19,14 @@
             value={option}
             class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
           >
-            <%= option %>
+            {option}
           </.combobox_option>
         <% end %>
       </.combobox_options>
     </.combobox>
   </div>
-
-  <!-- Right Placement -->
+  
+<!-- Right Placement -->
   <div>
     <label class="block text-sm font-medium text-gray-700 mb-2">Color (opens to right)</label>
     <.combobox class="w-64" id="right-combobox">
@@ -47,14 +47,14 @@
             value={color}
             class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
           >
-            <%= color %>
+            {color}
           </.combobox_option>
         <% end %>
       </.combobox_options>
     </.combobox>
   </div>
-
-  <!-- Bottom with Large Offset -->
+  
+<!-- Bottom with Large Offset -->
   <div>
     <label class="block text-sm font-medium text-gray-700 mb-2">Country (12px offset)</label>
     <.combobox class="w-64" id="offset-combobox">
@@ -78,11 +78,10 @@
             value={country}
             class="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-focus:bg-indigo-600 data-focus:text-white"
           >
-            <span class="mr-2"><%= flag %></span><%= country %>
+            <span class="mr-2"><%= flag %></span>{country}
           </.combobox_option>
         <% end %>
       </.combobox_options>
     </.combobox>
   </div>
 </div>
-

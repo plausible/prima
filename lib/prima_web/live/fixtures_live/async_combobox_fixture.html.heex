@@ -1,10 +1,10 @@
 <form phx-submit="save">
   <.combobox id="demo-async-combobox">
-      <.combobox_input
-        name="user[favourite_fruit]"
-        phx-change="async_combobox_search"
-        placeholder="Type to search..."
-      />
+    <.combobox_input
+      name="user[favourite_fruit]"
+      phx-change="async_combobox_search"
+      placeholder="Type to search..."
+    />
 
     <.combobox_options
       phx-update="stream"
