@@ -44,6 +44,7 @@ export default {
     this.listeners = [
       [this.refs.button, 'click', this.handleToggle.bind(this)],
       [this.refs.menu, 'mouseover', this.handleMouseOver.bind(this)],
+      [this.refs.menu, 'click', this.handleMenuClick.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
       [this.el, 'prima:close', this.handleClose.bind(this)],
       [this.refs.menu, 'phx:show-start', this.handleShowStart.bind(this)],
@@ -109,6 +110,14 @@ export default {
   handleMouseOver(e) {
     if (e.target.getAttribute('role') === 'menuitem') {
       this.setFocus(e.target)
+    }
+  },
+
+  handleMenuClick(e) {
+    if (e.target.getAttribute('role') === 'menuitem' &&
+        e.target.getAttribute('aria-disabled') !== 'true') {
+      this.hideMenu()
+      this.refs.button.focus()
     }
   },
 

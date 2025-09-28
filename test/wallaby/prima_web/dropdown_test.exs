@@ -212,4 +212,13 @@ defmodule PrimaWeb.DropdownTest do
     |> send_keys([:escape])
     |> assert_has(@dropdown_menu |> Query.visible(false))
   end
+
+  feature "closes dropdown when clicking on a menuitem", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    |> click(Query.css("#dropdown [role=menuitem]:first-child"))
+    |> assert_has(@dropdown_menu |> Query.visible(false))
+  end
 end
