@@ -8,6 +8,7 @@ const SELECTORS = {
   BUTTON: '[aria-haspopup="menu"]',
   MENU: '[role="menu"]',
   MENUITEM: '[role="menuitem"]',
+  ENABLED_MENUITEM: '[role="menuitem"]:not([aria-disabled="true"])',
   FOCUSED_MENUITEM: '[role="menuitem"][data-focus]'
 }
 
@@ -80,7 +81,9 @@ export default {
 
   navigateUp(e) {
     e.preventDefault()
-    const items = this.getAllMenuItems()
+    const items = this.getEnabledMenuItems()
+    if (items.length === 0) return
+
     const currentIndex = this.getCurrentFocusIndex(items)
     const targetIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1
     this.setFocus(items[targetIndex])
@@ -88,7 +91,9 @@ export default {
 
   navigateDown(e) {
     e.preventDefault()
-    const items = this.getAllMenuItems()
+    const items = this.getEnabledMenuItems()
+    if (items.length === 0) return
+
     const currentIndex = this.getCurrentFocusIndex(items)
     const targetIndex = currentIndex === items.length - 1 ? 0 : currentIndex + 1
     this.setFocus(items[targetIndex])
@@ -108,7 +113,8 @@ export default {
   },
 
   handleMouseOver(e) {
-    if (e.target.getAttribute('role') === 'menuitem') {
+    if (e.target.getAttribute('role') === 'menuitem' &&
+        e.target.getAttribute('aria-disabled') !== 'true') {
       this.setFocus(e.target)
     }
   },
@@ -135,14 +141,22 @@ export default {
     return this.el.querySelectorAll(SELECTORS.MENUITEM)
   },
 
+  getEnabledMenuItems() {
+    return this.el.querySelectorAll(SELECTORS.ENABLED_MENUITEM)
+  },
+
   getCurrentFocusIndex(items) {
     return Array.prototype.findIndex.call(items, item => item.hasAttribute('data-focus'))
   },
 
   setFocus(el) {
     this.clearFocus()
-    el.setAttribute('data-focus', '')
-    this.refs.menu.setAttribute('aria-activedescendant', el.id)
+    if (el && el.getAttribute('aria-disabled') !== 'true') {
+      el.setAttribute('data-focus', '')
+      this.refs.menu.setAttribute('aria-activedescendant', el.id)
+    } else {
+      this.refs.menu.removeAttribute('aria-activedescendant')
+    }
   },
 
   clearFocus() {

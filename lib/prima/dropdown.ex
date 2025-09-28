@@ -57,11 +57,21 @@ defmodule Prima.Dropdown do
   end
 
   attr :class, :string, default: ""
+  attr :disabled, :boolean, default: false
   slot :inner_block, required: true
 
   def dropdown_item(assigns) do
+    assigns = assign(assigns, :aria_disabled, if(assigns.disabled, do: "true", else: nil))
+    assigns = assign(assigns, :data_disabled, if(assigns.disabled, do: "true", else: nil))
+
     ~H"""
-    <div class={@class} role="menuitem" tabindex="-1">
+    <div
+      class={@class}
+      role="menuitem"
+      tabindex="-1"
+      aria-disabled={@aria_disabled}
+      data-disabled={@data_disabled}
+    >
       {render_slot(@inner_block)}
     </div>
     """
