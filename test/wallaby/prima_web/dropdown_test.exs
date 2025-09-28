@@ -14,7 +14,7 @@ defmodule PrimaWeb.DropdownTest do
     |> assert_has(@dropdown_menu |> Query.visible(false))
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
-    |> assert_has(@dropdown_items |> Query.count(2))
+    |> assert_has(@dropdown_items |> Query.count(4))
   end
 
   feature "hides dropdown menu when button is clicked again", %{session: session} do
@@ -52,7 +52,9 @@ defmodule PrimaWeb.DropdownTest do
     # Send arrow keys to navigate (no active items initially in dropdown)
     |> send_keys([:down_arrow])
     |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
-    # Arrow down to next item
+    # Arrow down to next item (now we have 4 items, so need 3 more downs to reach last)
+    |> send_keys([:down_arrow])
+    |> send_keys([:down_arrow])
     |> send_keys([:down_arrow])
     |> assert_has(Query.css("#dropdown [role=menuitem]:last-child[data-focus]"))
     |> assert_missing(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
@@ -148,7 +150,7 @@ defmodule PrimaWeb.DropdownTest do
     |> assert_has(Query.css("#dropdown [aria-haspopup=menu]"))
     |> click(@dropdown_button)
     |> assert_has(Query.css("#dropdown [role=menu]"))
-    |> assert_has(Query.css("#dropdown [role=menuitem]") |> Query.count(2))
+    |> assert_has(Query.css("#dropdown [role=menuitem]") |> Query.count(4))
   end
 
   feature "aria-expanded reflects dropdown state", %{session: session} do
@@ -220,5 +222,159 @@ defmodule PrimaWeb.DropdownTest do
     |> assert_has(@dropdown_menu |> Query.visible(true))
     |> click(Query.css("#dropdown [role=menuitem]:first-child"))
     |> assert_has(@dropdown_menu |> Query.visible(false))
+  end
+
+  feature "opens dropdown and focuses first item when Enter is pressed on button", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> assert_has(@dropdown_menu |> Query.visible(false))
+    |> execute_script("document.querySelector('#dropdown [aria-haspopup=menu]').focus()")
+    |> send_keys([:enter])
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+  end
+
+  feature "opens dropdown and focuses first item when Space is pressed on button", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> assert_has(@dropdown_menu |> Query.visible(false))
+    |> execute_script("document.querySelector('#dropdown [aria-haspopup=menu]').focus()")
+    |> send_keys([" "])
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+  end
+
+  feature "opens dropdown and focuses first item when ArrowDown is pressed on button", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> assert_has(@dropdown_menu |> Query.visible(false))
+    |> execute_script("document.querySelector('#dropdown [aria-haspopup=menu]').focus()")
+    |> send_keys([:down_arrow])
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+  end
+
+  feature "opens dropdown and focuses last item when ArrowUp is pressed on button", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> assert_has(@dropdown_menu |> Query.visible(false))
+    |> execute_script("document.querySelector('#dropdown [aria-haspopup=menu]').focus()")
+    |> send_keys([:up_arrow])
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    |> assert_has(Query.css("#dropdown [role=menuitem]:last-child[data-focus]"))
+  end
+
+  feature "focuses first item when Home is pressed in open menu", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # First navigate to last item (4 items total)
+    |> send_keys([:down_arrow])
+    |> send_keys([:down_arrow])
+    |> send_keys([:down_arrow])
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:last-child[data-focus]"))
+    # Now press Home to go to first item
+    |> send_keys([:home])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+    |> assert_missing(Query.css("#dropdown [role=menuitem]:last-child[data-focus]"))
+  end
+
+  feature "focuses last item when End is pressed in open menu", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # First navigate to first item
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+    # Now press End to go to last item
+    |> send_keys([:end])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:last-child[data-focus]"))
+    |> assert_missing(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+  end
+
+  feature "focuses first item when PageUp is pressed in open menu", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # First navigate to last item (4 items total)
+    |> send_keys([:down_arrow])
+    |> send_keys([:down_arrow])
+    |> send_keys([:down_arrow])
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:last-child[data-focus]"))
+    # Now press PageUp to go to first item
+    |> send_keys([:pageup])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+    |> assert_missing(Query.css("#dropdown [role=menuitem]:last-child[data-focus]"))
+  end
+
+  feature "focuses last item when PageDown is pressed in open menu", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # First navigate to first item
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+    # Now press PageDown to go to last item
+    |> send_keys([:pagedown])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:last-child[data-focus]"))
+    |> assert_missing(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+  end
+
+  feature "typeahead search focuses matching item", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Type "a" to focus on the first item that starts with "a" (Apple)
+    |> send_keys(["a"])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
+  end
+
+  feature "typeahead search with different letters", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Type "b" to focus on Banana (2nd item)
+    |> send_keys(["b"])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:nth-child(2)[data-focus]"))
+    # Type "c" to focus on Cherry (3rd item)
+    |> send_keys(["c"])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:nth-child(3)[data-focus]"))
+    |> assert_missing(Query.css("#dropdown [role=menuitem]:nth-child(2)[data-focus]"))
+  end
+
+  feature "typeahead search cycles through matching items with repeated presses", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Type "a" to focus on Apple (1st item)
+    |> send_keys(["a"])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:nth-child(1)[data-focus]"))
+    # Type "a" again to cycle to Apricot (4th item)
+    |> send_keys(["a"])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:nth-child(4)[data-focus]"))
+    |> assert_missing(Query.css("#dropdown [role=menuitem]:nth-child(1)[data-focus]"))
+    # Type "a" again to cycle back to Apple (1st item)
+    |> send_keys(["a"])
+    |> assert_has(Query.css("#dropdown [role=menuitem]:nth-child(1)[data-focus]"))
+    |> assert_missing(Query.css("#dropdown [role=menuitem]:nth-child(4)[data-focus]"))
   end
 end

@@ -1,7 +1,13 @@
 const KEYS = {
   ARROW_UP: 'ArrowUp',
   ARROW_DOWN: 'ArrowDown',
-  ESCAPE: 'Escape'
+  ESCAPE: 'Escape',
+  ENTER: 'Enter',
+  SPACE: ' ',
+  HOME: 'Home',
+  END: 'End',
+  PAGE_UP: 'PageUp',
+  PAGE_DOWN: 'PageDown'
 }
 
 const SELECTORS = {
@@ -70,17 +76,34 @@ export default {
     const keyHandlers = {
       [KEYS.ARROW_UP]: () => this.navigateUp(e),
       [KEYS.ARROW_DOWN]: () => this.navigateDown(e),
-      [KEYS.ESCAPE]: () => this.handleEscape()
+      [KEYS.ESCAPE]: () => this.handleEscape(),
+      [KEYS.ENTER]: () => this.handleEnterOrSpace(e),
+      [KEYS.SPACE]: () => this.handleEnterOrSpace(e),
+      [KEYS.HOME]: () => this.handleHome(e),
+      [KEYS.END]: () => this.handleEnd(e),
+      [KEYS.PAGE_UP]: () => this.handleHome(e),
+      [KEYS.PAGE_DOWN]: () => this.handleEnd(e)
     }
 
     const handler = keyHandlers[e.key]
     if (handler) {
       handler()
+    } else {
+      // Handle typeahead search for A-Z, a-z, and 0-9
+      this.handleTypeahead(e)
     }
   },
 
   navigateUp(e) {
     e.preventDefault()
+
+    // If menu is not visible and button is focused, open menu and focus last item
+    if (!this.isMenuVisible() && document.activeElement === this.refs.button) {
+      this.showMenuAndFocusLast()
+      return
+    }
+
+    // Otherwise navigate within open menu
     const items = this.getEnabledMenuItems()
     if (items.length === 0) return
 
@@ -91,6 +114,14 @@ export default {
 
   navigateDown(e) {
     e.preventDefault()
+
+    // If menu is not visible and button is focused, open menu and focus first item
+    if (!this.isMenuVisible() && document.activeElement === this.refs.button) {
+      this.showMenuAndFocusFirst()
+      return
+    }
+
+    // Otherwise navigate within open menu
     const items = this.getEnabledMenuItems()
     if (items.length === 0) return
 
@@ -102,6 +133,76 @@ export default {
   handleEscape() {
     this.hideMenu()
     this.refs.button.focus()
+  },
+
+  handleEnterOrSpace(e) {
+    // Check if the button is focused (not the menu)
+    if (document.activeElement === this.refs.button) {
+      e.preventDefault()
+      this.showMenuAndFocusFirst()
+    }
+  },
+
+  handleHome(e) {
+    // Only work when menu is open
+    if (this.isMenuVisible()) {
+      e.preventDefault()
+      const items = this.getEnabledMenuItems()
+      if (items.length > 0) {
+        this.setFocus(items[0])
+      }
+    }
+  },
+
+  handleEnd(e) {
+    // Only work when menu is open
+    if (this.isMenuVisible()) {
+      e.preventDefault()
+      const items = this.getEnabledMenuItems()
+      if (items.length > 0) {
+        this.setFocus(items[items.length - 1])
+      }
+    }
+  },
+
+  handleTypeahead(e) {
+    // Only work when menu is open
+    if (!this.isMenuVisible()) return
+
+    // Check if it's a printable character (A-Z, a-z, 0-9)
+    if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
+      e.preventDefault()
+
+      const searchChar = e.key.toLowerCase()
+      const items = this.getEnabledMenuItems()
+
+      // Find all items that start with the typed character
+      const matchingItems = []
+      for (let item of items) {
+        const itemText = item.textContent.trim().toLowerCase()
+        if (itemText.startsWith(searchChar)) {
+          matchingItems.push(item)
+        }
+      }
+
+      if (matchingItems.length === 0) return
+
+      // Check if currently focused item matches the search character
+      const currentFocused = this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)
+      const shouldCycle = currentFocused &&
+                         currentFocused.textContent.trim().toLowerCase().startsWith(searchChar) &&
+                         matchingItems.includes(currentFocused)
+
+      if (shouldCycle) {
+        // Find the current item's index in matching items and cycle to next
+        const currentIndex = matchingItems.indexOf(currentFocused)
+        const nextIndex = (currentIndex + 1) % matchingItems.length
+        this.setFocus(matchingItems[nextIndex])
+      } else {
+        // Focus the first matching item
+        this.setFocus(matchingItems[0])
+      }
+    }
   },
 
   handleClose() {
@@ -145,6 +246,11 @@ export default {
     return this.el.querySelectorAll(SELECTORS.ENABLED_MENUITEM)
   },
 
+  isMenuVisible() {
+    const menu = this.refs.menu
+    return menu && menu.style.display !== 'none' && menu.offsetParent !== null
+  },
+
   getCurrentFocusIndex(items) {
     return Array.prototype.findIndex.call(items, item => item.hasAttribute('data-focus'))
   },
@@ -169,6 +275,28 @@ export default {
 
   toggleMenu() {
     liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-toggle'))
+  },
+
+  showMenuAndFocusFirst() {
+    // Use toggle to show the menu (same as clicking the button)
+    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-toggle'))
+
+    // Focus the first enabled item after the menu appears
+    const items = this.getEnabledMenuItems()
+    if (items.length > 0) {
+      this.setFocus(items[0])
+    }
+  },
+
+  showMenuAndFocusLast() {
+    // Use toggle to show the menu (same as clicking the button)
+    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-toggle'))
+
+    // Focus the last enabled item after the menu appears
+    const items = this.getEnabledMenuItems()
+    if (items.length > 0) {
+      this.setFocus(items[items.length - 1])
+    }
   },
 
   setupAriaRelationships(button, menu) {
