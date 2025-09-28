@@ -24,6 +24,8 @@ defmodule PrimaWeb.Router do
       live "/fixtures/dropdown", FixturesLive, :dropdown
       live "/fixtures/simple-modal", FixturesLive, :simple_modal
       live "/fixtures/async-modal", FixturesLive, :async_modal
+      live "/fixtures/modal-title-custom-tag", FixturesLive, :modal_title_custom_tag
+      live "/fixtures/modal-title-function", FixturesLive, :modal_title_function
       live "/fixtures/simple-combobox", FixturesLive, :simple_combobox
       live "/fixtures/async-combobox", FixturesLive, :async_combobox
       live "/fixtures/creatable-combobox", FixturesLive, :creatable_combobox

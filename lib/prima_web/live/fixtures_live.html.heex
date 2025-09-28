@@ -10,6 +10,14 @@
   <.async_modal_fixture {assigns} />
 </div>
 
+<div :if={@live_action == :modal_title_custom_tag}>
+  <.modal_title_custom_tag_fixture />
+</div>
+
+<div :if={@live_action == :modal_title_function}>
+  <.modal_title_function_fixture />
+</div>
+
 <div :if={@live_action == :simple_combobox}>
   <.simple_combobox_fixture />
 </div>

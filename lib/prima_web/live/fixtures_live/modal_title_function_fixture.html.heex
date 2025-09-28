@@ -1,0 +1,30 @@
+<div id="function-modal">
+  <.button type="button" phx-click={Prima.Modal.open("demo-modal")}>
+    Open Modal with Function Component Title
+  </.button>
+
+  <.modal id="demo-modal">
+    <.modal_overlay />
+
+    <div>
+      <div>
+        <.modal_panel id="demo-modal-panel">
+          <div>
+            <button
+              phx-click={Prima.Modal.close()}
+              testing-ref="close-button"
+            >
+              Close
+            </button>
+            <.modal_title as={&custom_title_component/1}>Function Component Title</.modal_title>
+          </div>
+          <div>
+            <.button phx-click={Prima.Modal.close()} type="button">
+              Got it
+            </.button>
+          </div>
+        </.modal_panel>
+      </div>
+    </div>
+  </.modal>
+</div>

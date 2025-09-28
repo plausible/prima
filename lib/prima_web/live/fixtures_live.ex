@@ -60,4 +60,12 @@ defmodule PrimaWeb.FixturesLive do
   def handle_info(:show_async_modal, socket) do
     {:noreply, assign(socket, async_modal_open?: true)}
   end
+
+  defp custom_title_component(assigns) do
+    ~H"""
+    <span class="custom-title" prima-ref={assigns[:"prima-ref"]} id={assigns[:id]}>
+      {render_slot(assigns.inner_block)}
+    </span>
+    """
+  end
 end

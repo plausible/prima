@@ -1,0 +1,30 @@
+<div id="custom-tag-modal">
+  <.button type="button" phx-click={Prima.Modal.open("demo-modal")}>
+    Open Modal with Custom Tag Title
+  </.button>
+
+  <.modal id="demo-modal">
+    <.modal_overlay />
+
+    <div>
+      <div>
+        <.modal_panel id="demo-modal-panel">
+          <div>
+            <button
+              phx-click={Prima.Modal.close()}
+              testing-ref="close-button"
+            >
+              Close
+            </button>
+            <.modal_title as="h1">Custom Tag Title</.modal_title>
+          </div>
+          <div>
+            <.button phx-click={Prima.Modal.close()} type="button">
+              Got it
+            </.button>
+          </div>
+        </.modal_panel>
+      </div>
+    </div>
+  </.modal>
+</div>

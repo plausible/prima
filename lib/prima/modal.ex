@@ -281,7 +281,7 @@ defmodule Prima.Modal do
   end
 
   attr :class, :string, default: ""
-  attr :as, :any, default: nil
+  attr :as, :any, default: "h3"
   slot :inner_block, required: true
 
   @doc """
@@ -314,15 +314,20 @@ defmodule Prima.Modal do
         "prima-ref": "modal-title"
       })
 
-    if assigns[:as] do
-      {as, assigns} = Map.pop(assigns, :as)
-      as.(assigns)
-    else
-      dynamic_tag(
-        Map.merge(assigns, %{
-          tag_name: "h3"
-        })
-      )
+    case assigns[:as] do
+      as when is_function(as) ->
+        {_, assigns} = Map.pop(assigns, :as)
+        as.(assigns)
+
+      as when is_binary(as) ->
+        dynamic_tag(
+          Map.merge(assigns, %{
+            tag_name: as
+          })
+        )
+
+      as ->
+        raise "Cannot render modal title `as` #{inspect(as)}. Expected a function or string"
     end
   end
 end
