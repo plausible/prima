@@ -158,42 +158,28 @@ export default {
   },
 
   handleTypeahead(e) {
-    if (!this.isMenuVisible()) return
+    if (!this.isMenuVisible() || e.key.length !== 1 || !/[a-zA-Z0-9]/.test(e.key)) return
 
-    // Check if it's a printable character (A-Z, a-z, 0-9)
-    if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
-      e.preventDefault()
+    e.preventDefault()
 
-      const searchChar = e.key.toLowerCase()
-      const items = this.getEnabledMenuItems()
+    const searchChar = e.key.toLowerCase()
+    const items = this.getEnabledMenuItems()
+    const matchingItems = Array.from(items).filter(item =>
+      item.textContent.trim().toLowerCase().startsWith(searchChar)
+    )
 
-      // Find all items that start with the typed character
-      const matchingItems = []
-      for (let item of items) {
-        const itemText = item.textContent.trim().toLowerCase()
-        if (itemText.startsWith(searchChar)) {
-          matchingItems.push(item)
-        }
-      }
+    if (matchingItems.length === 0) return
 
-      if (matchingItems.length === 0) return
+    const currentFocused = this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)
+    const currentIndex = currentFocused && matchingItems.includes(currentFocused)
+      ? matchingItems.indexOf(currentFocused)
+      : -1
 
-      // Check if currently focused item matches the search character
-      const currentFocused = this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)
-      const shouldCycle = currentFocused &&
-                         currentFocused.textContent.trim().toLowerCase().startsWith(searchChar) &&
-                         matchingItems.includes(currentFocused)
+    const nextIndex = currentIndex >= 0 && currentIndex < matchingItems.length - 1
+      ? currentIndex + 1
+      : 0
 
-      if (shouldCycle) {
-        // Find the current item's index in matching items and cycle to next
-        const currentIndex = matchingItems.indexOf(currentFocused)
-        const nextIndex = (currentIndex + 1) % matchingItems.length
-        this.setFocus(matchingItems[nextIndex])
-      } else {
-        // Focus the first matching item
-        this.setFocus(matchingItems[0])
-      }
-    }
+    this.setFocus(matchingItems[nextIndex])
   },
 
   handleClose() {
