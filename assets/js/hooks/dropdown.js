@@ -89,7 +89,6 @@ export default {
     if (handler) {
       handler()
     } else {
-      // Handle typeahead search for A-Z, a-z, and 0-9
       this.handleTypeahead(e)
     }
   },
@@ -97,13 +96,11 @@ export default {
   navigateUp(e) {
     e.preventDefault()
 
-    // If menu is not visible and button is focused, open menu and focus last item
     if (!this.isMenuVisible() && document.activeElement === this.refs.button) {
       this.showMenuAndFocusLast()
       return
     }
 
-    // Otherwise navigate within open menu
     const items = this.getEnabledMenuItems()
     if (items.length === 0) return
 
@@ -115,13 +112,11 @@ export default {
   navigateDown(e) {
     e.preventDefault()
 
-    // If menu is not visible and button is focused, open menu and focus first item
     if (!this.isMenuVisible() && document.activeElement === this.refs.button) {
       this.showMenuAndFocusFirst()
       return
     }
 
-    // Otherwise navigate within open menu
     const items = this.getEnabledMenuItems()
     if (items.length === 0) return
 
@@ -136,7 +131,6 @@ export default {
   },
 
   handleEnterOrSpace(e) {
-    // Check if the button is focused (not the menu)
     if (document.activeElement === this.refs.button) {
       e.preventDefault()
       this.showMenuAndFocusFirst()
@@ -144,7 +138,6 @@ export default {
   },
 
   handleHome(e) {
-    // Only work when menu is open
     if (this.isMenuVisible()) {
       e.preventDefault()
       const items = this.getEnabledMenuItems()
@@ -155,7 +148,6 @@ export default {
   },
 
   handleEnd(e) {
-    // Only work when menu is open
     if (this.isMenuVisible()) {
       e.preventDefault()
       const items = this.getEnabledMenuItems()
@@ -166,7 +158,6 @@ export default {
   },
 
   handleTypeahead(e) {
-    // Only work when menu is open
     if (!this.isMenuVisible()) return
 
     // Check if it's a printable character (A-Z, a-z, 0-9)
