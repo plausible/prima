@@ -17,11 +17,6 @@ defmodule Prima.WallabyTestHelpers do
     |> wait_for_hook_ready(selector)
   end
 
-  @doc """
-  Wait for a Prima hook to be fully ready for interactions.
-  Waits for the data-prima-ready attribute to be set to "true".
-  Note: This works even for hidden elements since it only checks for attribute presence.
-  """
   defp wait_for_hook_ready(session, selector) do
     session
     |> assert_has(Query.css("#{selector}[data-prima-ready='true']", visible: :any))
