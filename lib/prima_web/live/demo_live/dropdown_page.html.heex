@@ -27,6 +27,25 @@
     The dropdown component automatically handles opening/closing, keyboard navigation, and focus management. Click the trigger or use Enter/Space to open, then navigate with arrow keys.
   </p>
 
+  <h2>Disabled Items</h2>
+  <p>
+    Dropdown items can be disabled using the <code>disabled={true}</code>
+    attribute. Disabled items cannot be focused via keyboard navigation, and do not close the menu when clicked. They remain accessible to screen readers following ARIA accessibility standards.
+  </p>
+
+  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
+    <.disabled_dropdown_demo />
+  </div>
+
+  <Prima.CodeBlock.code_block file="dropdown/disabled_dropdown.heex" />
+
+  <p>
+    Disabled items use <code>aria-disabled="true"</code>
+    and <code>data-disabled="true"</code>
+    attributes for accessibility and styling. Use the <code>data-disabled:</code>
+    variant to style disabled items differently, such as reducing opacity or changing text color.
+  </p>
+
   <h2>Styling</h2>
 
   <h3>Highlighting Active Items</h3>
