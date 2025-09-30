@@ -166,6 +166,23 @@ the URL and waits for the component with given ID to initialize before continuin
   end
   ```
 
+## Creating Fixture Tests
+
+Before writing any code, batch read these files in ONE message:
+- `lib/prima_web/router.ex`
+- `lib/prima_web/live/fixtures_live.ex`
+- `lib/prima_web/live/fixtures_live.html.heex`
+- A similar existing fixture file
+
+Then create ALL required files in this order:
+1. Fixture HTML file (`.html.heex`)
+2. Helper functions in `fixtures_live.ex` (if needed)
+3. Route in `router.ex`
+4. Template entry in `fixtures_live.html.heex`
+5. Test file last
+
+This prevents test failures from missing infrastructure.
+
 ## Development Guidelines
 
 ### Code Comments
