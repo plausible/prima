@@ -93,6 +93,7 @@ defmodule Prima.Combobox do
   attr :id, :string, required: true
   slot :inner_block, required: true
   attr :class, :string, default: ""
+  attr :multiple, :boolean, default: false
 
   @doc """
   The main combobox container component.
@@ -119,8 +120,61 @@ defmodule Prima.Combobox do
   """
   def combobox(assigns) do
     ~H"""
-    <div id={@id} class={@class} phx-hook="Combobox">
+    <div id={@id} class={@class} phx-hook="Combobox" data-multiple={@multiple && true}>
       {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
+  slot :selection, required: true do
+    attr :class, :string
+  end
+
+  @doc """
+  Container for displaying selected items in multi-select mode.
+
+  This component uses a template-based approach where JavaScript clones the selection
+  slot markup to create pills for each selected value. The container uses `phx-update="ignore"`
+  so LiveView doesn't interfere with client-side selection management.
+
+  ## Attributes
+
+    * `selection` - Required slot that defines the markup for each selected item.
+      The slot receives the selected value via `:let` and can be fully customized with CSS.
+
+  ## Usage
+
+      <.combobox_selections>
+        <:selection :let={value} class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 rounded">
+          <span><%= value %></span>
+          <button
+            type="button"
+            data-prima-ref="remove-selection"
+            data-value={value}
+            class="hover:bg-blue-200"
+          >
+            ×
+          </button>
+        </:selection>
+      </.combobox_selections>
+
+  JavaScript will clone the template and replace `__VALUE__` with actual selected values.
+  """
+  def combobox_selections(assigns) do
+    assigns = assign(assigns, :selections_id, "selections-#{System.unique_integer([:positive])}")
+
+    ~H"""
+    <div
+      id={@selections_id}
+      data-prima-ref="selections"
+      phx-update="ignore"
+      class="flex flex-wrap gap-2 mb-2"
+    >
+      <template data-prima-ref="selection-template">
+        <div data-prima-ref="selection-item">
+          {render_slot(@selection, "__VALUE__")}
+        </div>
+      </template>
     </div>
     """
   end

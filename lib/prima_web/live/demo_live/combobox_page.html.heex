@@ -72,6 +72,30 @@
     It shows "Create '[user input]'" and submits the typed value when selected.
   </p>
 
+  <h3>Multiple Selection</h3>
+  <p>
+    Enable multiple selection by adding the <code>multiple={"{true}"}</code>
+    attribute to the combobox. Use the
+    <code>.combobox_selections</code>
+    component to display selected items as removable pills.
+  </p>
+
+  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
+    <.multi_select_combobox_demo {assigns} />
+  </div>
+
+  <p>
+    The <code>.combobox_selections</code>
+    component uses a template-based approach for rendering pills. Customize the appearance using the
+    <code>:selection</code>
+    slot - it supports any markup including icons, badges, and remove buttons. The dropdown stays open after each selection for quick multi-select workflows, and selected items are visually highlighted with
+    <code>data-selected="true"</code>.
+  </p>
+
+  <p>
+    For a react-select style appearance, wrap the selections and input in a flex container styled to look like an input field. The pills and input appear together in the same visual container, creating a seamless multi-select experience.
+  </p>
+
   <h3>Smart Positioning</h3>
   <p>
     Powered by <a

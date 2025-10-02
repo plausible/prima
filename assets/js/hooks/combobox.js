@@ -5,6 +5,8 @@ export default {
   mounted() {
     this.initializeDOMCache()
     this.mode = this.getMode()
+    this.isMultiple = this.el.hasAttribute('data-multiple')
+    this.selectedValues = new Set()
     this.hasCreateOption = !!this.createOption
     this.setupEventListeners()
     this.initializeCreateOption()
@@ -20,6 +22,8 @@ export default {
     this.submitInput = this.el.querySelector('input[data-prima-ref=submit_input]')
     this.optionsContainer = this.getOptionsContainer()
     this.createOption = this.optionsContainer?.querySelector('[data-prima-ref=create-option]')
+    this.selectionsContainer = this.el.querySelector('[data-prima-ref=selections]')
+    this.selectionTemplate = this.selectionsContainer?.querySelector('[data-prima-ref=selection-template]')
   },
 
   setupEventListeners() {
@@ -102,36 +106,139 @@ export default {
   selectOption(el) {
     const value = el.getAttribute('data-value')
 
-    if (value === '__CREATE__') {
-      const searchValue = this.searchInput.value
-      this.submitInput.value = searchValue
-      this.searchInput.value = searchValue
-    } else {
-      this.submitInput.value = value
-      this.searchInput.value = value
-    }
+    if (this.isMultiple) {
+      // Multi-select mode
+      let actualValue = value
+      if (value === '__CREATE__') {
+        actualValue = this.searchInput.value
+      }
 
-    this.updateSelectedOption()
-    this.hideOptions()
+      // Don't add if already selected
+      if (!this.selectedValues.has(actualValue)) {
+        this.selectedValues.add(actualValue)
+        this.updateSelectedOptions()
+        this.updateHiddenInputs()
+        this.renderSelectionPills()
+      }
+
+      // Clear search and update filtering
+      this.searchInput.value = ''
+
+      // In multi-select mode, keep options visible and show all options
+      if (this.mode === 'frontend') {
+        this.filterOptions('')
+      } else {
+        this.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
+      }
+
+      this.focusFirstOption()
+    } else {
+      // Single-select mode
+      if (value === '__CREATE__') {
+        const searchValue = this.searchInput.value
+        this.submitInput.value = searchValue
+        this.searchInput.value = searchValue
+      } else {
+        this.submitInput.value = value
+        this.searchInput.value = value
+      }
+
+      this.updateSelectedOption()
+      this.hideOptions()
+    }
   },
 
   updateSelectedOption() {
     if (!this.optionsContainer) return
 
-    const selectedValue = this.submitInput.value
-    const allOptions = this.optionsContainer.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
+    if (this.isMultiple) {
+      // Multi-select mode: mark all selected values
+      const allOptions = this.optionsContainer.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
 
-    for (const option of allOptions) {
-      if (option.getAttribute('data-value') === selectedValue && selectedValue !== '') {
-        option.setAttribute('data-selected', 'true')
-      } else {
-        option.removeAttribute('data-selected')
+      for (const option of allOptions) {
+        const value = option.getAttribute('data-value')
+        if (this.selectedValues.has(value)) {
+          option.setAttribute('data-selected', 'true')
+        } else {
+          option.removeAttribute('data-selected')
+        }
       }
+    } else {
+      // Single-select mode: mark only one value
+      const selectedValue = this.submitInput.value
+      const allOptions = this.optionsContainer.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
+
+      for (const option of allOptions) {
+        if (option.getAttribute('data-value') === selectedValue && selectedValue !== '') {
+          option.setAttribute('data-selected', 'true')
+        } else {
+          option.removeAttribute('data-selected')
+        }
+      }
+    }
+  },
+
+  updateSelectedOptions() {
+    this.updateSelectedOption()
+  },
+
+  removeSelection(value) {
+    this.selectedValues.delete(value)
+    this.updateSelectedOptions()
+    this.updateHiddenInputs()
+    this.renderSelectionPills()
+  },
+
+  renderSelectionPills() {
+    if (!this.selectionsContainer || !this.selectionTemplate) return
+
+    // Remove all existing selection items (but keep the template)
+    this.selectionsContainer.querySelectorAll('[data-prima-ref="selection-item"]').forEach(el => el.remove())
+
+    // Clone template for each selected value
+    for (const value of this.selectedValues) {
+      const pill = this.selectionTemplate.content.cloneNode(true)
+      const item = pill.querySelector('[data-prima-ref="selection-item"]')
+      item.dataset.value = value
+
+      // Replace all occurrences of __VALUE__ with actual value
+      item.innerHTML = item.innerHTML.replaceAll('__VALUE__', value)
+
+      this.selectionsContainer.appendChild(pill)
+    }
+  },
+
+  updateHiddenInputs() {
+    if (!this.isMultiple) return
+
+    // Get or create container for hidden inputs
+    const container = this.el.querySelector('[id$="_submit_container"]')
+    if (!container) return
+
+    // Clear existing hidden inputs
+    container.innerHTML = ''
+
+    // Create hidden input for each selected value
+    const inputName = this.searchInput.name.replace('_search', '[]')
+    for (const value of this.selectedValues) {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = inputName
+      input.value = value
+      container.appendChild(input)
     }
   },
 
   // === EVENT HANDLERS ===
   onClick(e) {
+    // Check for remove button click first
+    const removeButton = e.target.closest('[data-prima-ref="remove-selection"]')
+    if (removeButton) {
+      const value = removeButton.getAttribute('data-value')
+      this.removeSelection(value)
+      return
+    }
+
     // Use event delegation to find the closest option element
     const optionElement = e.target.closest('[role="option"]')
     if (optionElement) {
@@ -148,7 +255,16 @@ export default {
     } else if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault()
       this.selectOption(this.currentlyFocusedOption())
-      this.hideOptions()
+      if (!this.isMultiple) {
+        this.hideOptions()
+      }
+    } else if (e.key === "Backspace" && this.isMultiple && this.searchInput.value === '') {
+      // Remove last selection when backspace is pressed on empty input
+      e.preventDefault()
+      const values = Array.from(this.selectedValues)
+      if (values.length > 0) {
+        this.removeSelection(values[values.length - 1])
+      }
     }
   },
 
@@ -184,7 +300,7 @@ export default {
   },
 
   handleFrontendMode(searchValue) {
-    if (searchValue.length > 0) {
+    if (searchValue.length > 0 || this.isMultiple) {
       this.showOptions()
     }
 
@@ -199,7 +315,11 @@ export default {
 
     for (const option of allOptions) {
       const optionVal = option.getAttribute('data-value').toLowerCase()
-      if (optionVal.includes(q)) {
+      // In multi-select mode with empty search, show all options
+      // Otherwise filter based on search value
+      if (q === '' && this.isMultiple) {
+        this.showOption(option)
+      } else if (optionVal.includes(q)) {
         this.showOption(option)
       } else {
         this.hideOption(option)
