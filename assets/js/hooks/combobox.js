@@ -8,6 +8,7 @@ export default {
     this.hasCreateOption = !!this.createOption
     this.setupEventListeners()
     this.initializeCreateOption()
+    this.updateSelectedOption()
     if (this.mode === 'async') {
       this.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
     }
@@ -41,6 +42,7 @@ export default {
     } else {
       this.focusFirstOption()
     }
+    this.updateSelectedOption()
   },
 
   destroyed() {
@@ -109,7 +111,23 @@ export default {
       this.searchInput.value = value
     }
 
+    this.updateSelectedOption()
     this.hideOptions()
+  },
+
+  updateSelectedOption() {
+    if (!this.optionsContainer) return
+
+    const selectedValue = this.submitInput.value
+    const allOptions = this.optionsContainer.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
+
+    for (const option of allOptions) {
+      if (option.getAttribute('data-value') === selectedValue && selectedValue !== '') {
+        option.setAttribute('data-selected', 'true')
+      } else {
+        option.removeAttribute('data-selected')
+      }
+    }
   },
 
   // === EVENT HANDLERS ===

@@ -109,4 +109,37 @@
     Use <code>group-data-[focus]:text-white</code>
     and similar selectors to style elements based on focus state.
   </p>
+
+  <h3>Styling States</h3>
+  <p>
+    Combobox options expose two data attributes for styling different interaction states:
+  </p>
+
+  <ul>
+    <li>
+      <code>data-focus</code>
+      - Set to <code>true</code>
+      when an option is focused via keyboard navigation or mouse hover. Perfect for highlighting the currently focused item.
+    </li>
+    <li>
+      <code>data-selected</code>
+      - Set to <code>true</code>
+      on the option that matches the current selection. Use this to visually indicate which option is selected, even when reopening the dropdown.
+    </li>
+  </ul>
+
+  <p>
+    Use Tailwind's <code>data-[focus=true]:</code>
+    and <code>data-[selected=true]:</code>
+    modifiers to style these states:
+  </p>
+
+  <Prima.CodeBlock.code_block file="combobox/simple_state_styling.heex" />
+
+  <p>
+    For complex nested elements, use <code>group</code>
+    with group data selectors to style child elements based on the option's state:
+  </p>
+
+  <Prima.CodeBlock.code_block file="combobox/group_state_styling.heex" />
 </div>

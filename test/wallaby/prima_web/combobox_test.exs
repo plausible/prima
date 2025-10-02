@@ -329,4 +329,121 @@ defmodule PrimaWeb.ComboboxTest do
     # Verify no options are showing
     |> assert_missing(Query.css("#demo-async-combobox [role=option]") |> Query.visible(true))
   end
+
+  feature "selected option has data-selected attribute (click selection)", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # No options should have data-selected initially
+    |> assert_missing(Query.css("#demo-combobox [role=option][data-selected]"))
+    # Click to select Apple
+    |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
+    |> assert_has(@options_container |> Query.visible(false))
+    # Open options again to verify data-selected is set
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Apple'][data-selected=true]")
+    )
+    # Verify only one option has data-selected
+    |> assert_has(Query.css("#demo-combobox [role=option][data-selected]") |> Query.count(1))
+  end
+
+  feature "selected option has data-selected attribute (keyboard selection)", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Navigate to Pear and select with Enter
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pear'][data-focus=true]"))
+    |> send_keys([:enter])
+    |> assert_has(@options_container |> Query.visible(false))
+    # Click outside to fully blur
+    |> click(Query.css("body"))
+    # Open options again to verify data-selected is set
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Pear'][data-selected=true]")
+    )
+    # Verify only one option has data-selected
+    |> assert_has(Query.css("#demo-combobox [role=option][data-selected]") |> Query.count(1))
+  end
+
+  feature "only one option has data-selected at a time", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Select Apple
+    |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
+    |> assert_has(@options_container |> Query.visible(false))
+    # Open options and verify Apple is selected
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Apple'][data-selected=true]")
+    )
+    # Select Mango instead
+    |> click(Query.css("#demo-combobox [role=option][data-value='Mango']"))
+    |> assert_has(@options_container |> Query.visible(false))
+    # Open options and verify only Mango is selected now
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    |> assert_has(
+      Query.css("#demo-combobox [role=option][data-value='Mango'][data-selected=true]")
+    )
+    |> assert_missing(
+      Query.css("#demo-combobox [role=option][data-value='Apple'][data-selected]")
+    )
+    # Verify only one option has data-selected
+    |> assert_has(Query.css("#demo-combobox [role=option][data-selected]") |> Query.count(1))
+  end
+
+  feature "data-selected persists across async updates", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/async-combobox", "#demo-async-combobox")
+    |> click(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"))
+    |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"),
+      with: "Orange"
+    )
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
+    # Select Orange
+    |> send_keys([:enter])
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(false))
+    # Search for something else (trigger async update)
+    |> fill_in(Query.css("#demo-async-combobox input[data-prima-ref=search_input]"), with: "a")
+    |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
+    # Orange should still have data-selected even though we searched for "a"
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
+    |> assert_has(
+      Query.css("#demo-async-combobox [role=option][data-value='Orange'][data-selected=true]")
+    )
+    # Verify only one option has data-selected
+    |> assert_has(
+      Query.css("#demo-async-combobox [role=option][data-selected]")
+      |> Query.count(1)
+    )
+  end
+
+  feature "data-selected is not set when clicking outside without selection", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Click outside without selecting
+    |> click(Query.css("body"))
+    |> assert_has(@options_container |> Query.visible(false))
+    # Open options again and verify no option has data-selected
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    |> assert_missing(Query.css("#demo-combobox [role=option][data-selected]"))
+  end
 end

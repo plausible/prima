@@ -307,13 +307,20 @@ defmodule Prima.Combobox do
     * `inner_block` - The display content for the option
     * `class` - CSS classes for styling the option
 
-  ## State Classes
+  ## State Attributes
 
-  The component automatically adds `data-focus` HTML attribute
-  for styling focused and filtered states:
+  The component automatically adds HTML data attributes for styling:
+
+    * `data-focus` - Set to `"true"` when the option is focused (keyboard/hover)
+    * `data-selected` - Set to `"true"` when the option is currently selected
+
+  Use these attributes to style options based on their state:
 
       /* Style focused option */
       .option[data-focus="true"] { background-color: #f3f4f6; }
+
+      /* Style selected option */
+      .option[data-selected="true"] { font-weight: 600; }
 
   ## Examples
 
@@ -323,9 +330,12 @@ defmodule Prima.Combobox do
         🍎 Apple
       </.combobox_option>
 
-  ### With complex content:
+  ### With complex content and state styling:
 
-      <.combobox_option value={user.id} class="px-3 py-2 flex items-center">
+      <.combobox_option
+        value={user.id}
+        class="px-3 py-2 flex items-center data-focus:bg-indigo-600 data-selected:font-semibold"
+      >
         <img src={user.avatar} class="w-6 h-6 rounded-full mr-2" />
         <div>
           <div class="font-medium"><%= user.name %></div>
