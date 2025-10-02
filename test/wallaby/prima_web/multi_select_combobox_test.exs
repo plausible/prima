@@ -34,12 +34,15 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
-    # Options should stay visible after selection in multi-select mode
+    # Options should close after selection in multi-select mode
+    |> assert_has(@options_container |> Query.visible(false))
+    # Re-open to select another option
+    |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
-    # Select another option
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Banana']"))
-    |> assert_has(@options_container |> Query.visible(true))
-    # Verify both options are marked as selected
+    |> assert_has(@options_container |> Query.visible(false))
+    # Re-open to verify both options are marked as selected
+    |> click(@search_input)
     |> assert_has(
       Query.css(
         "#demo-multi-select-combobox [role=option][data-value='Apple'][data-selected=true]"
@@ -63,7 +66,10 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     )
     # Select with Enter
     |> send_keys([:enter])
-    # Options should stay visible
+    # Options should close
+    |> assert_has(@options_container |> Query.visible(false))
+    # Re-open for next selection
+    |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     # Navigate to next option
     |> send_keys([:down_arrow])
@@ -72,9 +78,10 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     )
     # Select with Tab
     |> send_keys([:tab])
-    # Options should still be visible
-    |> assert_has(@options_container |> Query.visible(true))
-    # Verify both options are marked as selected
+    # Options should close
+    |> assert_has(@options_container |> Query.visible(false))
+    # Re-open to verify both options are marked as selected
+    |> click(@search_input)
     |> assert_has(
       Query.css(
         "#demo-multi-select-combobox [role=option][data-value='Apple'][data-selected=true]"
@@ -117,7 +124,8 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
         "#demo-multi-select-combobox [data-prima-ref='selection-item'][data-value='Apple']"
       )
     )
-    |> assert_has(Query.text("Apple", count: 2))
+    # Re-open to select another option
+    |> click(@search_input)
     # Select another option
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Banana']"))
     # Verify both pills are rendered
@@ -138,6 +146,7 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
     |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
+    |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Banana']"))
     # Both pills should be present
     |> assert_has(
@@ -185,6 +194,7 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
     |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
+    |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Banana']"))
     # Verify hidden inputs are created
     |> execute_script(
@@ -204,7 +214,9 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
     |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
+    |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Banana']"))
+    |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Cherry']"))
     # All three pills should be present
     |> assert_has(
@@ -272,6 +284,8 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
     |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
+    # Re-open to try to select Apple again
+    |> click(@search_input)
     # Try to select Apple again
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
     # Should only have one Apple pill
@@ -298,8 +312,12 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
     |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
+    |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Banana']"))
+    |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Cherry']"))
+    # Re-open to verify all three selected options have data-selected=true
+    |> click(@search_input)
     # All three selected options should have data-selected=true
     |> assert_has(
       Query.css("#demo-multi-select-combobox [role=option][data-selected=true]")
@@ -316,6 +334,7 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
     |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
+    |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Banana']"))
     # Remove Banana
     |> click(
@@ -334,5 +353,41 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
                "Expected hidden inputs to have values ['Apple'], got #{inspect(values)}"
       end
     )
+  end
+
+  feature "closes options and focuses input after selection in multi-select mode", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Select an option
+    |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
+    # Options should close after selection
+    |> assert_has(@options_container |> Query.visible(false))
+    # Search input should be focused
+    |> execute_script(
+      "return document.activeElement === document.querySelector('#demo-multi-select-combobox input[data-prima-ref=search_input]')",
+      fn is_focused ->
+        assert is_focused == true, "Expected search input to be focused after selection"
+      end
+    )
+  end
+
+  feature "clicking search input toggles options visibility", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
+    # Initially options are hidden
+    |> assert_has(@options_container |> Query.visible(false))
+    # Click to open
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Click again to close
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(false))
+    # Click again to open
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
   end
 end

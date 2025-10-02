@@ -126,6 +126,8 @@ defmodule Prima.Combobox do
     """
   end
 
+  attr :class, :string, default: ""
+
   slot :selection, required: true do
     attr :class, :string
   end
@@ -139,12 +141,13 @@ defmodule Prima.Combobox do
 
   ## Attributes
 
+    * `class` - CSS classes for the selections container
     * `selection` - Required slot that defines the markup for each selected item.
       The slot receives the selected value via `:let` and can be fully customized with CSS.
 
   ## Usage
 
-      <.combobox_selections>
+      <.combobox_selections class="flex flex-wrap gap-2">
         <:selection :let={value} class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 rounded">
           <span><%= value %></span>
           <button
@@ -168,12 +171,14 @@ defmodule Prima.Combobox do
       id={@selections_id}
       data-prima-ref="selections"
       phx-update="ignore"
-      class="flex flex-wrap gap-2 mb-2"
+      class={@class}
     >
       <template data-prima-ref="selection-template">
-        <div data-prima-ref="selection-item">
-          {render_slot(@selection, "__VALUE__")}
-        </div>
+        <%= for entry <- @selection do %>
+          <div data-prima-ref="selection-item" class={Map.get(entry, :class, "")}>
+            {render_slot(entry, "__VALUE__")}
+          </div>
+        <% end %>
       </template>
     </div>
     """

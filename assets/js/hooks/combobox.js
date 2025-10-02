@@ -33,7 +33,14 @@ export default {
     this.optionsContainer?.addEventListener('mouseover', this.onHover.bind(this))
     this.searchInput.addEventListener('focus', () => {
       this.searchInput.select()
-      this.showOptions()
+    })
+    this.searchInput.addEventListener('click', (e) => {
+      // Toggle options visibility on click
+      if (this.isOptionsVisible()) {
+        this.hideOptions()
+      } else {
+        this.showOptions()
+      }
     })
     this.searchInput.addEventListener('input', this.onInput.bind(this))
   },
@@ -65,6 +72,11 @@ export default {
 
   getVisibleOptions() {
     return Array.from(this.optionsContainer?.querySelectorAll('[role=option]:not([data-hidden])') || [])
+  },
+
+  isOptionsVisible() {
+    if (!this.optionsContainer) return false
+    return this.optionsContainer.style.display !== 'none'
   },
 
   // === FOCUS MANAGEMENT ===
@@ -121,17 +133,12 @@ export default {
         this.renderSelectionPills()
       }
 
-      // Clear search and update filtering
+      // Clear search input
       this.searchInput.value = ''
 
-      // In multi-select mode, keep options visible and show all options
-      if (this.mode === 'frontend') {
-        this.filterOptions('')
-      } else {
-        this.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
-      }
-
-      this.focusFirstOption()
+      // Close options and focus input
+      this.hideOptions()
+      this.searchInput.focus()
     } else {
       // Single-select mode
       if (value === '__CREATE__') {
@@ -255,9 +262,6 @@ export default {
     } else if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault()
       this.selectOption(this.currentlyFocusedOption())
-      if (!this.isMultiple) {
-        this.hideOptions()
-      }
     } else if (e.key === "Backspace" && this.isMultiple && this.searchInput.value === '') {
       // Remove last selection when backspace is pressed on empty input
       e.preventDefault()
