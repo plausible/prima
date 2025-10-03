@@ -62,6 +62,7 @@ defmodule PrimaWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import PrimaWeb.CoreComponents
+      import PrimaWeb.CodeExample
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

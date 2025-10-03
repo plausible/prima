@@ -17,11 +17,9 @@
     elements.
   </p>
 
-  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
-    <.dropdown_demo />
+  <div class="not-prose">
+    <.code_example file="dropdown/basic.html.heex" />
   </div>
-
-  <Prima.CodeBlock.code_block file="dropdown/basic_dropdown.heex" />
 
   <p>
     The dropdown component automatically handles opening/closing, keyboard navigation, and focus management. Click the trigger or use Enter/Space to open, then navigate with arrow keys.
@@ -33,11 +31,9 @@
     attribute. Disabled items cannot be focused via keyboard navigation, and do not close the menu when clicked. They remain accessible to screen readers following ARIA accessibility standards.
   </p>
 
-  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
-    <.disabled_dropdown_demo />
+  <div class="not-prose">
+    <.code_example file="dropdown/disabled.html.heex" />
   </div>
-
-  <Prima.CodeBlock.code_block file="dropdown/disabled_dropdown.heex" />
 
   <p>
     Disabled items use <code>aria-disabled="true"</code>
@@ -56,16 +52,14 @@
     variant applies when an item has focus (via keyboard navigation or hover), responding to keyboard navigation and hover states.
   </p>
 
-  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
-    <.styled_dropdown_demo />
+  <div class="not-prose">
+    <.code_example file="dropdown/styled.html.heex" />
   </div>
 
   <p>
     Items without focus use their default styling, while items with the <code>data-focus</code>
     attribute get the enhanced styling. This creates a clear visual indication of the currently focused item without requiring separate styles for unfocused states.
   </p>
-
-  <Prima.CodeBlock.code_block file="dropdown/styled_dropdown.heex" />
 
   <p>
     You can customize the focused state styling by modifying the <code>data-focus:</code>
@@ -77,8 +71,8 @@
     Control dropdown positioning using standard CSS positioning classes. The component supports various alignment options and automatically handles menu overflow.
   </p>
 
-  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
-    <.positioned_dropdown_demo />
+  <div class="not-prose">
+    <.code_example file="dropdown/positioned.html.heex" />
   </div>
 
   <p>
@@ -86,8 +80,6 @@
     <code>origin-bottom-left</code>
     to control the transform origin for smooth animations. Combine with <code>left-0</code>, <code>right-0</code>, or other positioning utilities as needed.
   </p>
-
-  <Prima.CodeBlock.code_block file="dropdown/positioned_dropdown.heex" />
 
   <h2>Keyboard Interaction</h2>
   <p>

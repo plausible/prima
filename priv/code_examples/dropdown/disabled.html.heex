@@ -1,5 +1,5 @@
 <div class="relative inline-block text-left">
-  <.dropdown id="demo-dropdown">
+  <.dropdown id="disabled-demo-dropdown">
     <.dropdown_trigger as={&button/1}>
       Open Dropdown
       <svg
@@ -18,19 +18,19 @@
     <.dropdown_menu class="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
       <div class="py-1" role="none">
         <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          Account settings
+          Edit Profile
+        </.dropdown_item>
+        <.dropdown_item
+          disabled={true}
+          class="text-gray-400 data-disabled:opacity-50 block px-4 py-2 text-sm"
+        >
+          Archive (disabled)
         </.dropdown_item>
         <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          Billing
+          Settings
         </.dropdown_item>
-        <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          Documentation
-        </.dropdown_item>
-        <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          API access
-        </.dropdown_item>
-        <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          Sign out
+        <.dropdown_item class="text-red-700 data-focus:bg-red-100 data-focus:text-red-900 block px-4 py-2 text-sm">
+          Sign Out
         </.dropdown_item>
       </div>
     </.dropdown_menu>
