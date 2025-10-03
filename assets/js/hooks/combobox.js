@@ -78,6 +78,10 @@ export default {
     return Array.from(this.optionsContainer?.querySelectorAll('[role=option]:not([data-hidden])') || [])
   },
 
+  getRegularOptions() {
+    return this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
+  },
+
   isOptionsVisible() {
     if (!this.optionsContainer) return false
     return this.optionsContainer.style.display !== 'none'
@@ -132,7 +136,7 @@ export default {
       // Don't add if already selected
       if (!this.selectedValues.has(actualValue)) {
         this.selectedValues.add(actualValue)
-        this.updateSelectedOptions()
+        this.updateSelectedOption()
         this.updateHiddenInputs()
         this.renderSelectionPills()
       }
@@ -155,13 +159,6 @@ export default {
       }
 
       this.updateSelectedOption()
-
-      // Update create option state after selection
-      if (this.hasCreateOption && this.mode === 'frontend') {
-        this.updateCreateOption(this.searchInput.value)
-        this.updateCreateOptionVisibility(this.searchInput.value)
-      }
-
       this.hideOptions()
     }
   },
@@ -169,10 +166,10 @@ export default {
   updateSelectedOption() {
     if (!this.optionsContainer) return
 
+    const allOptions = this.getRegularOptions()
+
     if (this.isMultiple) {
       // Multi-select mode: mark all selected values
-      const allOptions = this.optionsContainer.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
-
       for (const option of allOptions) {
         const value = option.getAttribute('data-value')
         if (this.selectedValues.has(value)) {
@@ -184,7 +181,6 @@ export default {
     } else {
       // Single-select mode: mark only one value
       const selectedValue = this.submitInput.value
-      const allOptions = this.optionsContainer.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
 
       for (const option of allOptions) {
         if (option.getAttribute('data-value') === selectedValue && selectedValue !== '') {
@@ -196,13 +192,9 @@ export default {
     }
   },
 
-  updateSelectedOptions() {
-    this.updateSelectedOption()
-  },
-
   removeSelection(value) {
     this.selectedValues.delete(value)
-    this.updateSelectedOptions()
+    this.updateSelectedOption()
     this.updateHiddenInputs()
     this.renderSelectionPills()
   },
@@ -329,7 +321,7 @@ export default {
   // === OPTION FILTERING & VISIBILITY ===
   filterOptions(searchValue) {
     const q = searchValue.toLowerCase()
-    const allOptions = this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
+    const allOptions = this.getRegularOptions()
     let previouslyFocusedOptionIsHidden = false
 
     for (const option of allOptions) {
@@ -466,7 +458,7 @@ export default {
 
     this.optionsContainer.addEventListener('phx:hide-end', () => {
       // Reset regular options to visible, but exclude create option since its visibility is managed separately
-      const regularOptions = this.optionsContainer.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
+      const regularOptions = this.getRegularOptions()
       for (const option of regularOptions) {
         this.showOption(option)
       }
@@ -504,7 +496,7 @@ export default {
   },
 
   hasExactMatch(searchValue) {
-    const regularOptions = this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
+    const regularOptions = this.getRegularOptions()
     const hasStaticMatch = Array.from(regularOptions).some(option =>
       option.getAttribute('data-value') === searchValue
     )
