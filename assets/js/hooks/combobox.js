@@ -394,14 +394,6 @@ export default {
     }
   },
 
-  setupAutoUpdate() {
-    if (!this.optionsContainer) return
-
-    this.cleanup = autoUpdate(this.referenceElement, this.optionsContainer, () => {
-      this.positionOptions()
-    })
-  },
-
   cleanupAutoUpdate() {
     if (this.cleanup) {
       this.cleanup()
@@ -420,9 +412,9 @@ export default {
       this.positionOptions()
     })
 
-    // Setup automatic repositioning with floating-ui's autoUpdate
-    this.setupAutoUpdate()
-
+    this.cleanup = autoUpdate(this.referenceElement, this.optionsContainer, () => {
+      this.positionOptions()
+    })
     this.setupClickOutsideHandler()
   },
 
@@ -431,7 +423,6 @@ export default {
       if (!this.optionsContainer.contains(event.target) && !this.searchInput.contains(event.target)) {
         this.resetOnBlur()
         document.removeEventListener('click', handleClickOutside)
-        this.cleanupAutoUpdate()
       }
     }
 
