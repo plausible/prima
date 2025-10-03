@@ -70,6 +70,15 @@ export default {
     return hasPhxChange ? 'async' : 'frontend'
   },
 
+  getReferenceElement() {
+    // Look for combobox_field component within this combobox container
+    const field = this.el.querySelector('[data-prima-ref="field"]')
+    if (field) return field
+
+    // Fall back to search input if no field wrapper is present
+    return this.searchInput
+  },
+
   getVisibleOptions() {
     return Array.from(this.optionsContainer?.querySelectorAll('[role=option]:not([data-hidden])') || [])
   },
@@ -373,7 +382,7 @@ export default {
     }
 
     try {
-      const {x, y} = await computePosition(this.searchInput, this.optionsContainer, {
+      const {x, y} = await computePosition(this.getReferenceElement(), this.optionsContainer, {
         placement: placement,
         middleware: middleware
       })
@@ -391,7 +400,7 @@ export default {
   setupAutoUpdate() {
     if (!this.optionsContainer) return
 
-    this.cleanup = autoUpdate(this.searchInput, this.optionsContainer, () => {
+    this.cleanup = autoUpdate(this.getReferenceElement(), this.optionsContainer, () => {
       this.positionOptions()
     })
   },

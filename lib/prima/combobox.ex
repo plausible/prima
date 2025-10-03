@@ -243,6 +243,42 @@ defmodule Prima.Combobox do
     """
   end
 
+  attr :class, :string, default: ""
+  slot :inner_block, required: true
+  attr(:rest, :global)
+
+  @doc """
+  The field wrapper component for multi-select comboboxes.
+
+  This component provides a stable positioning reference for the options dropdown
+  in multi-select mode. When selection pills are added/removed, the input element
+  shifts horizontally. By wrapping the input and selections in `combobox_field`,
+  the dropdown stays anchored to this stable container instead of the moving input.
+
+  ## Attributes
+
+    * `class` - CSS classes for styling the field container
+    * All HTML attributes are passed through (id, style, data-*, aria-*, etc.)
+
+  ## Example
+
+      <.combobox_field class="flex flex-wrap gap-2 border rounded-md p-2">
+        <.combobox_selections>
+          <!-- Selection pills -->
+        </.combobox_selections>
+        <.combobox_input name="tags" class="flex-1" />
+      </.combobox_field>
+
+  When `combobox_field` is not used, the dropdown positions relative to the input.
+  """
+  def combobox_field(assigns) do
+    ~H"""
+    <div data-prima-ref="field" class={@class} {@rest}>
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
   slot :inner_block, required: true
   attr :class, :string, default: ""
   attr :id, :string, required: true
@@ -283,6 +319,10 @@ defmodule Prima.Combobox do
       `bottom-end`, `left`, `left-start`, `left-end`
     * `flip` - Auto-flip to opposite side if no space (default: `true`)
     * `offset` - Distance in pixels from the input (default: no offset)
+
+  By default, the dropdown positions relative to the search input. For multi-select
+  comboboxes where the input shifts when pills are added/removed, use `combobox_field`
+  to provide a stable positioning reference.
 
   ### Transitions
 
