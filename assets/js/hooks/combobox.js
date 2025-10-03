@@ -6,7 +6,6 @@ export default {
     this.initializeDOMCache()
     this.mode = this.getMode()
     this.isMultiple = this.el.hasAttribute('data-multiple')
-    this.selectedValues = new Set()
     this.hasCreateOption = !!this.createOption
     this.setupEventListeners()
     this.initializeCreateOption()
@@ -87,6 +86,11 @@ export default {
     return this.optionsContainer.style.display !== 'none'
   },
 
+  getSelectedValues() {
+    const items = this.selectionsContainer?.querySelectorAll('[data-prima-ref="selection-item"]') || []
+    return Array.from(items).map(item => item.dataset.value)
+  },
+
   // === FOCUS MANAGEMENT ===
   setFocus(el) {
     this.optionsContainer?.querySelector('[role=option][data-focus=true]')?.removeAttribute('data-focus')
@@ -133,12 +137,12 @@ export default {
         actualValue = this.searchInput.value
       }
 
-      // Don't add if already selected
-      if (!this.selectedValues.has(actualValue)) {
-        this.selectedValues.add(actualValue)
+      // Don't add if already selected (check DOM)
+      const selectedValues = this.getSelectedValues()
+      if (!selectedValues.includes(actualValue)) {
+        this.appendSelectionPill(actualValue)
         this.updateSelectedOption()
         this.updateHiddenInputs()
-        this.renderSelectionPills()
       }
 
       // Clear search input
@@ -170,9 +174,10 @@ export default {
 
     if (this.isMultiple) {
       // Multi-select mode: mark all selected values
+      const selectedValues = this.getSelectedValues()
       for (const option of allOptions) {
         const value = option.getAttribute('data-value')
-        if (this.selectedValues.has(value)) {
+        if (selectedValues.includes(value)) {
           option.setAttribute('data-selected', 'true')
         } else {
           option.removeAttribute('data-selected')
@@ -193,29 +198,25 @@ export default {
   },
 
   removeSelection(value) {
-    this.selectedValues.delete(value)
+    // Remove the pill directly from DOM
+    const pill = this.selectionsContainer?.querySelector(`[data-prima-ref="selection-item"][data-value="${value}"]`)
+    pill?.remove()
+
     this.updateSelectedOption()
     this.updateHiddenInputs()
-    this.renderSelectionPills()
   },
 
-  renderSelectionPills() {
+  appendSelectionPill(value) {
     if (!this.selectionsContainer || !this.selectionTemplate) return
 
-    // Remove all existing selection items (but keep the template)
-    this.selectionsContainer.querySelectorAll('[data-prima-ref="selection-item"]').forEach(el => el.remove())
+    const pill = this.selectionTemplate.content.cloneNode(true)
+    const item = pill.querySelector('[data-prima-ref="selection-item"]')
+    item.dataset.value = value
 
-    // Clone template for each selected value
-    for (const value of this.selectedValues) {
-      const pill = this.selectionTemplate.content.cloneNode(true)
-      const item = pill.querySelector('[data-prima-ref="selection-item"]')
-      item.dataset.value = value
+    // Replace all occurrences of __VALUE__ with actual value
+    item.innerHTML = item.innerHTML.replaceAll('__VALUE__', value)
 
-      // Replace all occurrences of __VALUE__ with actual value
-      item.innerHTML = item.innerHTML.replaceAll('__VALUE__', value)
-
-      this.selectionsContainer.appendChild(pill)
-    }
+    this.selectionsContainer.appendChild(pill)
   },
 
   updateHiddenInputs() {
@@ -230,7 +231,8 @@ export default {
 
     // Create hidden input for each selected value
     const inputName = this.searchInput.name.replace('_search', '[]')
-    for (const value of this.selectedValues) {
+    const selectedValues = this.getSelectedValues()
+    for (const value of selectedValues) {
       const input = document.createElement('input')
       input.type = 'hidden'
       input.name = inputName
@@ -272,7 +274,7 @@ export default {
     } else if (e.key === "Backspace" && this.isMultiple && this.searchInput.value === '') {
       // Remove last selection when backspace is pressed on empty input
       e.preventDefault()
-      const values = Array.from(this.selectedValues)
+      const values = this.getSelectedValues()
       if (values.length > 0) {
         this.removeSelection(values[values.length - 1])
       }
