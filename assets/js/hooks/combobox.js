@@ -5,10 +5,12 @@ export default {
   mounted() {
     this.initializeDOMCache()
     this.mode = this.getMode()
+    this.isMultiple = this.el.hasAttribute('data-multiple')
     this.hasCreateOption = !!this.createOption
+
     this.setupEventListeners()
     this.initializeCreateOption()
-    this.updateSelectedOption()
+    this.syncSelectedAttributes()
     if (this.mode === 'async') {
       this.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
     }
@@ -17,9 +19,15 @@ export default {
 
   initializeDOMCache() {
     this.searchInput = this.el.querySelector('input[data-prima-ref=search_input]')
-    this.submitInput = this.el.querySelector('input[data-prima-ref=submit_input]')
+    this.submitContainer = this.el.querySelector('[data-prima-ref=submit_container]')
     this.optionsContainer = this.getOptionsContainer()
     this.createOption = this.optionsContainer?.querySelector('[data-prima-ref=create-option]')
+    this.selectionsContainer = this.el.querySelector('[data-prima-ref=selections]')
+    this.selectionTemplate = this.selectionsContainer?.querySelector('[data-prima-ref=selection-template]')
+
+    // Cache reference element for positioning
+    const field = this.el.querySelector('[data-prima-ref="field"]')
+    this.referenceElement = field || this.searchInput
   },
 
   setupEventListeners() {
@@ -29,7 +37,14 @@ export default {
     this.optionsContainer?.addEventListener('mouseover', this.onHover.bind(this))
     this.searchInput.addEventListener('focus', () => {
       this.searchInput.select()
-      this.showOptions()
+    })
+    this.searchInput.addEventListener('click', (e) => {
+      // Toggle options visibility on click
+      if (this.isOptionsVisible()) {
+        this.hideOptions()
+      } else {
+        this.showOptions()
+      }
     })
     this.searchInput.addEventListener('input', this.onInput.bind(this))
   },
@@ -42,7 +57,7 @@ export default {
     } else {
       this.focusFirstOption()
     }
-    this.updateSelectedOption()
+    this.syncSelectedAttributes()
   },
 
   destroyed() {
@@ -61,6 +76,71 @@ export default {
 
   getVisibleOptions() {
     return Array.from(this.optionsContainer?.querySelectorAll('[role=option]:not([data-hidden])') || [])
+  },
+
+  getRegularOptions() {
+    return this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
+  },
+
+  isOptionsVisible() {
+    if (!this.optionsContainer) return false
+    return this.optionsContainer.style.display !== 'none'
+  },
+
+  getSelectedValues() {
+    const inputs = this.submitContainer?.querySelectorAll('input[type="hidden"]') || []
+    return Array.from(inputs).map(input => input.value)
+  },
+
+  getInputName() {
+    if (!this.submitContainer) return ''
+    const baseName = this.submitContainer.getAttribute('data-input-name')
+    return this.isMultiple ? baseName + '[]' : baseName
+  },
+
+  // === SELECTION MANAGEMENT ===
+  addSelection(value) {
+    if (!this.submitContainer) return
+
+    const selectedValues = this.getSelectedValues()
+
+    // Don't add if already selected
+    if (selectedValues.includes(value)) return
+
+    // Single-select: clear existing selections first
+    if (!this.isMultiple) {
+      this.submitContainer.innerHTML = ''
+    }
+
+    // Create and append hidden input
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = this.getInputName()
+    input.value = value
+    this.submitContainer.appendChild(input)
+
+    // Render pill for multi-select
+    if (this.isMultiple) {
+      this.appendSelectionPill(value)
+    }
+
+    this.syncSelectedAttributes()
+  },
+
+  removeSelection(value) {
+    // Remove hidden input
+    const inputs = Array.from(this.submitContainer.querySelectorAll('input[type="hidden"]'))
+    const input = inputs.find(input => input.value === value)
+    input?.remove()
+
+    if (this.isMultiple) {
+      const pill = this.selectionsContainer?.querySelector(
+        `[data-prima-ref="selection-item"][data-value="${value}"]`
+      )
+      pill?.remove()
+    }
+
+    this.syncSelectedAttributes()
   },
 
   // === FOCUS MANAGEMENT ===
@@ -100,29 +180,37 @@ export default {
 
   // === OPTION SELECTION ===
   selectOption(el) {
-    const value = el.getAttribute('data-value')
+    if (!el) return
 
+    let value = el.getAttribute('data-value')
+
+    // Handle create option
     if (value === '__CREATE__') {
-      const searchValue = this.searchInput.value
-      this.submitInput.value = searchValue
-      this.searchInput.value = searchValue
+      value = this.searchInput.value
+    }
+
+    this.addSelection(value)
+
+    if (this.isMultiple) {
+      this.searchInput.value = ''
     } else {
-      this.submitInput.value = value
       this.searchInput.value = value
     }
 
-    this.updateSelectedOption()
     this.hideOptions()
+
+    this.searchInput.focus()
   },
 
-  updateSelectedOption() {
+  syncSelectedAttributes() {
     if (!this.optionsContainer) return
 
-    const selectedValue = this.submitInput.value
-    const allOptions = this.optionsContainer.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
+    const allOptions = this.getRegularOptions()
+    const selectedValues = this.getSelectedValues()
 
     for (const option of allOptions) {
-      if (option.getAttribute('data-value') === selectedValue && selectedValue !== '') {
+      const value = option.getAttribute('data-value')
+      if (selectedValues.includes(value)) {
         option.setAttribute('data-selected', 'true')
       } else {
         option.removeAttribute('data-selected')
@@ -130,8 +218,30 @@ export default {
     }
   },
 
+  appendSelectionPill(value) {
+    if (!this.selectionsContainer || !this.selectionTemplate) return
+
+    const pill = this.selectionTemplate.content.cloneNode(true)
+    const item = pill.querySelector('[data-prima-ref="selection-item"]')
+    item.dataset.value = value
+
+    // Replace all occurrences of __VALUE__ with actual value
+    item.innerHTML = item.innerHTML.replaceAll('__VALUE__', value)
+
+    this.selectionsContainer.appendChild(pill)
+  },
+
   // === EVENT HANDLERS ===
   onClick(e) {
+    // Check for remove button click first
+    const removeButton = e.target.closest('[data-prima-ref="remove-selection"]')
+    if (removeButton) {
+      const value = removeButton.getAttribute('data-value')
+      this.removeSelection(value)
+      this.searchInput.focus()
+      return
+    }
+
     // Use event delegation to find the closest option element
     const optionElement = e.target.closest('[role="option"]')
     if (optionElement) {
@@ -148,7 +258,16 @@ export default {
     } else if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault()
       this.selectOption(this.currentlyFocusedOption())
+    } else if (e.key === "Escape") {
+      e.preventDefault()
       this.hideOptions()
+    } else if (e.key === "Backspace" && this.isMultiple && this.searchInput.value === '') {
+      // Remove last selection when backspace is pressed on empty input
+      e.preventDefault()
+      const values = this.getSelectedValues()
+      if (values.length > 0) {
+        this.removeSelection(values[values.length - 1])
+      }
     }
   },
 
@@ -194,7 +313,7 @@ export default {
   // === OPTION FILTERING & VISIBILITY ===
   filterOptions(searchValue) {
     const q = searchValue.toLowerCase()
-    const allOptions = this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
+    const allOptions = this.getRegularOptions()
     let previouslyFocusedOptionIsHidden = false
 
     for (const option of allOptions) {
@@ -246,7 +365,7 @@ export default {
     }
 
     try {
-      const {x, y} = await computePosition(this.searchInput, this.optionsContainer, {
+      const {x, y} = await computePosition(this.referenceElement, this.optionsContainer, {
         placement: placement,
         middleware: middleware
       })
@@ -259,14 +378,6 @@ export default {
     } catch (error) {
       console.error('Failed to position combobox options:', error)
     }
-  },
-
-  setupAutoUpdate() {
-    if (!this.optionsContainer) return
-
-    this.cleanup = autoUpdate(this.searchInput, this.optionsContainer, () => {
-      this.positionOptions()
-    })
   },
 
   cleanupAutoUpdate() {
@@ -287,9 +398,9 @@ export default {
       this.positionOptions()
     })
 
-    // Setup automatic repositioning with floating-ui's autoUpdate
-    this.setupAutoUpdate()
-
+    this.cleanup = autoUpdate(this.referenceElement, this.optionsContainer, () => {
+      this.positionOptions()
+    })
     this.setupClickOutsideHandler()
   },
 
@@ -298,7 +409,6 @@ export default {
       if (!this.optionsContainer.contains(event.target) && !this.searchInput.contains(event.target)) {
         this.resetOnBlur()
         document.removeEventListener('click', handleClickOutside)
-        this.cleanupAutoUpdate()
       }
     }
 
@@ -306,12 +416,16 @@ export default {
   },
 
   resetOnBlur() {
-    if (this.submitInput.value.length > 0 && this.searchInput.value.length > 0) {
-      this.searchInput.value = this.submitInput.value
+    const selectedValues = this.getSelectedValues()
+    const currentValue = selectedValues[0] || ''
+
+    if (currentValue.length > 0 && this.searchInput.value.length > 0) {
+      this.searchInput.value = currentValue
     } else if (this.searchInput.value.length > 0) {
       this.searchInput.value = ''
       this.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
-      this.submitInput.value = ''
+      // Clear selections (for single-select)
+      this.submitContainer.innerHTML = ''
     }
 
     this.hideOptions()
@@ -326,8 +440,10 @@ export default {
     this.cleanupAutoUpdate()
 
     this.optionsContainer.addEventListener('phx:hide-end', () => {
-      for (const option of this.optionsContainer.querySelectorAll('[role=option]')) {
-        this.showOption(option) // reset the state
+      // Reset regular options to visible, but exclude create option since its visibility is managed separately
+      const regularOptions = this.getRegularOptions()
+      for (const option of regularOptions) {
+        this.showOption(option)
       }
     })
   },
@@ -363,13 +479,14 @@ export default {
   },
 
   hasExactMatch(searchValue) {
-    const regularOptions = this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
+    const regularOptions = this.getRegularOptions()
     const hasStaticMatch = Array.from(regularOptions).some(option =>
       option.getAttribute('data-value') === searchValue
     )
 
-    // Also check if search value matches current selected value (submit input)
-    const hasSelectedMatch = this.submitInput.value === searchValue
+    // Also check if search value matches any currently selected value
+    const selectedValues = this.getSelectedValues()
+    const hasSelectedMatch = selectedValues.includes(searchValue)
 
     return hasStaticMatch || hasSelectedMatch
   }

@@ -93,6 +93,7 @@ defmodule Prima.Combobox do
   attr :id, :string, required: true
   slot :inner_block, required: true
   attr :class, :string, default: ""
+  attr :multiple, :boolean, default: false
 
   @doc """
   The main combobox container component.
@@ -119,9 +120,62 @@ defmodule Prima.Combobox do
   """
   def combobox(assigns) do
     ~H"""
-    <div id={@id} class={@class} phx-hook="Combobox">
+    <div id={@id} class={@class} phx-hook="Combobox" data-multiple={@multiple && true}>
       {render_slot(@inner_block)}
     </div>
+    """
+  end
+
+  attr :class, :string, default: ""
+
+  slot :selection, required: true do
+    attr :class, :string
+  end
+
+  @doc """
+  Container for displaying selected items in multi-select mode.
+
+  This component uses a template-based approach where JavaScript clones the selection
+  slot markup to create pills for each selected value. The container uses `phx-update="ignore"`
+  so LiveView doesn't interfere with client-side selection management.
+
+  ## Attributes
+
+    * `class` - CSS classes for the selections container
+    * `selection` - Required slot that defines the markup for each selected item.
+      The slot receives the selected value via `:let` and can be fully customized with CSS.
+
+  ## Usage
+
+      <.combobox_selections class="flex flex-wrap gap-2">
+        <:selection :let={value} class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 rounded">
+          <span><%= value %></span>
+          <.combobox_selection_remove value={value} class="hover:bg-blue-200 rounded">
+            ×
+          </.combobox_selection_remove>
+        </:selection>
+      </.combobox_selections>
+
+  JavaScript will clone the template and replace `__VALUE__` with actual selected values.
+  """
+  def combobox_selections(assigns) do
+    assigns = assign(assigns, :selections_id, "selections-#{System.unique_integer([:positive])}")
+
+    ~H"""
+    <ul
+      id={@selections_id}
+      data-prima-ref="selections"
+      phx-update="ignore"
+      class={@class}
+    >
+      <template data-prima-ref="selection-template">
+        <%= for entry <- @selection do %>
+          <li data-prima-ref="selection-item" class={Map.get(entry, :class, "")}>
+            {render_slot(entry, "__VALUE__")}
+          </li>
+        <% end %>
+      </template>
+    </ul>
     """
   end
 
@@ -178,9 +232,88 @@ defmodule Prima.Combobox do
       phx-debounce={200}
       {@rest}
     />
-    <div phx-update="ignore" id={@name <> "_submit_container"}>
-      <input data-prima-ref="submit_input" type="hidden" autocomplete="off" name={@name} />
+    <div
+      id={@name <> "_submit_container"}
+      phx-update="ignore"
+      data-prima-ref="submit_container"
+      data-input-name={@name}
+    >
     </div>
+    """
+  end
+
+  attr :class, :string, default: ""
+  slot :inner_block, required: true
+  attr(:rest, :global)
+
+  @doc """
+  The field wrapper component for multi-select comboboxes.
+
+  This component provides a stable positioning reference for the options dropdown
+  in multi-select mode. When selection pills are added/removed, the input element
+  shifts horizontally. By wrapping the input and selections in `combobox_field`,
+  the dropdown stays anchored to this stable container instead of the moving input.
+
+  ## Attributes
+
+    * `class` - CSS classes for styling the field container
+    * All HTML attributes are passed through (id, style, data-*, aria-*, etc.)
+
+  ## Example
+
+      <.combobox_field class="flex flex-wrap gap-2 border rounded-md p-2">
+        <.combobox_selections>
+          <!-- Selection pills -->
+        </.combobox_selections>
+        <.combobox_input name="tags" class="flex-1" />
+      </.combobox_field>
+
+  When `combobox_field` is not used, the dropdown positions relative to the input.
+  """
+  def combobox_field(assigns) do
+    ~H"""
+    <div data-prima-ref="field" class={@class} {@rest}>
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
+  attr :value, :string, required: true
+  attr :class, :string, default: ""
+  slot :inner_block, required: true
+  attr(:rest, :global)
+
+  @doc """
+  Remove button for multi-select combobox selections.
+
+  This component renders a button that removes a selected value when clicked.
+  It automatically sets the required data attributes and aria-label for accessibility.
+
+  ## Attributes
+
+    * `value` (required) - The value to remove when clicked
+    * `class` - CSS classes for styling the button
+    * `inner_block` (required) - Button content (icon, text, etc.)
+
+  ## Example
+
+      <.combobox_selection_remove value={value} class="text-gray-500 hover:text-gray-700">
+        ×
+      </.combobox_selection_remove>
+
+  """
+  def combobox_selection_remove(assigns) do
+    ~H"""
+    <button
+      type="button"
+      data-prima-ref="remove-selection"
+      data-value={@value}
+      aria-label={"Remove #{@value}"}
+      class={@class}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </button>
     """
   end
 
@@ -224,6 +357,10 @@ defmodule Prima.Combobox do
       `bottom-end`, `left`, `left-start`, `left-end`
     * `flip` - Auto-flip to opposite side if no space (default: `true`)
     * `offset` - Distance in pixels from the input (default: no offset)
+
+  By default, the dropdown positions relative to the search input. For multi-select
+  comboboxes where the input shifts when pills are added/removed, use `combobox_field`
+  to provide a stable positioning reference.
 
   ### Transitions
 

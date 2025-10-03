@@ -25,7 +25,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
     # Click on the main title text within the option
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='urgent']"))
     |> execute_script(
-      "return {search: document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "urgent",
                "Expected search input value to be 'urgent', got '#{values["search"]}'"
@@ -44,7 +44,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
     # Click on the high priority option
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='high']"))
     |> execute_script(
-      "return {search: document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "high",
                "Expected search input value to be 'high', got '#{values["search"]}'"
@@ -63,7 +63,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
     # Click on the SVG icon within the medium priority option
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='medium'] svg"))
     |> execute_script(
-      "return {search: document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "medium",
                "Expected search input value to be 'medium', got '#{values["search"]}'"
@@ -82,7 +82,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
     # Click on the option itself (testing that basic click still works)
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='low']"))
     |> execute_script(
-      "return {search: document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "low",
                "Expected search input value to be 'low', got '#{values["search"]}'"
@@ -136,7 +136,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
     |> execute_script(
-      "return {search: document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "backlog",
                "Expected search input value to be 'backlog', got '#{values["search"]}'"
@@ -198,7 +198,7 @@ defmodule PrimaWeb.FlexibleMarkupComboboxTest do
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='high']"))
     # Verify the form input has the correct name and value for submission
     |> execute_script(
-      "const input = document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]'); return {name: input.name, value: input.value}",
+      "const input = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {name: input ? input.name : '', value: input ? input.value : ''}",
       fn data ->
         assert data["name"] == "priority",
                "Expected form input name to be 'priority', got '#{data["name"]}'"

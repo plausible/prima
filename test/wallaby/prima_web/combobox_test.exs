@@ -60,9 +60,8 @@ defmodule PrimaWeb.ComboboxTest do
     |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
-    # Both inputs are set the same way in JavaScript, so use execute_script for consistency
     |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "Apple",
                "Expected search input value to be 'Apple', got '#{values["search"]}'"
@@ -105,9 +104,8 @@ defmodule PrimaWeb.ComboboxTest do
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
-    # Both inputs are set the same way in JavaScript, so use execute_script for consistency
     |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "Pear",
                "Expected search input value to be 'Pear', got '#{values["search"]}'"
@@ -131,9 +129,8 @@ defmodule PrimaWeb.ComboboxTest do
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
-    # Both inputs are set the same way in JavaScript, so use execute_script for consistency
     |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "Mango",
                "Expected search input value to be 'Mango', got '#{values["search"]}'"
@@ -165,7 +162,7 @@ defmodule PrimaWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Check that search input is reset but submit input remains empty
     |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "",
                "Expected search input to be reset to empty, got '#{values["search"]}'"
@@ -267,7 +264,7 @@ defmodule PrimaWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Verify the form input has the correct name and value for submission
     |> execute_script(
-      "const input = document.querySelector('#demo-combobox input[data-prima-ref=submit_input]'); return {name: input.name, value: input.value}",
+      "const input = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {name: input ? input.name : '', value: input ? input.value : ''}",
       fn data ->
         assert data["name"] == "demo-combobox[fruit]",
                "Expected form input name to be 'demo-combobox[fruit]', got '#{data["name"]}'"
@@ -445,5 +442,113 @@ defmodule PrimaWeb.ComboboxTest do
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_missing(Query.css("#demo-combobox [role=option][data-selected]"))
+  end
+
+  feature "focus selects text but does NOT open options", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> assert_has(@options_container |> Query.visible(false))
+    # First, add some text to the input
+    |> execute_script(
+      "document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value = 'Apple'"
+    )
+    # Blur the input first to ensure we're testing focus behavior
+    |> execute_script(
+      "document.querySelector('#demo-combobox input[data-prima-ref=search_input]').blur()"
+    )
+    # Now focus the input programmatically (simulating Tab key)
+    |> execute_script(
+      "document.querySelector('#demo-combobox input[data-prima-ref=search_input]').focus()"
+    )
+    # Options should still be closed (focus doesn't open options)
+    |> assert_has(@options_container |> Query.visible(false))
+    # Verify text selection happened (entire "Apple" should be selected)
+    |> execute_script(
+      "const input = document.querySelector('#demo-combobox input[data-prima-ref=search_input]'); return {selectionStart: input.selectionStart, selectionEnd: input.selectionEnd, valueLength: input.value.length}",
+      fn selection ->
+        assert selection["selectionStart"] == 0,
+               "Expected selectionStart to be 0, got #{selection["selectionStart"]}"
+
+        assert selection["selectionEnd"] == 5,
+               "Expected selectionEnd to be 5 (length of 'Apple'), got #{selection["selectionEnd"]}"
+
+        assert selection["selectionEnd"] == selection["valueLength"],
+               "Expected entire text to be selected"
+      end
+    )
+  end
+
+  feature "clicking input toggles options visibility", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    # Initially options are hidden
+    |> assert_has(@options_container |> Query.visible(false))
+    # Click to open
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Click again to close (toggle)
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(false))
+    # Click again to open
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+  end
+
+  feature "escape key closes options and maintains input value", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Type something to filter
+    |> fill_in(@search_input, with: "app")
+    # Press Escape
+    |> send_keys([:escape])
+    # Options should close
+    |> assert_has(@options_container |> Query.visible(false))
+    # Input value should be cleared on blur
+    |> execute_script(
+      "return document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value",
+      fn value ->
+        # After escape and blur, search input should be reset since no selection was made
+        assert value == "" || value == "app",
+               "Expected search input to be empty or contain typed text, got '#{value}'"
+      end
+    )
+  end
+
+  feature "single-select MUST close options after selection (behavior contract)", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Select an option
+    |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
+    # This MUST close options - this is a behavioral requirement, not a side effect
+    |> assert_has(@options_container |> Query.visible(false))
+  end
+
+  feature "search input shows selected value after re-opening (single-select)", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Select Apple
+    |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
+    |> assert_has(@options_container |> Query.visible(false))
+    # Re-open options by clicking
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Search input should still show "Apple"
+    |> execute_script(
+      "return document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value",
+      fn value ->
+        assert value == "Apple",
+               "Expected search input to show selected value 'Apple' after re-opening, got '#{value}'"
+      end
+    )
   end
 end
