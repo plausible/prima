@@ -24,6 +24,10 @@ export default {
     this.createOption = this.optionsContainer?.querySelector('[data-prima-ref=create-option]')
     this.selectionsContainer = this.el.querySelector('[data-prima-ref=selections]')
     this.selectionTemplate = this.selectionsContainer?.querySelector('[data-prima-ref=selection-template]')
+
+    // Cache reference element for positioning
+    const field = this.el.querySelector('[data-prima-ref="field"]')
+    this.referenceElement = field || this.searchInput
   },
 
   setupEventListeners() {
@@ -68,15 +72,6 @@ export default {
   getMode() {
     const hasPhxChange = this.searchInput.hasAttribute('phx-change')
     return hasPhxChange ? 'async' : 'frontend'
-  },
-
-  getReferenceElement() {
-    // Look for combobox_field component within this combobox container
-    const field = this.el.querySelector('[data-prima-ref="field"]')
-    if (field) return field
-
-    // Fall back to search input if no field wrapper is present
-    return this.searchInput
   },
 
   getVisibleOptions() {
@@ -390,7 +385,7 @@ export default {
     }
 
     try {
-      const {x, y} = await computePosition(this.getReferenceElement(), this.optionsContainer, {
+      const {x, y} = await computePosition(this.referenceElement, this.optionsContainer, {
         placement: placement,
         middleware: middleware
       })
@@ -408,7 +403,7 @@ export default {
   setupAutoUpdate() {
     if (!this.optionsContainer) return
 
-    this.cleanup = autoUpdate(this.getReferenceElement(), this.optionsContainer, () => {
+    this.cleanup = autoUpdate(this.referenceElement, this.optionsContainer, () => {
       this.positionOptions()
     })
   },
