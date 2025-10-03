@@ -8,12 +8,9 @@
           class="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded text-sm font-medium"
         >
           <span>{value}</span>
-          <button
-            type="button"
-            data-prima-ref="remove-selection"
-            data-value={value}
+          <.combobox_selection_remove
+            value={value}
             class="hover:bg-indigo-200 rounded-full p-0.5 transition-colors"
-            aria-label={"Remove #{value}"}
           >
             <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
               <path
@@ -22,7 +19,7 @@
                 clip-rule="evenodd"
               />
             </svg>
-          </button>
+          </.combobox_selection_remove>
         </:selection>
       </.combobox_selections>
 

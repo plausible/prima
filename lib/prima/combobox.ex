@@ -150,14 +150,9 @@ defmodule Prima.Combobox do
       <.combobox_selections class="flex flex-wrap gap-2">
         <:selection :let={value} class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 rounded">
           <span><%= value %></span>
-          <button
-            type="button"
-            data-prima-ref="remove-selection"
-            data-value={value}
-            class="hover:bg-blue-200"
-          >
+          <.combobox_selection_remove value={value} class="hover:bg-blue-200 rounded">
             ×
-          </button>
+          </.combobox_selection_remove>
         </:selection>
       </.combobox_selections>
 
@@ -276,6 +271,45 @@ defmodule Prima.Combobox do
     <div data-prima-ref="field" class={@class} {@rest}>
       {render_slot(@inner_block)}
     </div>
+    """
+  end
+
+  attr :value, :string, required: true
+  attr :class, :string, default: ""
+  slot :inner_block, required: true
+  attr(:rest, :global)
+
+  @doc """
+  Remove button for multi-select combobox selections.
+
+  This component renders a button that removes a selected value when clicked.
+  It automatically sets the required data attributes and aria-label for accessibility.
+
+  ## Attributes
+
+    * `value` (required) - The value to remove when clicked
+    * `class` - CSS classes for styling the button
+    * `inner_block` (required) - Button content (icon, text, etc.)
+
+  ## Example
+
+      <.combobox_selection_remove value={value} class="text-gray-500 hover:text-gray-700">
+        ×
+      </.combobox_selection_remove>
+
+  """
+  def combobox_selection_remove(assigns) do
+    ~H"""
+    <button
+      type="button"
+      data-prima-ref="remove-selection"
+      data-value={@value}
+      aria-label={"Remove #{@value}"}
+      class={@class}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </button>
     """
   end
 
