@@ -262,6 +262,9 @@ export default {
     } else if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault()
       this.selectOption(this.currentlyFocusedOption())
+    } else if (e.key === "Escape") {
+      e.preventDefault()
+      this.hideOptions()
     } else if (e.key === "Backspace" && this.isMultiple && this.searchInput.value === '') {
       // Remove last selection when backspace is pressed on empty input
       e.preventDefault()
