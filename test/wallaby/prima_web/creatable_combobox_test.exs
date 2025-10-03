@@ -265,4 +265,39 @@ defmodule PrimaWeb.CreatableComboboxTest do
       Query.css("#demo-creatable-combobox [role=option][data-value='Apple'][data-focus=true]")
     )
   end
+
+  feature "create option should not appear after selecting default option and reopening", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
+    # Open combobox
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Select a default option (Apple)
+    |> click(Query.css("#demo-creatable-combobox [role=option][data-value='Apple']"))
+    # Options should be hidden after selection
+    |> assert_has(@options_container |> Query.visible(false))
+    # Verify search input has the selected value
+    |> execute_script(
+      "return document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').value",
+      fn value ->
+        assert value == "Apple"
+      end
+    )
+    # Reopen the combobox by clicking the input again
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Create option should be hidden (exact match with "Apple")
+    |> assert_missing(@create_option |> Query.visible(true))
+    # Only matching options should be visible
+    |> assert_has(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Apple']")
+      |> Query.visible(true)
+    )
+    |> assert_has(
+      Query.css("#demo-creatable-combobox [role=option][data-value='Pineapple']")
+      |> Query.visible(true)
+    )
+  end
 end

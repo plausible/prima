@@ -160,6 +160,13 @@ export default {
       }
 
       this.updateSelectedOption()
+
+      // Update create option state after selection
+      if (this.hasCreateOption && this.mode === 'frontend') {
+        this.updateCreateOption(this.searchInput.value)
+        this.updateCreateOptionVisibility(this.searchInput.value)
+      }
+
       this.hideOptions()
     }
   },
@@ -463,8 +470,10 @@ export default {
     this.cleanupAutoUpdate()
 
     this.optionsContainer.addEventListener('phx:hide-end', () => {
-      for (const option of this.optionsContainer.querySelectorAll('[role=option]')) {
-        this.showOption(option) // reset the state
+      // Reset regular options to visible, but exclude create option since its visibility is managed separately
+      const regularOptions = this.optionsContainer.querySelectorAll('[role=option]:not([data-prima-ref=create-option])')
+      for (const option of regularOptions) {
+        this.showOption(option)
       }
     })
   },
