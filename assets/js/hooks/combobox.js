@@ -252,6 +252,7 @@ export default {
     if (removeButton) {
       const value = removeButton.getAttribute('data-value')
       this.removeSelection(value)
+      this.searchInput.focus()
       return
     }
 

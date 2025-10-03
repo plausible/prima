@@ -390,4 +390,45 @@ defmodule PrimaWeb.MultiSelectComboboxTest do
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
   end
+
+  feature "clicking remove button keeps input focused", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
+    |> click(@search_input)
+    # Select two options
+    |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
+    |> click(@search_input)
+    |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Banana']"))
+    # Both pills should be present
+    |> assert_has(
+      Query.css(
+        "#demo-multi-select-combobox [data-prima-ref='selection-item'][data-value='Apple']"
+      )
+    )
+    |> assert_has(
+      Query.css(
+        "#demo-multi-select-combobox [data-prima-ref='selection-item'][data-value='Banana']"
+      )
+    )
+    # Click remove button for Banana
+    |> click(
+      Query.css(
+        "#demo-multi-select-combobox [data-prima-ref='selection-item'][data-value='Banana'] [data-prima-ref='remove-selection']"
+      )
+    )
+    # Banana pill should be removed
+    |> assert_missing(
+      Query.css(
+        "#demo-multi-select-combobox [data-prima-ref='selection-item'][data-value='Banana']"
+      )
+    )
+    # Search input should still be focused
+    |> execute_script(
+      "return document.activeElement === document.querySelector('#demo-multi-select-combobox input[data-prima-ref=search_input]')",
+      fn is_focused ->
+        assert is_focused == true,
+               "Expected search input to remain focused after clicking remove button"
+      end
+    )
+  end
 end
