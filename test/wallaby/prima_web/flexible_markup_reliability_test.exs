@@ -12,7 +12,7 @@ defmodule PrimaWeb.FlexibleMarkupReliabilityTest do
     # Try clicking directly on the option element - this should work
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='urgent']"))
     |> execute_script(
-      "return document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value",
+      "const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return hiddenInput ? hiddenInput.value : ''",
       fn value ->
         assert value == "urgent", "Direct click on option should work, got: '#{value}'"
       end
@@ -21,12 +21,12 @@ defmodule PrimaWeb.FlexibleMarkupReliabilityTest do
     |> click(@search_input)
     |> fill_in(@search_input, with: "")
     |> execute_script(
-      "document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value = ''"
+      "const container = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container]'); if (container) container.innerHTML = ''"
     )
     # Now try clicking on the SVG icon - this should now work with the fix
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='medium'] svg"))
     |> execute_script(
-      "return document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value",
+      "const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return hiddenInput ? hiddenInput.value : ''",
       fn value ->
         # This should now work with event delegation fix
         assert value == "medium", "Clicking on SVG should select option, but got: '#{value}'"
@@ -44,7 +44,7 @@ defmodule PrimaWeb.FlexibleMarkupReliabilityTest do
       Query.css("#flexible-markup-combobox [role=option][data-value='high'] div div:first-child")
     )
     |> execute_script(
-      "return document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value",
+      "const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return hiddenInput ? hiddenInput.value : ''",
       fn value ->
         assert value == "high", "Clicking nested text should work, got: '#{value}'"
       end
@@ -53,11 +53,11 @@ defmodule PrimaWeb.FlexibleMarkupReliabilityTest do
     |> click(@search_input)
     |> fill_in(@search_input, with: "")
     |> execute_script(
-      "document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value = ''"
+      "const container = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container]'); if (container) container.innerHTML = ''"
     )
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='low']"))
     |> execute_script(
-      "return document.querySelector('#flexible-markup-combobox input[data-prima-ref=submit_input]').value",
+      "const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return hiddenInput ? hiddenInput.value : ''",
       fn value ->
         assert value == "low", "Clicking low option should work, got: '#{value}'"
       end

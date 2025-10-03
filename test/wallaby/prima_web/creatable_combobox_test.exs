@@ -103,7 +103,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the created value
     |> execute_script(
-      "return {search: document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-creatable-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-creatable-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "Strawberry",
                "Expected search input value to be 'Strawberry', got '#{values["search"]}'"
@@ -126,7 +126,7 @@ defmodule PrimaWeb.CreatableComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the created value
     |> execute_script(
-      "return {search: document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-creatable-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-creatable-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "Watermelon",
                "Expected search input value to be 'Watermelon', got '#{values["search"]}'"

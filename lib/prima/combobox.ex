@@ -232,8 +232,12 @@ defmodule Prima.Combobox do
       phx-debounce={200}
       {@rest}
     />
-    <div phx-update="ignore" id={@name <> "_submit_container"}>
-      <input data-prima-ref="submit_input" type="hidden" autocomplete="off" name={@name} />
+    <div
+      id={@name <> "_submit_container"}
+      phx-update="ignore"
+      data-prima-ref="submit_container"
+      data-input-name={@name}
+    >
     </div>
     """
   end

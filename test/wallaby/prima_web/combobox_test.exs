@@ -60,9 +60,8 @@ defmodule PrimaWeb.ComboboxTest do
     |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
-    # Both inputs are set the same way in JavaScript, so use execute_script for consistency
     |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "Apple",
                "Expected search input value to be 'Apple', got '#{values["search"]}'"
@@ -105,9 +104,8 @@ defmodule PrimaWeb.ComboboxTest do
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
-    # Both inputs are set the same way in JavaScript, so use execute_script for consistency
     |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "Pear",
                "Expected search input value to be 'Pear', got '#{values["search"]}'"
@@ -131,9 +129,8 @@ defmodule PrimaWeb.ComboboxTest do
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
     # Check that both inputs have the selected value
-    # Both inputs are set the same way in JavaScript, so use execute_script for consistency
     |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "Mango",
                "Expected search input value to be 'Mango', got '#{values["search"]}'"
@@ -165,7 +162,7 @@ defmodule PrimaWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Check that search input is reset but submit input remains empty
     |> execute_script(
-      "return {search: document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value, submit: document.querySelector('#demo-combobox input[data-prima-ref=submit_input]').value}",
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
       fn values ->
         assert values["search"] == "",
                "Expected search input to be reset to empty, got '#{values["search"]}'"
@@ -267,7 +264,7 @@ defmodule PrimaWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
     # Verify the form input has the correct name and value for submission
     |> execute_script(
-      "const input = document.querySelector('#demo-combobox input[data-prima-ref=submit_input]'); return {name: input.name, value: input.value}",
+      "const input = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {name: input ? input.name : '', value: input ? input.value : ''}",
       fn data ->
         assert data["name"] == "demo-combobox[fruit]",
                "Expected form input name to be 'demo-combobox[fruit]', got '#{data["name"]}'"
