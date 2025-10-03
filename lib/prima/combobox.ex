@@ -167,7 +167,7 @@ defmodule Prima.Combobox do
     assigns = assign(assigns, :selections_id, "selections-#{System.unique_integer([:positive])}")
 
     ~H"""
-    <div
+    <ul
       id={@selections_id}
       data-prima-ref="selections"
       phx-update="ignore"
@@ -175,12 +175,12 @@ defmodule Prima.Combobox do
     >
       <template data-prima-ref="selection-template">
         <%= for entry <- @selection do %>
-          <div data-prima-ref="selection-item" class={Map.get(entry, :class, "")}>
+          <li data-prima-ref="selection-item" class={Map.get(entry, :class, "")}>
             {render_slot(entry, "__VALUE__")}
-          </div>
+          </li>
         <% end %>
       </template>
-    </div>
+    </ul>
     """
   end
 
