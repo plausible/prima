@@ -3,11 +3,12 @@ defmodule Prima.Dropdown do
   alias Phoenix.LiveView.JS
 
   attr :id, :string, default: ""
+  attr :rest, :global
   slot :inner_block, required: true
 
   def dropdown(assigns) do
     ~H"""
-    <div id={@id} phx-hook="Dropdown" phx-click-away={JS.dispatch("prima:close")}>
+    <div id={@id} phx-hook="Dropdown" phx-click-away={JS.dispatch("prima:close")} {@rest}>
       {render_slot(@inner_block)}
     </div>
     """
