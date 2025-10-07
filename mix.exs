@@ -39,7 +39,7 @@ defmodule Prima.MixProject do
   defp deps do
     [
       {:lazy_html, ">= 0.0.0", only: :test},
-      {:phoenix, "~> 1.7.18"},
+      {:phoenix, ">= 1.7.0"},
       {:phoenix_html, "~> 4.2"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.1"},
