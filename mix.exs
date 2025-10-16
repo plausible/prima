@@ -85,8 +85,7 @@ defmodule Prima.MixProject do
         "priv/static",
         "priv/code_examples"
       ],
-      files: ~w(lib priv mix.exs README.md LICENSE .formatter.exs),
-      extra_files: ~w(assets/js/prima.js)
+      files: ~w(lib priv/static/assets/prima.js mix.exs README.md LICENSE .formatter.exs)
     ]
   end
 
