@@ -73,6 +73,26 @@ end
 
 ## Development Workflow
 
+### Browser-Based Exploration and Debugging
+
+**Playwright MCP is the preferred tool for exploring and debugging the demo application.**
+
+- The development server runs on `http://localhost:4000`
+- **Always assume the server is running** - navigate to `localhost:4000` to view components
+- If nothing loads or the server isn't running, ask the user how to continue
+- Use Playwright MCP tools to:
+  - Navigate to demo pages and view components visually
+  - Take screenshots to understand current UI state
+  - Interact with components (click, hover, type) to test behavior
+  - Inspect page snapshots to understand DOM structure
+- Prefer Playwright MCP to using curl
+
+**Debugging JavaScript Hooks:**
+- Add `console.log()` statements in JavaScript hook files (`assets/js/hooks/*.js`)
+- Use Playwright's browser console tools to view console output
+- Console logs are very useful for understanding hook behavior and state changes
+- Consider adding temporary debug logs when troubleshooting component issues
+
 ### Testing Strategy
 - **ExUnit tests** for simple component logic and rendering
 - **Wallaby tests** for complex UI interactions and components with JavaScript behavior, especially:

@@ -9,23 +9,32 @@ defmodule PrimaWeb.CodeExample do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
-  attr :file, :string, required: true, doc: "Path to file in priv/code_examples/"
+  attr :file, :string, default: nil, doc: "Path to file in priv/code_examples/"
+  attr :module, :atom, default: nil, doc: "LiveComponent module to render"
+  attr :id, :string, default: nil, doc: "Optional ID for the code example container"
 
   @doc """
   Displays a live demo alongside syntax-highlighted source code.
 
   Renders the component example with a tabbed interface for switching between
-  Preview and Code views. The source code is loaded from a file in priv/code_examples/
-  and automatically rendered in the preview.
+  Preview and Code views. Supports two modes:
 
-  ## Example
+  - **File mode**: Load HEEx template from priv/code_examples/ and render it
+  - **Module mode**: Render a LiveComponent and show its source code
 
+  ## Examples
+
+      # HEEx template example
       <.code_example file="dropdown/basic_dropdown.heex" />
+
+      # LiveComponent example
+      <.code_example module={PrimaWeb.DemoLive.AsyncModalDemo} id="async-modal-demo" />
   """
   def code_example(assigns) do
-    source = get_code_source(assigns)
-    assigns = assign(assigns, :highlighted_code, highlight_code(source))
-    assigns = assign(assigns, :rendered_content, render_heex_content(source, assigns))
+    {source, language} = get_code_source_and_language(assigns)
+    assigns = assign(assigns, :highlighted_code, highlight_code(source, language))
+    assigns = assign(assigns, :rendered_content, render_content(assigns))
+    assigns = assign(assigns, :is_module_mode, assigns[:module] != nil)
     id = assigns[:id] || "code-example-#{:erlang.unique_integer([:positive])}"
     assigns = assign(assigns, :id, id)
 
@@ -73,7 +82,11 @@ defmodule PrimaWeb.CodeExample do
       </div>
 
       <div id={"#{@id}-preview"} class="p-6">
-        {Phoenix.HTML.raw(@rendered_content)}
+        <%= if @is_module_mode do %>
+          <.live_component module={@module} id={@id <> "-component"} />
+        <% else %>
+          {Phoenix.HTML.raw(@rendered_content)}
+        <% end %>
       </div>
 
       <div id={"#{@id}-code"} class="hidden">
@@ -85,7 +98,22 @@ defmodule PrimaWeb.CodeExample do
     """
   end
 
-  defp get_code_source(%{file: file}) when is_binary(file) do
+  defp get_code_source_and_language(%{module: module})
+       when is_atom(module) and not is_nil(module) do
+    source = get_module_source(module)
+    {source, "elixir"}
+  end
+
+  defp get_code_source_and_language(%{file: file}) when is_binary(file) do
+    source = get_file_source(file)
+    {source, "heex"}
+  end
+
+  defp get_code_source_and_language(_assigns) do
+    {"Error: Must provide either 'file' or 'module' attribute", "text"}
+  end
+
+  defp get_file_source(file) do
     file_path = Path.join(["priv", "code_examples", file])
 
     case File.read(file_path) do
@@ -94,14 +122,81 @@ defmodule PrimaWeb.CodeExample do
     end
   end
 
-  defp highlight_code(source) do
+  defp get_module_source(module) do
+    # Try to get the source file from module compilation info
+    case Code.fetch_docs(module) do
+      {:docs_v1, _, _, _, _, _, _} ->
+        # Module is compiled, try to get source from module info
+        case module.module_info(:compile)[:source] do
+          source when is_list(source) ->
+            source_path = List.to_string(source)
+
+            case File.read(source_path) do
+              {:ok, content} -> content
+              {:error, _} -> fallback_module_source(module)
+            end
+
+          _ ->
+            fallback_module_source(module)
+        end
+
+      {:error, _} ->
+        fallback_module_source(module)
+    end
+  end
+
+  defp fallback_module_source(module) do
+    # Fallback: Convert module name to file path
+    # e.g., PrimaWeb.DemoLive.AsyncModalDemo -> prima_web/live/demo_live/async_modal_demo
+    module_path =
+      module
+      |> Module.split()
+      |> Enum.map(&Macro.underscore/1)
+      |> Enum.join("/")
+
+    # Try common locations
+    potential_paths = [
+      "lib/#{module_path}.ex",
+      "#{module_path}.ex"
+    ]
+
+    case Enum.find_value(potential_paths, fn path ->
+           case File.read(path) do
+             {:ok, content} -> content
+             {:error, _} -> nil
+           end
+         end) do
+      nil ->
+        "Error: Could not read source for module '#{inspect(module)}' (tried: #{Enum.join(potential_paths, ", ")})"
+
+      content ->
+        content
+    end
+  end
+
+  defp highlight_code(source, language) do
     source
     |> String.trim()
     |> Autumn.highlight!(
-      language: "heex",
+      language: language,
       formatter:
         {:html_inline, theme: "molokai", pre_class: "p-4 rounded-b-lg overflow-x-auto text-sm"}
     )
+  end
+
+  defp render_content(%{module: module}) when is_atom(module) and not is_nil(module) do
+    # For module mode, we render the live_component directly in the template
+    # so we don't need to return content here
+    ""
+  end
+
+  defp render_content(%{file: file} = assigns) when is_binary(file) do
+    source = get_file_source(file)
+    render_heex_content(source, assigns)
+  end
+
+  defp render_content(_assigns) do
+    "<div class='text-red-600 p-4'>Error: Must provide either 'file' or 'module' attribute</div>"
   end
 
   defp render_heex_content(template_string, assigns) do
@@ -115,6 +210,7 @@ defmodule PrimaWeb.CodeExample do
           import Prima.Dropdown
           import Prima.Combobox
           import PrimaWeb.CoreComponents
+          alias Phoenix.LiveView.JS
 
           ~H\"\"\"
           #{template_string}

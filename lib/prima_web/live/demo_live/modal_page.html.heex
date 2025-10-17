@@ -17,11 +17,9 @@
     The most basic modal requires just a trigger button and three components: <code>.modal</code>, <code>.modal_overlay</code>, and <code>.modal_panel</code>.
   </p>
 
-  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
-    <.modal_demo />
+  <div class="not-prose">
+    <.code_example file="modal/basic_modal.heex" />
   </div>
-
-  <Prima.CodeBlock.code_block file="modal/minimal_modal.heex" />
 
   <p>
     Call <code>Prima.Modal.open("modal-id")</code>
@@ -35,8 +33,8 @@
     Asynchronous modals enable server-side data fetching before displaying content, providing a smooth user experience for dynamic modal content. This pattern is ideal when you need to load user-specific data, perform database queries, or fetch content that depends on user actions.
   </p>
 
-  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
-    <.live_component module={PrimaWeb.DemoLive.AsyncModalDemo} id="async-modal-demo" />
+  <div class="not-prose">
+    <.code_example module={PrimaWeb.DemoLive.AsyncModalDemo} id="async-modal-demo" />
   </div>
 
   <p>
@@ -44,8 +42,6 @@
     <code>.modal_panel</code>
     is rendered conditionally based on the liveview assigns once the async loading operation is complete.
   </p>
-
-  <Prima.CodeBlock.code_block file="modal/async_modal.heex" />
 
   <p>
     To implement async modals, your trigger button needs a <code>phx-click</code>
@@ -67,16 +63,14 @@
     Modals work seamlessly with Phoenix forms, validation, and submission handling.
   </p>
 
-  <div class="not-prose bg-white border border-gray-200 rounded-lg p-6 my-6">
-    <.form_modal_demo {assigns} />
+  <div class="not-prose">
+    <.code_example module={PrimaWeb.DemoLive.FormModalDemo} id="form-modal-demo" />
   </div>
 
   <p>
     Use the <code>on_close</code>
     attribute to chain JavaScript commands with LiveView events for backend state synchronization.
   </p>
-
-  <Prima.CodeBlock.code_block file="modal/form_modal_template.heex" />
 
   <h3>Browser History</h3>
   <p>
