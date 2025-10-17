@@ -15,17 +15,14 @@ defmodule PrimaWeb.CodeExample do
   @syntax_theme "molokai"
   @code_block_classes "p-4 rounded-b-lg overflow-x-auto text-sm"
 
-  # LiveComponent modules that need to be compiled before highlighting their source
   @live_component_modules [
     PrimaWeb.DemoLive.AsyncModalDemo,
     PrimaWeb.DemoLive.FormModalDemo,
     PrimaWeb.DemoLive.AsyncComboboxDemo
   ]
 
-  # Ensure LiveComponent modules are compiled
   for module <- @live_component_modules, do: Code.ensure_compiled(module)
 
-  # Compile-time code highlighting for all files in priv/code_examples/
   @highlighted_examples (
                           examples_path = Path.join(File.cwd!(), @examples_dir)
 
@@ -56,7 +53,6 @@ defmodule PrimaWeb.CodeExample do
                           |> Map.new()
                         )
 
-  # Add external resources for automatic recompilation during development
   for {file_path, _} <- @highlighted_examples do
     @external_resource Path.join([@examples_dir, file_path])
   end
@@ -66,30 +62,7 @@ defmodule PrimaWeb.CodeExample do
   attr :id, :string, default: nil, doc: "Optional ID for the code example container"
   attr :rest, :global, doc: "Additional assigns passed to rendered content"
 
-  @doc """
-  Displays a live demo alongside syntax-highlighted source code.
-
-  Renders the component example with a tabbed interface for switching between
-  Preview and Code views. The `file` attribute is always required and points to
-  the source code in priv/code_examples/.
-
-  For .heex files, the template is rendered directly. For .ex files containing
-  LiveComponents, you must also provide the `module` attribute to render the component.
-
-  ## Examples
-
-      # HEEx template example
-      <.code_example file="dropdown/basic_dropdown.heex" />
-
-      # LiveComponent example (.ex file)
-      <.code_example
-        file="modal/async_modal_demo.ex"
-        module={PrimaWeb.DemoLive.AsyncModalDemo}
-        id="async-modal-demo"
-      />
-  """
   def code_example(assigns) do
-    # Get both highlighted code and source from @highlighted_examples
     {highlighted_code, source} = get_example_data(assigns)
 
     assigns =
@@ -162,16 +135,6 @@ defmodule PrimaWeb.CodeExample do
   attr :file, :string, required: true, doc: "Path to file in priv/code_examples/"
   attr :class, :string, default: "", doc: "Additional CSS classes"
 
-  @doc """
-  Renders a syntax-highlighted code block from a file in priv/code_examples/.
-
-  Syntax highlighting is performed at compile-time for optimal runtime performance.
-
-  ## Examples
-
-      <.code_block file="modal/history_routes.ex" />
-      <.code_block file="dropdown/basic_dropdown.heex" class="my-4" />
-  """
   def code_block(assigns) do
     highlighted_content = get_highlighted_code_for_block(assigns)
     assigns = assign(assigns, :highlighted_code, highlighted_content)
@@ -194,14 +157,9 @@ defmodule PrimaWeb.CodeExample do
     {example.highlighted, example.source}
   end
 
-  defp render_heex_preview(%{file: file, source: source} = assigns) do
-    if String.ends_with?(file, ".heex") do
-      merged_assigns = Map.merge(assigns, Map.get(assigns, :rest, %{}))
-      render_heex_content(source, merged_assigns)
-    else
-      # .ex files don't have a preview, only code
-      Phoenix.HTML.raw("")
-    end
+  defp render_heex_preview(%{source: source} = assigns) do
+    merged_assigns = Map.merge(assigns, Map.get(assigns, :rest, %{}))
+    render_heex_content(source, merged_assigns)
   end
 
   defp render_heex_content(template_string, assigns) do

@@ -15,7 +15,8 @@ defmodule Prima.MixProject do
       deps: deps(),
       package: package(),
       docs: docs(),
-      compilers: [:phoenix_live_view] ++ Mix.compilers()
+      compilers: [:phoenix_live_view] ++ Mix.compilers(),
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 
