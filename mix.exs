@@ -82,10 +82,9 @@ defmodule Prima.MixProject do
       exclude_patterns: [
         "lib/prima_web.ex",
         "lib/prima_web",
-        "priv/static",
         "priv/code_examples"
       ],
-      files: ~w(lib priv/static/assets/prima.js mix.exs README.md LICENSE .formatter.exs)
+      files: ~w(lib priv/static/assets/prima.js mix.exs README.md LICENSE package.json)
     ]
   end
 
