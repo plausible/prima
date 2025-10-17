@@ -1,7 +1,6 @@
 defmodule PrimaWeb.DemoLive do
   @moduledoc false
   use PrimaWeb, :live_view
-  import Prima.{Modal, Combobox}
   embed_templates "demo_live/*"
 
   @impl true

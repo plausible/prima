@@ -259,6 +259,35 @@ defmodule Prima.Modal do
   end
 
   @doc """
+  Opens a modal with the given ID, chaining with existing JS commands.
+
+  This function allows you to chain modal opening with other JavaScript
+  commands, enabling complex interactions like navigation combined with
+  modal display.
+
+  ## Parameters
+
+    * `js` - A `Phoenix.LiveView.JS` struct containing previous commands
+    * `id` - The ID of the modal to open (string)
+
+  ## Example
+
+      # Chain with navigation
+      <.button phx-click={JS.patch("/modal/history") |> Prima.Modal.open("my-modal")}>
+        Navigate and Open Modal
+      </.button>
+
+      # Chain with custom events
+      <.button phx-click={JS.push("track") |> Prima.Modal.open("my-modal")}>
+        Track and Open
+      </.button>
+
+  """
+  def open(%JS{} = js, id) do
+    JS.dispatch(js, "prima:modal:open", to: "##{id}")
+  end
+
+  @doc """
   Closes the currently open modal.
 
   This function dispatches a JavaScript event to close any open modal.

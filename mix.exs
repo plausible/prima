@@ -38,6 +38,7 @@ defmodule Prima.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:igniter, "~> 0.6", only: [:dev, :test]},
       {:lazy_html, ">= 0.0.0", only: :test},
       {:phoenix, ">= 1.7.0"},
       {:phoenix_html, "~> 4.2"},
