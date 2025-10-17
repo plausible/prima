@@ -1,34 +1,25 @@
-  <.dropdown id="demo-dropdown" class="relative inline-block">
-    <.dropdown_trigger as={&button/1}>
-      Open Dropdown
-      <svg
-        class="-mr-1 h-5 w-5 text-whites"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-          clip-rule="evenodd"
-        />
-      </svg>
-    </.dropdown_trigger>
-    <.dropdown_menu class="absolute right-0 z-10 mt-2 w-56 py-1 origin-top-right rounded-md bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-        <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          Account settings
-        </.dropdown_item>
-        <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          Billing
-        </.dropdown_item>
-        <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          Documentation
-        </.dropdown_item>
-        <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          API access
-        </.dropdown_item>
-        <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm">
-          Sign out
-        </.dropdown_item>
-    </.dropdown_menu>
-  </.dropdown>
+<.dropdown id="basic-dropdown" class="relative inline-block">
+  <.dropdown_trigger as={&button/1}>
+    Open Dropdown
+    <svg
+      class="-mr-1 h-5 w-5 text-whites"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </.dropdown_trigger>
+  <.dropdown_menu class="absolute right-0 z-10 mt-2 w-56 py-1 origin-top-right rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none">
+    <.dropdown_item
+      :for={option <- ["Account settings", "Billing", "Documentation"]}
+      class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm"
+    >
+      {option}
+    </.dropdown_item>
+  </.dropdown_menu>
+</.dropdown>
