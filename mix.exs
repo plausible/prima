@@ -38,7 +38,6 @@ defmodule Prima.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:igniter, "~> 0.6", only: [:dev, :test]},
       {:lazy_html, ">= 0.0.0", only: :test},
       {:phoenix, ">= 1.7.0"},
       {:phoenix_html, "~> 4.2"},
@@ -51,7 +50,7 @@ defmodule Prima.MixProject do
       {:plug_cowboy, "~> 2.5", optional: true},
       {:autumn, "~> 0.5", optional: true},
       {:wallaby, "~> 0.30", runtime: false, only: :test},
-      {:tidewave, "~> 0.1", only: :dev},
+      {:tidewave, "~> 0.5", only: [:dev]},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false}
     ]
   end
