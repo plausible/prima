@@ -17,7 +17,7 @@ defmodule PrimaWeb.ModalDemoPageTest do
 
       assert html =~ "Prima.Modal.open"
       assert html =~ "Open Modal"
-      assert html =~ "Hello Modal"
+      assert html =~ "Good news"
     end
 
     test "renders form modal events code example", %{conn: conn} do
