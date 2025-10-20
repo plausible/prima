@@ -60,7 +60,10 @@ defmodule PrimaWeb.CodeExample do
   attr :file, :string, required: true, doc: "Path to file in priv/code_examples/"
   attr :module, :atom, default: nil, doc: "LiveComponent module to render (for .ex files)"
   attr :id, :string, default: nil, doc: "Optional ID for the code example container"
-  attr :rest, :global, doc: "Additional assigns passed to rendered content"
+
+  attr :rest, :global,
+    include: ~w(live_action),
+    doc: "Additional assigns passed to rendered content"
 
   def code_example(assigns) do
     {highlighted_code, source} = get_example_data(assigns)
