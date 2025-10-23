@@ -309,7 +309,7 @@ defmodule Prima.Modal do
     JS.dispatch("prima:modal:close")
   end
 
-  attr :class, :string, default: ""
+  attr :class, :string, default: nil
   attr :as, :any, default: "h3"
   slot :inner_block, required: true
 
