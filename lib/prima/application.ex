@@ -23,7 +23,10 @@ defmodule Prima.Application do
 
   @impl true
   def config_change(changed, _new, removed) do
-    PrimaWeb.Endpoint.config_change(changed, removed)
+    if Application.get_env(:prima, :start_demo_app, false) do
+      PrimaWeb.Endpoint.config_change(changed, removed)
+    end
+
     :ok
   end
 end
