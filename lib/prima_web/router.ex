@@ -27,7 +27,6 @@ defmodule PrimaWeb.Router do
       live "/fixtures/async-modal", FixturesLive, :async_modal
       live "/fixtures/modal-title-custom-tag", FixturesLive, :modal_title_custom_tag
       live "/fixtures/modal-title-function", FixturesLive, :modal_title_function
-      live "/fixtures/modal-focus-default", FixturesLive, :modal_focus_default
       live "/fixtures/modal-focus-autofocus", FixturesLive, :modal_focus_autofocus
       live "/fixtures/simple-combobox", FixturesLive, :simple_combobox
       live "/fixtures/async-combobox", FixturesLive, :async_combobox
