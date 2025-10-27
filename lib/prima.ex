@@ -13,35 +13,6 @@ defmodule Prima do
   - **Accessibility first** - ARIA attributes, focus management, keyboard navigation
   - **Phoenix LiveView native** - Deep integration with LiveView patterns
 
-  ## Available Components
-
-  Prima currently provides the following components:
-
-  ### Modal
-  A fully-managed dialog component with accessibility features and smooth transitions.
-  Supports async loading, form integration, and browser history integration.
-
-      <.modal id="my-modal">
-        <.modal_overlay class="fixed inset-0 bg-gray-500/75" />
-        <.modal_panel id="my-panel" class="bg-white rounded-lg">
-          <p>Modal content</p>
-        </.modal_panel>
-      </.modal>
-
-  ### Dropdown
-  Menu and select functionality with keyboard navigation and customizable positioning.
-
-  ### Combobox
-  Searchable input component with suggestions and autocomplete functionality.
-
-  ## Architecture
-
-  Each component follows a three-layer pattern:
-
-  1. **Phoenix Component** (`lib/prima/*.ex`) - Server-side rendering and LiveView integration
-  2. **JavaScript Hook** (`assets/js/hooks/*.js`) - Client-side behavior and DOM manipulation
-  3. **CSS Integration** - Tailwind-based styling with custom `prima` plugin
-
   ## Getting Started
 
   Add Prima to your Phoenix application:
