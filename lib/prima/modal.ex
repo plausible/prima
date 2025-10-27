@@ -25,6 +25,17 @@ defmodule Prima.Modal do
         </div>
       </.modal>
 
+  ## Focus Management
+
+  By default, the modal panel itself receives focus when opened. To focus a specific
+  element instead, add the `data-autofocus` attribute:
+
+      <.modal_panel id="form-panel">
+        <input type="text" data-autofocus placeholder="Name" />
+      </.modal_panel>
+
+  Focus is automatically restored to the triggering element when the modal closes.
+
   ## Advanced Usage
 
   ### Async Loading
@@ -188,6 +199,18 @@ defmodule Prima.Modal do
   keyboard navigation (escape key), and click-away behavior. It automatically
   wraps content in a focus trap for accessibility.
 
+  ## Focus Management
+
+  When a modal opens, focus is managed as follows:
+
+    * If an element with `data-autofocus` attribute exists within the modal,
+      that element will receive focus
+    * Otherwise, the first focusable element within the modal panel will
+      receive focus automatically
+
+  When the modal closes, focus is automatically restored to the element that
+  triggered the modal.
+
   ## Attributes
 
     * `id` (required) - Unique identifier for the panel
@@ -195,8 +218,9 @@ defmodule Prima.Modal do
     * `transition_enter` - Transition configuration for showing the panel
     * `transition_leave` - Transition configuration for hiding the panel
 
-  ## Example
+  ## Examples
 
+      # Basic modal - first focusable element receives focus by default
       <.modal_panel
         id="my-panel"
         class="relative overflow-hidden rounded-lg bg-white"
@@ -204,6 +228,14 @@ defmodule Prima.Modal do
       >
         <h2>Modal Title</h2>
         <p>Modal content goes here</p>
+        <button phx-click={Modal.close()}>Close</button>
+      </.modal_panel>
+
+      # Modal with autofocus on a specific element
+      <.modal_panel id="form-panel" class="...">
+        <h2>Edit Profile</h2>
+        <input type="text" name="name" data-autofocus placeholder="Enter name" />
+        <button type="submit">Save</button>
       </.modal_panel>
 
   """
@@ -213,6 +245,7 @@ defmodule Prima.Modal do
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
+      js-focus-first={JS.focus_first()}
       phx-mounted={panel_mounted()}
       phx-remove={panel_removed()}
       prima-ref="modal-panel"
@@ -220,7 +253,7 @@ defmodule Prima.Modal do
       phx-key="escape"
       phx-click-away={close()}
     >
-      <.focus_wrap id={@id} class={@class}>
+      <.focus_wrap id={@id} class={@class} tabindex="-1">
         {render_slot(@inner_block)}
       </.focus_wrap>
     </div>

@@ -22,6 +22,14 @@
   <.modal_title_function_fixture />
 </div>
 
+<div :if={@live_action == :modal_focus_default}>
+  <.modal_focus_default_fixture />
+</div>
+
+<div :if={@live_action == :modal_focus_autofocus}>
+  <.modal_focus_autofocus_fixture />
+</div>
+
 <div :if={@live_action == :simple_combobox}>
   <.simple_combobox_fixture />
 </div>

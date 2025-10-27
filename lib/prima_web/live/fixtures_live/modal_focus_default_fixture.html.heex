@@ -1,0 +1,30 @@
+<div id="modal-focus-default">
+  <.button type="button" phx-click={Prima.Modal.open("focus-default-modal")}>
+    Open Modal
+  </.button>
+
+  <.modal id="focus-default-modal">
+    <.modal_overlay />
+
+    <div>
+      <div>
+        <.modal_panel id="focus-default-modal-panel">
+          <div>
+            <.modal_title>Default Focus</.modal_title>
+            <p>This modal should focus the panel itself by default.</p>
+          </div>
+          <div>
+            <button
+              phx-click={Prima.Modal.close()}
+              type="button"
+              testing-ref="close-button"
+              class="inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+            >
+              Close
+            </button>
+          </div>
+        </.modal_panel>
+      </div>
+    </div>
+  </.modal>
+</div>

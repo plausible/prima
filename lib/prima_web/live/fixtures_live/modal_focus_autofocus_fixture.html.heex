@@ -1,0 +1,36 @@
+<div id="modal-focus-autofocus">
+  <.button type="button" phx-click={Prima.Modal.open("autofocus-modal")}>
+    Open Modal
+  </.button>
+
+  <.modal id="autofocus-modal">
+    <.modal_overlay />
+
+    <div>
+      <div>
+        <.modal_panel id="autofocus-modal-panel">
+          <div>
+            <.modal_title>Autofocus Test</.modal_title>
+            <p>This modal should focus the input field below.</p>
+            <input
+              type="text"
+              data-autofocus
+              testing-ref="autofocus-input"
+              placeholder="This should be focused"
+            />
+          </div>
+          <div>
+            <button
+              phx-click={Prima.Modal.close()}
+              type="button"
+              testing-ref="close-button"
+              class="inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+            >
+              Close
+            </button>
+          </div>
+        </.modal_panel>
+      </div>
+    </div>
+  </.modal>
+</div>
