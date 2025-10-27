@@ -3,7 +3,7 @@ defmodule PrimaWeb.ModalTitleTest do
   import Phoenix.LiveViewTest
 
   @modal_container Query.css("#demo-modal")
-  @modal_title Query.css("#demo-modal [prima-ref=modal-title]")
+  @modal_title Query.css("#demo-modal [data-prima-ref=modal-title]")
 
   feature "modal title renders as h3 by default", %{session: session} do
     session
@@ -11,8 +11,8 @@ defmodule PrimaWeb.ModalTitleTest do
     |> click(Query.css("#simple-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
     |> assert_has(@modal_title)
-    |> assert_has(Query.css("#demo-modal h3[prima-ref=modal-title]"))
-    |> assert_has(Query.css("#demo-modal h3[prima-ref=modal-title]", text: "Good news"))
+    |> assert_has(Query.css("#demo-modal h3[data-prima-ref=modal-title]"))
+    |> assert_has(Query.css("#demo-modal h3[data-prima-ref=modal-title]", text: "Good news"))
   end
 
   feature "modal title can render as custom HTML tag", %{session: session} do
@@ -22,8 +22,10 @@ defmodule PrimaWeb.ModalTitleTest do
     |> click(Query.css("#custom-tag-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
     |> assert_has(@modal_title)
-    |> assert_has(Query.css("#demo-modal h1[prima-ref=modal-title]"))
-    |> assert_has(Query.css("#demo-modal h1[prima-ref=modal-title]", text: "Custom Tag Title"))
+    |> assert_has(Query.css("#demo-modal h1[data-prima-ref=modal-title]"))
+    |> assert_has(
+      Query.css("#demo-modal h1[data-prima-ref=modal-title]", text: "Custom Tag Title")
+    )
   end
 
   feature "modal title can render as function component", %{session: session} do
@@ -33,9 +35,9 @@ defmodule PrimaWeb.ModalTitleTest do
     |> click(Query.css("#function-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
     |> assert_has(@modal_title)
-    |> assert_has(Query.css("#demo-modal span[prima-ref=modal-title].custom-title"))
+    |> assert_has(Query.css("#demo-modal span[data-prima-ref=modal-title].custom-title"))
     |> assert_has(
-      Query.css("#demo-modal span[prima-ref=modal-title]", text: "Function Component Title")
+      Query.css("#demo-modal span[data-prima-ref=modal-title]", text: "Function Component Title")
     )
   end
 

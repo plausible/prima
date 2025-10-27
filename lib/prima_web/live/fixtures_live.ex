@@ -63,7 +63,7 @@ defmodule PrimaWeb.FixturesLive do
 
   defp custom_title_component(assigns) do
     ~H"""
-    <span class="custom-title" prima-ref={assigns[:"prima-ref"]} id={assigns[:id]}>
+    <span class="custom-title" data-prima-ref={assigns[:"data-prima-ref"]} id={assigns[:id]}>
       {render_slot(assigns.inner_block)}
     </span>
     """

@@ -1,10 +1,10 @@
 defmodule PrimaWeb.AsyncModalTest do
   use Prima.WallabyCase, async: true
 
-  @modal_panel Query.css("#demo-form-modal [prima-ref=modal-panel]")
-  @modal_overlay Query.css("#demo-form-modal [prima-ref=modal-overlay]")
+  @modal_panel Query.css("#demo-form-modal [data-prima-ref=modal-panel]")
+  @modal_overlay Query.css("#demo-form-modal [data-prima-ref=modal-overlay]")
   @modal_container Query.css("#demo-form-modal")
-  @modal_loader Query.css("#demo-form-modal [prima-ref=modal-loader]")
+  @modal_loader Query.css("#demo-form-modal [data-prima-ref=modal-loader]")
 
   feature "shows modal when button is clicked", %{session: session} do
     session
@@ -88,7 +88,7 @@ defmodule PrimaWeb.AsyncModalTest do
     |> click(Query.css("#open-form-modal-button"))
     |> assert_has(@modal_panel |> Query.visible(true))
     |> execute_script(
-      "document.querySelector('#demo-form-modal [prima-ref=\"modal-title\"]').innerHTML = 'Dirty Modal'"
+      "document.querySelector('#demo-form-modal [data-prima-ref=\"modal-title\"]').innerHTML = 'Dirty Modal'"
     )
     |> send_keys([:escape])
     |> assert_has(@modal_container |> Query.visible(false))
@@ -98,7 +98,7 @@ defmodule PrimaWeb.AsyncModalTest do
     |> assert_has(@modal_panel |> Query.visible(true))
     # Verify the fresh content eventually appears
     |> assert_text(
-      Query.css("#demo-form-modal [prima-ref=\"modal-title\"]"),
+      Query.css("#demo-form-modal [data-prima-ref=\"modal-title\"]"),
       "Data loaded successfully"
     )
     |> execute_script("window.liveSocket.disableLatencySim()")

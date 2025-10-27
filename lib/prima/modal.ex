@@ -155,7 +155,7 @@ defmodule Prima.Modal do
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
       js-hide={JS.hide(transition: @transition_leave)}
-      prima-ref="modal-overlay"
+      data-prima-ref="modal-overlay"
       class={@class}
     >
     </div>
@@ -180,7 +180,7 @@ defmodule Prima.Modal do
   """
   def modal_loader(assigns) do
     ~H"""
-    <div prima-ref="modal-loader" js-show={JS.show()} js-hide={JS.hide()}>
+    <div data-prima-ref="modal-loader" js-show={JS.show()} js-hide={JS.hide()}>
       {render_slot(@inner_block)}
     </div>
     """
@@ -248,7 +248,7 @@ defmodule Prima.Modal do
       js-focus-first={JS.focus_first()}
       phx-mounted={panel_mounted()}
       phx-remove={panel_removed()}
-      prima-ref="modal-panel"
+      data-prima-ref="modal-panel"
       phx-window-keydown={close()}
       phx-key="escape"
       phx-click-away={close()}
@@ -373,7 +373,7 @@ defmodule Prima.Modal do
   def modal_title(assigns) do
     assigns =
       assign(assigns, %{
-        "prima-ref": "modal-title"
+        "data-prima-ref": "modal-title"
       })
 
     case assigns[:as] do

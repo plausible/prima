@@ -1,8 +1,8 @@
 defmodule PrimaWeb.SimpleModalTest do
   use Prima.WallabyCase, async: true
 
-  @modal_panel Query.css("#demo-modal [prima-ref=modal-panel]")
-  @modal_overlay Query.css("#demo-modal [prima-ref=modal-overlay]")
+  @modal_panel Query.css("#demo-modal [data-prima-ref=modal-panel]")
+  @modal_overlay Query.css("#demo-modal [data-prima-ref=modal-overlay]")
   @modal_container Query.css("#demo-modal")
 
   feature "shows modal when button is clicked", %{session: session} do

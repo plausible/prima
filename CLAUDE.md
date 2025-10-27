@@ -62,7 +62,7 @@ end
 ```
 
 ### Custom Data Attributes
-- `prima-ref` - Component instance identifier
+- `data-prima-ref` - Component instance identifier
 - `data-focus` - Focus state for dropdown items (true/false)
 - Standard data attributes for component state management
 

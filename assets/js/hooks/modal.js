@@ -141,7 +141,7 @@ export default {
   },
 
   ref(ref) {
-    return this.modalEl.querySelector(`[prima-ref="${ref}"]`);
+    return this.modalEl.querySelector(`[data-prima-ref="${ref}"]`);
   },
 
   log(message) {
