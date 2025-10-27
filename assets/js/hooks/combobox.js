@@ -44,6 +44,7 @@ export default {
     this.setupEventListeners()
     this.initializeCreateOption()
     this.syncSelectedAttributes()
+    this.setupAriaAttributes()
 
     if (this.mode === 'async') {
       this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
@@ -94,6 +95,31 @@ export default {
     })
   },
 
+  setupAriaAttributes() {
+    // Set aria-controls to link the input to the options container
+    if (this.refs.optionsContainer && this.refs.searchInput) {
+      const optionsId = this.refs.optionsContainer.getAttribute('id')
+      if (optionsId) {
+        this.refs.searchInput.setAttribute('aria-controls', optionsId)
+      }
+    }
+
+    // Generate unique IDs for each option if they don't have one
+    this.ensureOptionIds()
+  },
+
+  ensureOptionIds() {
+    if (!this.refs.optionsContainer) return
+
+    const options = this.refs.optionsContainer.querySelectorAll(SELECTORS.OPTION)
+    options.forEach((option, index) => {
+      if (!option.id) {
+        const comboboxId = this.el.id || 'combobox'
+        option.id = `${comboboxId}-option-${index}`
+      }
+    })
+  },
+
   cleanup() {
     this.cleanupAutoUpdate()
 
@@ -108,6 +134,7 @@ export default {
   },
 
   updated() {
+    this.ensureOptionIds()
     this.positionOptions()
     const focusedDomNode = this.refs.optionsContainer?.querySelector(`${SELECTORS.OPTION}[data-value="${this.focusedOptionBeforeUpdate}"]`)
     if (this.focusedOptionBeforeUpdate && focusedDomNode) {
@@ -188,6 +215,11 @@ export default {
   setFocus(el) {
     this.refs.optionsContainer?.querySelector(SELECTORS.FOCUSED_OPTION)?.removeAttribute('data-focus')
     el.setAttribute('data-focus', 'true')
+
+    // Update aria-activedescendant to point to the focused option
+    if (el.id) {
+      this.refs.searchInput.setAttribute('aria-activedescendant', el.id)
+    }
   },
 
   focusFirstOption() {
@@ -359,6 +391,7 @@ export default {
   handleAsyncMode() {
     if (this.refs.searchInput.value.length > 0) {
       this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
+      this.refs.searchInput.setAttribute('aria-expanded', 'true')
     }
     this.focusedOptionBeforeUpdate = this.getCurrentFocusedOption()?.dataset.value
   },
@@ -448,6 +481,8 @@ export default {
   showOptions() {
     this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
 
+    this.refs.searchInput.setAttribute('aria-expanded', 'true')
+
     this.focusFirstOption()
 
     requestAnimationFrame(() => {
@@ -465,6 +500,8 @@ export default {
     if (!this.refs.optionsContainer) return
 
     this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'));
+    this.refs.searchInput.setAttribute('aria-expanded', 'false')
+    this.refs.searchInput.removeAttribute('aria-activedescendant')
     this.cleanupAutoUpdate()
 
     this.refs.optionsContainer.addEventListener('phx:hide-end', () => {

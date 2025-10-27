@@ -225,6 +225,10 @@ defmodule Prima.Combobox do
     <input
       data-prima-ref="search_input"
       type="text"
+      role="combobox"
+      aria-expanded="false"
+      aria-autocomplete="list"
+      aria-haspopup="listbox"
       autocomplete="off"
       class={@class}
       name={@name <> "_search"}
@@ -410,6 +414,7 @@ defmodule Prima.Combobox do
     ~H"""
     <div
       id={@id}
+      role="listbox"
       class={@class}
       style="display: none;"
       js-show={JS.show(transition: @transition_enter)}
