@@ -1,57 +1,115 @@
 import { computePosition, flip, offset, autoUpdate } from '@floating-ui/dom';
 
-export default {
-  // === INITIALIZATION ===
-  mounted() {
-    this.initializeDOMCache()
-    this.mode = this.getMode()
-    this.isMultiple = this.el.hasAttribute('data-multiple')
-    this.hasCreateOption = !!this.createOption
+const KEYS = {
+  ARROW_UP: 'ArrowUp',
+  ARROW_DOWN: 'ArrowDown',
+  ESCAPE: 'Escape',
+  ENTER: 'Enter',
+  TAB: 'Tab',
+  BACKSPACE: 'Backspace'
+}
 
+const SELECTORS = {
+  SEARCH_INPUT: 'input[data-prima-ref=search_input]',
+  SUBMIT_CONTAINER: '[data-prima-ref=submit_container]',
+  OPTIONS: '[data-prima-ref="options"]',
+  OPTION: '[role=option]',
+  CREATE_OPTION: '[data-prima-ref=create-option]',
+  SELECTIONS: '[data-prima-ref=selections]',
+  SELECTION_TEMPLATE: '[data-prima-ref=selection-template]',
+  SELECTION_ITEM: '[data-prima-ref="selection-item"]',
+  REMOVE_SELECTION: '[data-prima-ref="remove-selection"]',
+  FIELD: '[data-prima-ref="field"]',
+  VISIBLE_OPTION: '[role=option]:not([data-hidden])',
+  FOCUSED_OPTION: '[role=option][data-focus=true]',
+  REGULAR_OPTION: '[role=option]:not([data-prima-ref=create-option])'
+}
+
+export default {
+  mounted() {
+    this.initialize()
+  },
+
+  reconnected() {
+    this.initialize()
+  },
+
+  destroyed() {
+    this.cleanup()
+  },
+
+  initialize() {
+    this.cleanup()
+    this.setupElements()
     this.setupEventListeners()
     this.initializeCreateOption()
     this.syncSelectedAttributes()
+
     if (this.mode === 'async') {
-      this.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
+      this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
     }
+
     this.el.setAttribute('data-prima-ready', 'true')
   },
 
-  initializeDOMCache() {
-    this.searchInput = this.el.querySelector('input[data-prima-ref=search_input]')
-    this.submitContainer = this.el.querySelector('[data-prima-ref=submit_container]')
-    this.optionsContainer = this.getOptionsContainer()
-    this.createOption = this.optionsContainer?.querySelector('[data-prima-ref=create-option]')
-    this.selectionsContainer = this.el.querySelector('[data-prima-ref=selections]')
-    this.selectionTemplate = this.selectionsContainer?.querySelector('[data-prima-ref=selection-template]')
+  setupElements() {
+    this.refs = {
+      searchInput: this.el.querySelector(SELECTORS.SEARCH_INPUT),
+      submitContainer: this.el.querySelector(SELECTORS.SUBMIT_CONTAINER),
+      optionsContainer: this.el.querySelector(SELECTORS.OPTIONS),
+      selectionsContainer: this.el.querySelector(SELECTORS.SELECTIONS)
+    }
 
-    // Cache reference element for positioning
-    const field = this.el.querySelector('[data-prima-ref="field"]')
-    this.referenceElement = field || this.searchInput
+    this.refs.createOption = this.refs.optionsContainer?.querySelector(SELECTORS.CREATE_OPTION)
+    this.refs.selectionTemplate = this.refs.selectionsContainer?.querySelector(SELECTORS.SELECTION_TEMPLATE)
+
+    const field = this.el.querySelector(SELECTORS.FIELD)
+    this.refs.referenceElement = field || this.refs.searchInput
+
+    this.mode = this.getMode()
+    this.isMultiple = this.el.hasAttribute('data-multiple')
+    this.hasCreateOption = !!this.refs.createOption
   },
 
   setupEventListeners() {
-    this.el.addEventListener('keydown', this.onKey.bind(this))
-    this.el.addEventListener('click', this.onClick.bind(this))
-    this.optionsContainer?.addEventListener('click', this.onClick.bind(this))
-    this.optionsContainer?.addEventListener('mouseover', this.onHover.bind(this))
-    this.searchInput.addEventListener('focus', () => {
-      this.searchInput.select()
-    })
-    this.searchInput.addEventListener('click', (e) => {
-      // Toggle options visibility on click
-      if (this.isOptionsVisible()) {
-        this.hideOptions()
-      } else {
-        this.showOptions()
+    this.listeners = [
+      [this.el, 'keydown', this.handleKeydown.bind(this)],
+      [this.el, 'click', this.handleClick.bind(this)],
+      [this.refs.searchInput, 'focus', this.handleSearchFocus.bind(this)],
+      [this.refs.searchInput, 'click', this.handleSearchClick.bind(this)],
+      [this.refs.searchInput, 'input', this.handleInput.bind(this)]
+    ]
+
+    if (this.refs.optionsContainer) {
+      this.listeners.push(
+        [this.refs.optionsContainer, 'click', this.handleClick.bind(this)],
+        [this.refs.optionsContainer, 'mouseover', this.handleHover.bind(this)]
+      )
+    }
+
+    this.listeners.forEach(([element, event, handler]) => {
+      if (element) {
+        element.addEventListener(event, handler)
       }
     })
-    this.searchInput.addEventListener('input', this.onInput.bind(this))
+  },
+
+  cleanup() {
+    this.cleanupAutoUpdate()
+
+    if (this.listeners) {
+      this.listeners.forEach(([element, event, handler]) => {
+        if (element) {
+          element.removeEventListener(event, handler)
+        }
+      })
+      this.listeners = []
+    }
   },
 
   updated() {
     this.positionOptions()
-    const focusedDomNode = this.optionsContainer?.querySelector(`[role=option][data-value="${this.focusedOptionBeforeUpdate}"]`)
+    const focusedDomNode = this.refs.optionsContainer?.querySelector(`${SELECTORS.OPTION}[data-value="${this.focusedOptionBeforeUpdate}"]`)
     if (this.focusedOptionBeforeUpdate && focusedDomNode) {
       this.setFocus(focusedDomNode)
     } else {
@@ -60,66 +118,51 @@ export default {
     this.syncSelectedAttributes()
   },
 
-  destroyed() {
-    this.cleanupAutoUpdate()
-  },
-
-  // === UTILITIES ===
-  getOptionsContainer() {
-    return this.el.querySelector('[data-prima-ref="options"]')
-  },
-
   getMode() {
-    const hasPhxChange = this.searchInput.hasAttribute('phx-change')
-    return hasPhxChange ? 'async' : 'frontend'
+    return this.refs.searchInput.hasAttribute('phx-change') ? 'async' : 'frontend'
   },
 
   getVisibleOptions() {
-    return Array.from(this.optionsContainer?.querySelectorAll('[role=option]:not([data-hidden])') || [])
+    return Array.from(this.refs.optionsContainer?.querySelectorAll(SELECTORS.VISIBLE_OPTION) || [])
   },
 
   getRegularOptions() {
-    return this.optionsContainer?.querySelectorAll('[role=option]:not([data-prima-ref=create-option])') || []
+    return this.refs.optionsContainer?.querySelectorAll(SELECTORS.REGULAR_OPTION) || []
   },
 
   isOptionsVisible() {
-    if (!this.optionsContainer) return false
-    return this.optionsContainer.style.display !== 'none'
+    if (!this.refs.optionsContainer) return false
+    return this.refs.optionsContainer.style.display !== 'none'
   },
 
   getSelectedValues() {
-    const inputs = this.submitContainer?.querySelectorAll('input[type="hidden"]') || []
+    const inputs = this.refs.submitContainer?.querySelectorAll('input[type="hidden"]') || []
     return Array.from(inputs).map(input => input.value)
   },
 
   getInputName() {
-    if (!this.submitContainer) return ''
-    const baseName = this.submitContainer.getAttribute('data-input-name')
+    if (!this.refs.submitContainer) return ''
+    const baseName = this.refs.submitContainer.getAttribute('data-input-name')
     return this.isMultiple ? baseName + '[]' : baseName
   },
 
-  // === SELECTION MANAGEMENT ===
   addSelection(value) {
-    if (!this.submitContainer) return
+    if (!this.refs.submitContainer) return
 
     const selectedValues = this.getSelectedValues()
 
-    // Don't add if already selected
     if (selectedValues.includes(value)) return
 
-    // Single-select: clear existing selections first
     if (!this.isMultiple) {
-      this.submitContainer.innerHTML = ''
+      this.refs.submitContainer.innerHTML = ''
     }
 
-    // Create and append hidden input
     const input = document.createElement('input')
     input.type = 'hidden'
     input.name = this.getInputName()
     input.value = value
-    this.submitContainer.appendChild(input)
+    this.refs.submitContainer.appendChild(input)
 
-    // Render pill for multi-select
     if (this.isMultiple) {
       this.appendSelectionPill(value)
     }
@@ -128,14 +171,13 @@ export default {
   },
 
   removeSelection(value) {
-    // Remove hidden input
-    const inputs = Array.from(this.submitContainer.querySelectorAll('input[type="hidden"]'))
+    const inputs = Array.from(this.refs.submitContainer.querySelectorAll('input[type="hidden"]'))
     const input = inputs.find(input => input.value === value)
     input?.remove()
 
     if (this.isMultiple) {
-      const pill = this.selectionsContainer?.querySelector(
-        `[data-prima-ref="selection-item"][data-value="${value}"]`
+      const pill = this.refs.selectionsContainer?.querySelector(
+        `${SELECTORS.SELECTION_ITEM}[data-value="${value}"]`
       )
       pill?.remove()
     }
@@ -143,67 +185,65 @@ export default {
     this.syncSelectedAttributes()
   },
 
-  // === FOCUS MANAGEMENT ===
   setFocus(el) {
-    this.optionsContainer?.querySelector('[role=option][data-focus=true]')?.removeAttribute('data-focus')
+    this.refs.optionsContainer?.querySelector(SELECTORS.FOCUSED_OPTION)?.removeAttribute('data-focus')
     el.setAttribute('data-focus', 'true')
   },
 
   focusFirstOption() {
-    const firstOption = this.optionsContainer?.querySelector('[role=option]:not([data-hidden])')
-    firstOption && this.setFocus(firstOption)
-  },
-
-  currentlyFocusedOption() {
-    return this.optionsContainer?.querySelector('[role=option][data-focus=true]')
-  },
-
-  handleArrowNavigation(key, visibleOptions) {
-    const firstOption = visibleOptions[0]
-    const lastOption = visibleOptions[visibleOptions.length - 1]
-    const currentFocusIndex = visibleOptions.findIndex(option => option.getAttribute('data-focus') === 'true')
-
-    if (key === 'ArrowUp') {
-      if (firstOption.getAttribute('data-focus') === 'true') {
-        this.setFocus(lastOption)
-      } else {
-        this.setFocus(visibleOptions[currentFocusIndex - 1])
-      }
-    } else if (key === 'ArrowDown') {
-      if (lastOption.getAttribute('data-focus') === 'true') {
-        this.setFocus(firstOption)
-      } else {
-        this.setFocus(visibleOptions[currentFocusIndex + 1])
-      }
+    const firstOption = this.refs.optionsContainer?.querySelector(SELECTORS.VISIBLE_OPTION)
+    if (firstOption) {
+      this.setFocus(firstOption)
     }
   },
 
-  // === OPTION SELECTION ===
+  getCurrentFocusedOption() {
+    return this.refs.optionsContainer?.querySelector(SELECTORS.FOCUSED_OPTION)
+  },
+
+  navigateUp(e) {
+    e.preventDefault()
+    const visibleOptions = this.getVisibleOptions()
+    if (visibleOptions.length === 0) return
+
+    const currentFocusIndex = visibleOptions.findIndex(option => option.getAttribute('data-focus') === 'true')
+    const targetIndex = currentFocusIndex <= 0 ? visibleOptions.length - 1 : currentFocusIndex - 1
+    this.setFocus(visibleOptions[targetIndex])
+  },
+
+  navigateDown(e) {
+    e.preventDefault()
+    const visibleOptions = this.getVisibleOptions()
+    if (visibleOptions.length === 0) return
+
+    const currentFocusIndex = visibleOptions.findIndex(option => option.getAttribute('data-focus') === 'true')
+    const targetIndex = currentFocusIndex === visibleOptions.length - 1 ? 0 : currentFocusIndex + 1
+    this.setFocus(visibleOptions[targetIndex])
+  },
+
   selectOption(el) {
     if (!el) return
 
     let value = el.getAttribute('data-value')
 
-    // Handle create option
     if (value === '__CREATE__') {
-      value = this.searchInput.value
+      value = this.refs.searchInput.value
     }
 
     this.addSelection(value)
 
     if (this.isMultiple) {
-      this.searchInput.value = ''
+      this.refs.searchInput.value = ''
     } else {
-      this.searchInput.value = value
+      this.refs.searchInput.value = value
     }
 
     this.hideOptions()
-
-    this.searchInput.focus()
+    this.refs.searchInput.focus()
   },
 
   syncSelectedAttributes() {
-    if (!this.optionsContainer) return
+    if (!this.refs.optionsContainer) return
 
     const allOptions = this.getRegularOptions()
     const selectedValues = this.getSelectedValues()
@@ -219,50 +259,59 @@ export default {
   },
 
   appendSelectionPill(value) {
-    if (!this.selectionsContainer || !this.selectionTemplate) return
+    if (!this.refs.selectionsContainer || !this.refs.selectionTemplate) return
 
-    const pill = this.selectionTemplate.content.cloneNode(true)
-    const item = pill.querySelector('[data-prima-ref="selection-item"]')
+    const pill = this.refs.selectionTemplate.content.cloneNode(true)
+    const item = pill.querySelector(SELECTORS.SELECTION_ITEM)
     item.dataset.value = value
-
-    // Replace all occurrences of __VALUE__ with actual value
     item.innerHTML = item.innerHTML.replaceAll('__VALUE__', value)
 
-    this.selectionsContainer.appendChild(pill)
+    this.refs.selectionsContainer.appendChild(pill)
   },
 
-  // === EVENT HANDLERS ===
-  onClick(e) {
-    // Check for remove button click first
-    const removeButton = e.target.closest('[data-prima-ref="remove-selection"]')
+  handleClick(e) {
+    const removeButton = e.target.closest(SELECTORS.REMOVE_SELECTION)
     if (removeButton) {
       const value = removeButton.getAttribute('data-value')
       this.removeSelection(value)
-      this.searchInput.focus()
+      this.refs.searchInput.focus()
       return
     }
 
-    // Use event delegation to find the closest option element
-    const optionElement = e.target.closest('[role="option"]')
+    const optionElement = e.target.closest(SELECTORS.OPTION)
     if (optionElement) {
       this.selectOption(optionElement)
     }
   },
 
-  onKey(e) {
-    const visibleOptions = this.getVisibleOptions()
+  handleKeydown(e) {
+    const keyHandlers = {
+      [KEYS.ARROW_UP]: () => this.navigateUp(e),
+      [KEYS.ARROW_DOWN]: () => this.navigateDown(e),
+      [KEYS.ESCAPE]: () => this.handleEscape(e),
+      [KEYS.ENTER]: () => this.handleEnterOrTab(e),
+      [KEYS.TAB]: () => this.handleEnterOrTab(e),
+      [KEYS.BACKSPACE]: () => this.handleBackspace(e)
+    }
 
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      e.preventDefault()
-      this.handleArrowNavigation(e.key, visibleOptions)
-    } else if (e.key === "Enter" || e.key === "Tab") {
-      e.preventDefault()
-      this.selectOption(this.currentlyFocusedOption())
-    } else if (e.key === "Escape") {
-      e.preventDefault()
-      this.hideOptions()
-    } else if (e.key === "Backspace" && this.isMultiple && this.searchInput.value === '') {
-      // Remove last selection when backspace is pressed on empty input
+    const handler = keyHandlers[e.key]
+    if (handler) {
+      handler()
+    }
+  },
+
+  handleEscape(e) {
+    e.preventDefault()
+    this.hideOptions()
+  },
+
+  handleEnterOrTab(e) {
+    e.preventDefault()
+    this.selectOption(this.getCurrentFocusedOption())
+  },
+
+  handleBackspace(e) {
+    if (this.isMultiple && this.refs.searchInput.value === '') {
       e.preventDefault()
       const values = this.getSelectedValues()
       if (values.length > 0) {
@@ -271,18 +320,28 @@ export default {
     }
   },
 
-  onHover(e) {
-    // Use event delegation to find the closest option element
-    const optionElement = e.target.closest('[role="option"]')
+  handleHover(e) {
+    const optionElement = e.target.closest(SELECTORS.OPTION)
     if (optionElement) {
       this.setFocus(optionElement)
     }
   },
 
-  onInput(e) {
+  handleSearchFocus() {
+    this.refs.searchInput.select()
+  },
+
+  handleSearchClick() {
+    if (this.isOptionsVisible()) {
+      this.hideOptions()
+    } else {
+      this.showOptions()
+    }
+  },
+
+  handleInput(e) {
     const searchValue = e.target.value
 
-    // Update create option content first
     if (this.hasCreateOption) {
       this.updateCreateOption(searchValue)
     }
@@ -295,11 +354,10 @@ export default {
   },
 
   handleAsyncMode() {
-    // Only show options if there's actual content to search for
-    if (this.searchInput.value.length > 0) {
-      this.liveSocket.execJS(this.optionsContainer, this.optionsContainer.getAttribute('js-show'));
+    if (this.refs.searchInput.value.length > 0) {
+      this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
     }
-    this.focusedOptionBeforeUpdate = this.currentlyFocusedOption()?.dataset.value
+    this.focusedOptionBeforeUpdate = this.getCurrentFocusedOption()?.dataset.value
   },
 
   handleFrontendMode(searchValue) {
@@ -310,7 +368,6 @@ export default {
     this.filterOptions(searchValue)
   },
 
-  // === OPTION FILTERING & VISIBILITY ===
   filterOptions(searchValue) {
     const q = searchValue.toLowerCase()
     const allOptions = this.getRegularOptions()
@@ -328,7 +385,6 @@ export default {
       }
     }
 
-    // Handle create option visibility after regular options are processed
     if (this.hasCreateOption) {
       this.updateCreateOptionVisibility(searchValue)
     }
@@ -348,13 +404,12 @@ export default {
     option.setAttribute('data-hidden', 'true')
   },
 
-  // === POSITIONING ===
   async positionOptions() {
-    if (!this.optionsContainer) return
+    if (!this.refs.optionsContainer) return
 
-    const placement = this.optionsContainer.getAttribute('data-placement') || 'bottom-start'
-    const shouldFlip = this.optionsContainer.getAttribute('data-flip') !== 'false'
-    const offsetValue = this.optionsContainer.getAttribute('data-offset')
+    const placement = this.refs.optionsContainer.getAttribute('data-placement') || 'bottom-start'
+    const shouldFlip = this.refs.optionsContainer.getAttribute('data-flip') !== 'false'
+    const offsetValue = this.refs.optionsContainer.getAttribute('data-offset')
 
     const middleware = []
     if (offsetValue && !isNaN(parseInt(offsetValue))) {
@@ -365,82 +420,51 @@ export default {
     }
 
     try {
-      const {x, y} = await computePosition(this.referenceElement, this.optionsContainer, {
+      const {x, y} = await computePosition(this.refs.referenceElement, this.refs.optionsContainer, {
         placement: placement,
         middleware: middleware
       })
 
-      Object.assign(this.optionsContainer.style, {
+      Object.assign(this.refs.optionsContainer.style, {
         position: 'absolute',
         top: `${y}px`,
         left: `${x}px`
       })
     } catch (error) {
-      console.error('Failed to position combobox options:', error)
+      console.error('[Prima Combobox] Failed to position options:', error)
     }
   },
 
   cleanupAutoUpdate() {
-    if (this.cleanup) {
-      this.cleanup()
-      this.cleanup = null
+    if (this.autoUpdateCleanup) {
+      this.autoUpdateCleanup()
+      this.autoUpdateCleanup = null
     }
   },
 
-  // === OPTION LIFECYCLE ===
   showOptions() {
-    this.liveSocket.execJS(this.optionsContainer, this.optionsContainer.getAttribute('js-show'));
+    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
 
     this.focusFirstOption()
 
-    // Position options using floating-ui after element is fully rendered
     requestAnimationFrame(() => {
       this.positionOptions()
     })
 
-    this.cleanup = autoUpdate(this.referenceElement, this.optionsContainer, () => {
+    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsContainer, () => {
       this.positionOptions()
     })
+
     this.setupClickOutsideHandler()
   },
 
-  setupClickOutsideHandler() {
-    const handleClickOutside = (event) => {
-      if (!this.optionsContainer.contains(event.target) && !this.searchInput.contains(event.target)) {
-        this.resetOnBlur()
-        document.removeEventListener('click', handleClickOutside)
-      }
-    }
-
-    document.addEventListener('click', handleClickOutside)
-  },
-
-  resetOnBlur() {
-    const selectedValues = this.getSelectedValues()
-    const currentValue = selectedValues[0] || ''
-
-    if (currentValue.length > 0 && this.searchInput.value.length > 0) {
-      this.searchInput.value = currentValue
-    } else if (this.searchInput.value.length > 0) {
-      this.searchInput.value = ''
-      this.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
-      // Clear selections (for single-select)
-      this.submitContainer.innerHTML = ''
-    }
-
-    this.hideOptions()
-  },
-
   hideOptions() {
-    if (!this.optionsContainer) return
+    if (!this.refs.optionsContainer) return
 
-    this.liveSocket.execJS(this.optionsContainer, this.optionsContainer.getAttribute('js-hide'));
-
-    // Clean up autoUpdate when hiding
+    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'));
     this.cleanupAutoUpdate()
 
-    this.optionsContainer.addEventListener('phx:hide-end', () => {
-      // Reset regular options to visible, but exclude create option since its visibility is managed separately
+    this.refs.optionsContainer.addEventListener('phx:hide-end', () => {
       const regularOptions = this.getRegularOptions()
       for (const option of regularOptions) {
         this.showOption(option)
@@ -448,30 +472,51 @@ export default {
     })
   },
 
-  // === CREATE OPTION MANAGEMENT ===
+  setupClickOutsideHandler() {
+    const handleClickOutside = (event) => {
+      if (!this.refs.optionsContainer.contains(event.target) && !this.refs.searchInput.contains(event.target)) {
+        this.handleBlur()
+        document.removeEventListener('click', handleClickOutside)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+  },
+
+  handleBlur() {
+    const selectedValues = this.getSelectedValues()
+    const currentValue = selectedValues[0] || ''
+
+    if (currentValue.length > 0 && this.refs.searchInput.value.length > 0) {
+      this.refs.searchInput.value = currentValue
+    } else if (this.refs.searchInput.value.length > 0) {
+      this.refs.searchInput.value = ''
+      this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
+      this.refs.submitContainer.innerHTML = ''
+    }
+
+    this.hideOptions()
+  },
+
   initializeCreateOption() {
     if (!this.hasCreateOption) return
-
-    // Hide create option initially since search input starts empty
-    this.hideOption(this.createOption)
+    this.hideOption(this.refs.createOption)
   },
 
   updateCreateOption(searchValue) {
-    if (!this.createOption) return
-    this.createOption.textContent = `Create "${searchValue}"`
+    if (!this.refs.createOption) return
+    this.refs.createOption.textContent = `Create "${searchValue}"`
   },
 
   updateCreateOptionVisibility(searchValue) {
-    if (!this.createOption) return
+    if (!this.refs.createOption) return
 
     if (searchValue.length > 0 && !this.hasExactMatch(searchValue)) {
-      this.showOption(this.createOption)
+      this.showOption(this.refs.createOption)
     } else {
-      // Check if create option is currently focused before hiding it
-      const createOptionHasFocus = this.createOption.getAttribute('data-focus') === 'true'
-      this.hideOption(this.createOption)
+      const createOptionHasFocus = this.refs.createOption.getAttribute('data-focus') === 'true'
+      this.hideOption(this.refs.createOption)
 
-      // If create option was focused, move focus to first visible option
       if (createOptionHasFocus) {
         this.focusFirstOption()
       }
@@ -484,7 +529,6 @@ export default {
       option.getAttribute('data-value') === searchValue
     )
 
-    // Also check if search value matches any currently selected value
     const selectedValues = this.getSelectedValues()
     const hasSelectedMatch = selectedValues.includes(searchValue)
 
