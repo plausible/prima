@@ -19,7 +19,6 @@ const SELECTORS = {
   SELECTION_TEMPLATE: '[data-prima-ref=selection-template]',
   SELECTION_ITEM: '[data-prima-ref="selection-item"]',
   REMOVE_SELECTION: '[data-prima-ref="remove-selection"]',
-  FIELD: '[data-prima-ref="field"]',
   VISIBLE_OPTION: '[role=option]:not([data-hidden])',
   FOCUSED_OPTION: '[role=option][data-focus=true]',
   REGULAR_OPTION: '[role=option]:not([data-prima-ref=create-option])'
@@ -64,8 +63,8 @@ export default {
     this.refs.createOption = this.refs.optionsContainer?.querySelector(SELECTORS.CREATE_OPTION)
     this.refs.selectionTemplate = this.refs.selectionsContainer?.querySelector(SELECTORS.SELECTION_TEMPLATE)
 
-    const field = this.el.querySelector(SELECTORS.FIELD)
-    this.refs.referenceElement = field || this.refs.searchInput
+    const referenceSelector = this.refs.optionsContainer?.getAttribute('data-reference')
+    this.refs.referenceElement = referenceSelector ? document.querySelector(referenceSelector) : this.refs.searchInput
 
     this.mode = this.getMode()
     this.isMultiple = this.el.hasAttribute('data-multiple')

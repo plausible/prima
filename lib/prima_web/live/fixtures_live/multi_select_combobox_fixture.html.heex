@@ -1,6 +1,9 @@
 <form>
   <.combobox class="relative w-64" id="demo-multi-select-combobox" multiple={true}>
-    <.combobox_field class="flex flex-wrap gap-1.5 items-center min-h-[42px] w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
+    <div
+      id="demo-multi-select-combobox-field"
+      class="flex flex-wrap gap-1.5 items-center min-h-[42px] w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600"
+    >
       <.combobox_selections>
         <:selection
           :let={value}
@@ -18,10 +21,11 @@
         class="flex-1 min-w-[120px] border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 bg-transparent outline-none"
         placeholder="Select fruits..."
       />
-    </.combobox_field>
+    </div>
 
     <.combobox_options
       id="demo-multi-select-combobox-options"
+      reference="#demo-multi-select-combobox-field"
       class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
     >
       <%= for option <- ["Apple", "Banana", "Cherry", "Mango"] do %>
