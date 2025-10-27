@@ -266,12 +266,12 @@ export default {
 
     if (this.isMultiple) {
       this.refs.searchInput.value = ''
+      this.refs.searchInput.focus()
     } else {
       this.refs.searchInput.value = value
     }
 
     this.hideOptions()
-    this.refs.searchInput.focus()
   },
 
   syncSelectedAttributes() {
