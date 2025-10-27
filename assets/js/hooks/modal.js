@@ -76,7 +76,6 @@ export default {
   },
 
   handleModalOpen() {
-    this.log("modal:open")
     this.storeFocusedElement()
     this.preventBodyScroll()
     this.modalEl.removeAttribute('aria-hidden')
@@ -90,7 +89,6 @@ export default {
   },
 
   handlePanelMounted() {
-    this.log("modal:panel-mounted")
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     this.maybeExecJS(this.ref("modal-panel"), "js-show");
     this.setupAriaRelationships()
@@ -102,14 +100,12 @@ export default {
   },
 
   handlePanelRemoved() {
-    this.log("modal:panel-removed")
     if (!this.panelIsDirty()) {
       this.modalEl.dispatchEvent(new Event('prima:modal:close'))
     }
   },
 
   handleModalClose() {
-    this.log("modal:close")
     this.restoreBodyScroll()
     this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
     this.maybeExecJS(this.ref("modal-panel"), "js-hide");
@@ -120,7 +116,6 @@ export default {
   },
 
   handleOverlayHideEnd() {
-    this.log("modal:overlay-hide-end")
     this.maybeExecJS(this.modalEl, "js-hide");
     this.modalEl.setAttribute('aria-hidden', 'true')
     this.restoreFocusedElement()
@@ -142,10 +137,6 @@ export default {
 
   ref(ref) {
     return this.modalEl.querySelector(`[data-prima-ref="${ref}"]`);
-  },
-
-  log(message) {
-    console.log(`[Prima ${this.el.id}] ${message}`)
   },
 
   preventBodyScroll() {
