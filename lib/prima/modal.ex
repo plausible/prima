@@ -253,7 +253,7 @@ defmodule Prima.Modal do
       phx-key="escape"
       phx-click-away={close()}
     >
-      <.focus_wrap id={@id} class={@class} tabindex="-1">
+      <.focus_wrap id={@id} class={@class}>
         {render_slot(@inner_block)}
       </.focus_wrap>
     </div>
