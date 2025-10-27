@@ -306,6 +306,9 @@ export default {
   },
 
   handleEnterOrTab(e) {
+    if (!this.isOptionsVisible()) {
+      return
+    }
     e.preventDefault()
     this.selectOption(this.getCurrentFocusedOption())
   },

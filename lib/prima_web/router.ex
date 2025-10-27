@@ -33,6 +33,7 @@ defmodule PrimaWeb.Router do
       live "/fixtures/creatable-combobox", FixturesLive, :creatable_combobox
       live "/fixtures/flexible-markup-combobox", FixturesLive, :flexible_markup_combobox
       live "/fixtures/multi-select-combobox", FixturesLive, :multi_select_combobox
+      live "/fixtures/combobox-form-tab", FixturesLive, :combobox_form_tab
     end
   end
 end
