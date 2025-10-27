@@ -82,23 +82,6 @@ defmodule PrimaWeb.SimpleModalTest do
     |> assert_has(Query.css("#demo-modal-title"))
   end
 
-  feature "focus management when modal opens and closes", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
-    # Focus the trigger button first
-    |> execute_script("document.querySelector('#simple-modal button').focus()")
-    |> assert_has(Query.css("#simple-modal button:focus"))
-    |> click(Query.css("#simple-modal button"))
-    |> assert_has(@modal_container |> Query.visible(true))
-    # Focus should move into the modal (to the first focusable element - close button)
-    |> assert_has(Query.css("#demo-modal [testing-ref=close-button]:focus"))
-    # Close with escape key
-    |> send_keys([:escape])
-    |> assert_has(@modal_container |> Query.visible(false))
-    # Focus should return to the trigger button
-    |> assert_has(Query.css("#simple-modal button:focus"))
-  end
-
   feature "manages aria-hidden state for background content", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-modal", "#demo-modal")
@@ -137,7 +120,7 @@ defmodule PrimaWeb.SimpleModalTest do
     |> assert_has(@modal_container |> Query.visible(false))
     |> click(Query.css("#simple-modal button"))
     |> assert_has(@modal_container |> Query.visible(true))
-    # Focus should move into the modal (to the first focusable element)
+    # Focus should move to the first focusable element (close button)
     |> assert_has(Query.css("#demo-modal [testing-ref=close-button]:focus"))
     |> click(Query.css("#demo-modal [testing-ref=close-button]"))
     |> assert_has(@modal_container |> Query.visible(false))

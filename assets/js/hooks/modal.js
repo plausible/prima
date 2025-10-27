@@ -188,12 +188,14 @@ export default {
   },
 
   focusFirstElement() {
-    const focusableElements = this.ref("modal-panel").querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )
+    const panel = this.ref("modal-panel")
 
-    if (focusableElements.length > 0) {
-      focusableElements[0].focus()
+    // First, check if there's an element with data-autofocus
+    const autofocusElement = panel.querySelector('[data-autofocus]')
+    if (autofocusElement) {
+      autofocusElement.focus()
+    } else {
+      this.maybeExecJS(panel, 'js-focus-first')
     }
   }
 };
