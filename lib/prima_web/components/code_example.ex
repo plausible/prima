@@ -1,13 +1,6 @@
 defmodule PrimaWeb.CodeExample do
-  @moduledoc """
-  Components for displaying code examples with or without live demos.
+  @moduledoc false
 
-  Provides two components:
-  - `code_example/1`: Interactive tabbed interface with Preview and Code views
-  - `code_block/1`: Simple syntax-highlighted code display (no preview)
-
-  Both components use compile-time highlighting for optimal performance.
-  """
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
