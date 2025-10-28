@@ -13,6 +13,14 @@
         placement="top-start"
         offset={4}
         class="max-h-32 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none sm:text-sm z-50"
+        transition_enter={
+          {"ease-out duration-100", "transform opacity-0 scale-95",
+           "transform opacity-100 scale-100"}
+        }
+        transition_leave={
+          {"transition ease-in duration-75", "transform opacity-100 scale-100",
+           "transform opacity-0 scale-95"}
+        }
       >
         <%= for option <- ["Apple", "Banana", "Cherry", "Date"] do %>
           <.combobox_option
@@ -50,6 +58,14 @@
         placement="right-start"
         offset={8}
         class="max-h-48 w-32 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none sm:text-sm z-50"
+        transition_enter={
+          {"ease-out duration-100", "transform opacity-0 scale-95",
+           "transform opacity-100 scale-100"}
+        }
+        transition_leave={
+          {"transition ease-in duration-75", "transform opacity-100 scale-100",
+           "transform opacity-0 scale-95"}
+        }
       >
         <%= for color <- ["Red", "Blue", "Green", "Yellow", "Purple", "Orange"] do %>
           <.combobox_option
@@ -87,6 +103,14 @@
         placement="bottom-start"
         offset={12}
         class="max-h-48 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none sm:text-sm z-50"
+        transition_enter={
+          {"ease-out duration-100", "transform opacity-0 scale-95",
+           "transform opacity-100 scale-100"}
+        }
+        transition_leave={
+          {"transition ease-in duration-75", "transform opacity-100 scale-100",
+           "transform opacity-0 scale-95"}
+        }
       >
         <%= for {country, flag} <- [
           {"United States", "🇺🇸"}, {"Canada", "🇨🇦"}, {"United Kingdom", "🇬🇧"},

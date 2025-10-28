@@ -55,6 +55,11 @@ defmodule Prima.Dropdown do
   attr :flip, :boolean, default: true
   attr :offset, :integer, default: 4
 
+  # Two-div structure separates positioning from transitions:
+  # - Outer wrapper: Handles Floating UI positioning (must be display:block for measurements)
+  # - Inner menu: Handles CSS transitions (starts hidden, transitions in after positioning)
+  # This prevents visual "jumping" where menu briefly appears at wrong position before
+  # repositioning. Floating UI cannot measure display:none elements.
   def dropdown_menu(assigns) do
     ~H"""
     <div
