@@ -1,0 +1,16 @@
+<form>
+  <.combobox id="overflow-combobox">
+    <.combobox_input
+      name="overflow-combobox[item]"
+      placeholder="Type to search..."
+    />
+
+    <.combobox_options id="overflow-combobox-options" class="max-h-48 overflow-y-auto">
+      <%= for option <- 1..50 do %>
+        <.combobox_option value={"Item #{option}"}>
+          Item <%= option %>
+        </.combobox_option>
+      <% end %>
+    </.combobox_options>
+  </.combobox>
+</form>

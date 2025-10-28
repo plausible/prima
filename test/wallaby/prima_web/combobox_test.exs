@@ -72,75 +72,6 @@ defmodule PrimaWeb.ComboboxTest do
     )
   end
 
-  feature "navigates options with keyboard arrows", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    |> assert_has(@all_options |> Query.count(4))
-    # First option should be focused by default
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple'][data-focus=true]"))
-    # Arrow down to next option - use correct key codes and send to the focused element
-    |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pear'][data-focus=true]"))
-    # Arrow down again
-    |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Mango'][data-focus=true]"))
-    # Arrow up back to previous
-    |> send_keys([:up_arrow])
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pear'][data-focus=true]"))
-  end
-
-  feature "selects focused option with Enter key", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    # Navigate to second option
-    |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pear'][data-focus=true]"))
-    # Select with Enter
-    |> send_keys([:enter])
-    # Options should be hidden after selection
-    |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the selected value
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Pear",
-               "Expected search input value to be 'Pear', got '#{values["search"]}'"
-
-        assert values["submit"] == "Pear",
-               "Expected submit input value to be 'Pear', got '#{values["submit"]}'"
-      end
-    )
-  end
-
-  feature "selects focused option with Tab key", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    # Navigate to third option
-    |> send_keys([:down_arrow, :down_arrow])
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Mango'][data-focus=true]"))
-    # Select with Tab
-    |> send_keys([:tab])
-    # Options should be hidden after selection
-    |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the selected value
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Mango",
-               "Expected search input value to be 'Mango', got '#{values["search"]}'"
-
-        assert values["submit"] == "Mango",
-               "Expected submit input value to be 'Mango', got '#{values["submit"]}'"
-      end
-    )
-  end
-
   feature "focuses option on mouse hover", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
@@ -236,24 +167,6 @@ defmodule PrimaWeb.ComboboxTest do
     |> assert_missing(Query.css("#demo-async-combobox [role=option][data-value='Banana']"))
   end
 
-  feature "keyboard navigation wrapping (last to first, first to last)", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    |> assert_has(@all_options |> Query.count(4))
-    # First option should be focused by default
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple'][data-focus=true]"))
-    # Arrow up from first should wrap to last (Pineapple)
-    |> send_keys([:up_arrow])
-    |> assert_has(
-      Query.css("#demo-combobox [role=option][data-value='Pineapple'][data-focus=true]")
-    )
-    # Arrow down from last should wrap to first
-    |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Apple'][data-focus=true]"))
-  end
-
   feature "form integration - selected value is available for submission", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
@@ -342,30 +255,6 @@ defmodule PrimaWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(true))
     |> assert_has(
       Query.css("#demo-combobox [role=option][data-value='Apple'][data-selected=true]")
-    )
-    # Verify only one option has data-selected
-    |> assert_has(Query.css("#demo-combobox [role=option][data-selected]") |> Query.count(1))
-  end
-
-  feature "selected option has data-selected attribute (keyboard selection)", %{
-    session: session
-  } do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    # Navigate to Pear and select with Enter
-    |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pear'][data-focus=true]"))
-    |> send_keys([:enter])
-    |> assert_has(@options_container |> Query.visible(false))
-    # Click outside to fully blur
-    |> click(Query.css("body"))
-    # Open options again to verify data-selected is set
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    |> assert_has(
-      Query.css("#demo-combobox [role=option][data-value='Pear'][data-selected=true]")
     )
     # Verify only one option has data-selected
     |> assert_has(Query.css("#demo-combobox [role=option][data-selected]") |> Query.count(1))

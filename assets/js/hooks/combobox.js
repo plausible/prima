@@ -228,7 +228,7 @@ export default {
       this.refs.searchInput.setAttribute('aria-activedescendant', el.id)
     }
 
-    el.scrollIntoView({ block: 'nearest' })
+    el.scrollIntoView({ block: 'nearest', inline: 'nearest' })
   },
 
   focusFirstOption() {
@@ -535,7 +535,10 @@ export default {
     this.positionOptions()
     this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
 
-    this.focusFirstOption()
+    this.refs.optionsContainer.addEventListener('phx:show-end', () => {
+      this.focusFirstOption()
+    }, {once: true})
+
     this.setupClickOutsideHandler()
   },
 
