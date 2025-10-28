@@ -569,4 +569,34 @@ defmodule PrimaWeb.ComboboxTest do
       end
     )
   end
+
+  feature "combobox remains functional after LiveView reconnection", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> execute_script("window.liveSocket.disconnect()")
+    |> execute_script("window.liveSocket.connect()")
+    # Wait for reconnection by checking for the data attribute that gets set
+    |> assert_has(Query.css(".phx-connected[data-phx-main]"))
+    # Test basic open/close functionality
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    |> assert_has(@all_options |> Query.count(4))
+    # Test keyboard navigation
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Pear'][data-focus=true]"))
+    # Test selection with Enter
+    |> send_keys([:enter])
+    |> assert_has(@options_container |> Query.visible(false))
+    # Verify selection worked
+    |> execute_script(
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
+      fn values ->
+        assert values["search"] == "Pear",
+               "Expected search input value to be 'Pear', got '#{values["search"]}'"
+
+        assert values["submit"] == "Pear",
+               "Expected submit input value to be 'Pear', got '#{values["submit"]}'"
+      end
+    )
+  end
 end
