@@ -159,4 +159,154 @@
     and <code>data-selected:</code>
     modifiers to style these states.
   </p>
+
+  <h2>Keyboard Interaction</h2>
+  <p>
+    The combobox component provides full keyboard accessibility with comprehensive navigation support. All interactions follow standard ARIA patterns for combobox components.
+  </p>
+
+  <div class="not-prose my-6">
+    <div class="overflow-hidden rounded-lg border border-gray-200">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Key
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Description
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr>
+            <td
+              colspan="2"
+              class="px-6 py-3 text-xs font-semibold text-indigo-900 bg-indigo-50 border-b border-indigo-100"
+            >
+              When the input is focused:
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↓
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↑
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Opens the combobox and focuses the first option
+            </td>
+          </tr>
+          <tr>
+            <td
+              colspan="2"
+              class="px-6 py-3 text-xs font-semibold text-indigo-900 bg-indigo-50 border-b border-indigo-100"
+            >
+              When the combobox is open:
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Esc
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Closes the combobox and restores the previously selected value
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↑
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↓
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Focuses the previous/next option (wraps around)
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Home
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                PageUp
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Focuses the first option
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                End
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                PageDown
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Focuses the last option
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Enter
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Selects the currently focused option and closes the combobox
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Tab
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Selects the currently focused option and closes the combobox
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                A-Z
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                a-z
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Filters available options (frontend mode) or triggers search event (async mode)
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Backspace
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Removes the last selected item (multi-select mode, when input is empty)
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

@@ -6,7 +6,11 @@ const KEYS = {
   ESCAPE: 'Escape',
   ENTER: 'Enter',
   TAB: 'Tab',
-  BACKSPACE: 'Backspace'
+  BACKSPACE: 'Backspace',
+  HOME: 'Home',
+  END: 'End',
+  PAGE_UP: 'PageUp',
+  PAGE_DOWN: 'PageDown'
 }
 
 const SELECTORS = {
@@ -256,6 +260,20 @@ export default {
     this.setFocus(visibleOptions[targetIndex])
   },
 
+  navigateToFirst(e) {
+    e.preventDefault()
+    const visibleOptions = this.getVisibleOptions()
+    if (visibleOptions.length === 0) return
+    this.setFocus(visibleOptions[0])
+  },
+
+  navigateToLast(e) {
+    e.preventDefault()
+    const visibleOptions = this.getVisibleOptions()
+    if (visibleOptions.length === 0) return
+    this.setFocus(visibleOptions[visibleOptions.length - 1])
+  },
+
   selectOption(el) {
     if (!el) return
 
@@ -320,9 +338,28 @@ export default {
   },
 
   handleKeydown(e) {
+    const arrowKeys = [KEYS.ARROW_UP, KEYS.ARROW_DOWN]
+    const otherNavigationKeys = [KEYS.HOME, KEYS.END, KEYS.PAGE_UP, KEYS.PAGE_DOWN]
+
+    // Arrow keys open options if closed, then navigate
+    if (arrowKeys.includes(e.key) && !this.isOptionsVisible()) {
+      e.preventDefault()
+      this.showOptions()
+      return
+    }
+
+    // Other navigation keys only work when options are visible
+    if (otherNavigationKeys.includes(e.key) && !this.isOptionsVisible()) {
+      return
+    }
+
     const keyHandlers = {
       [KEYS.ARROW_UP]: () => this.navigateUp(e),
       [KEYS.ARROW_DOWN]: () => this.navigateDown(e),
+      [KEYS.HOME]: () => this.navigateToFirst(e),
+      [KEYS.PAGE_UP]: () => this.navigateToFirst(e),
+      [KEYS.END]: () => this.navigateToLast(e),
+      [KEYS.PAGE_DOWN]: () => this.navigateToLast(e),
       [KEYS.ESCAPE]: () => this.handleEscape(e),
       [KEYS.ENTER]: () => this.handleEnterOrTab(e),
       [KEYS.TAB]: () => this.handleEnterOrTab(e),
@@ -337,6 +374,17 @@ export default {
 
   handleEscape(e) {
     e.preventDefault()
+
+    // Restore previously selected value
+    if (!this.isMultiple) {
+      const selectedValues = this.getSelectedValues()
+      const previousValue = selectedValues[0] || ''
+      this.refs.searchInput.value = previousValue
+    } else {
+      // For multi-select, just clear the search input
+      this.refs.searchInput.value = ''
+    }
+
     this.hideOptions()
   },
 
