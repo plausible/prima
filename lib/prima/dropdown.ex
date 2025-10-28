@@ -8,7 +8,7 @@ defmodule Prima.Dropdown do
 
   def dropdown(assigns) do
     ~H"""
-    <div id={@id} phx-hook="Dropdown" phx-click-away={JS.dispatch("prima:close")} {@rest}>
+    <div id={@id} phx-hook="Dropdown" {@rest}>
       {render_slot(@inner_block)}
     </div>
     """
@@ -43,16 +43,43 @@ defmodule Prima.Dropdown do
   attr :class, :string, default: ""
   slot :inner_block, required: true
 
+  # Positioning reference
+  attr :reference, :string, default: nil
+
+  # Floating UI positioning options
+  attr :placement, :string,
+    default: "bottom-start",
+    values:
+      ~w(top top-start top-end right right-start right-end bottom bottom-start bottom-end left left-start left-end)
+
+  attr :flip, :boolean, default: true
+  attr :offset, :integer, default: 4
+
+  # Two-div structure separates positioning from transitions:
+  # - Outer wrapper: Handles Floating UI positioning (must be display:block for measurements)
+  # - Inner menu: Handles CSS transitions (starts hidden, transitions in after positioning)
+  # This prevents visual "jumping" where menu briefly appears at wrong position before
+  # repositioning. Floating UI cannot measure display:none elements.
   def dropdown_menu(assigns) do
     ~H"""
     <div
-      class={@class}
-      style="display: none"
-      js-toggle={JS.toggle(in: @transition_enter, out: @transition_leave)}
-      js-hide={JS.hide(transition: @transition_leave)}
-      role="menu"
+      style="display: none; position: absolute; top: 0; left: 0;"
+      data-prima-ref="menu-wrapper"
+      data-reference={@reference}
+      data-placement={@placement}
+      data-flip={@flip}
+      data-offset={@offset}
     >
-      {render_slot(@inner_block)}
+      <div
+        class={@class}
+        style="display: none;"
+        js-show={JS.show(transition: @transition_enter)}
+        js-hide={JS.hide(transition: @transition_leave)}
+        role="menu"
+        phx-click-away={JS.dispatch("prima:close")}
+      >
+        {render_slot(@inner_block)}
+      </div>
     </div>
     """
   end

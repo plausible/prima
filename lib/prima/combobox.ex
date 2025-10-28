@@ -381,24 +381,35 @@ defmodule Prima.Combobox do
       </.combobox_options>
 
   """
+
+  # Two-div structure separates positioning from transitions:
+  # - Outer wrapper: Handles Floating UI positioning (must be display:block for measurements)
+  # - Inner options: Handles CSS transitions (starts hidden, transitions in after positioning)
+  # This prevents visual "jumping" where options briefly appear at wrong position before
+  # repositioning. Floating UI cannot measure display:none elements.
   def combobox_options(assigns) do
     ~H"""
     <div
-      id={@id}
-      role="listbox"
-      class={@class}
-      style="display: none;"
-      js-show={JS.show(transition: @transition_enter)}
-      js-hide={JS.hide(transition: @transition_leave)}
-      phx-click-away={JS.dispatch("prima:combobox:reset")}
-      data-prima-ref="options"
+      style="position: absolute; top: 0; left: 0;"
+      data-prima-ref="options-wrapper"
       data-reference={@reference}
       data-placement={@placement}
       data-flip={@flip}
       data-offset={@offset}
-      {@rest}
     >
-      {render_slot(@inner_block)}
+      <div
+        id={@id}
+        role="listbox"
+        class={@class}
+        style="display: none;"
+        js-show={JS.show(transition: @transition_enter)}
+        js-hide={JS.hide(transition: @transition_leave)}
+        phx-click-away={JS.dispatch("prima:combobox:reset")}
+        data-prima-ref="options"
+        {@rest}
+      >
+        {render_slot(@inner_block)}
+      </div>
     </div>
     """
   end

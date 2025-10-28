@@ -4,9 +4,18 @@
   </div>
 
   <p>
-    An interactive menu component with keyboard navigation and customizable positioning. Dropdowns provide
+    An interactive menu component with keyboard navigation and intelligent positioning. Dropdowns provide
     flexible menu interfaces with full accessibility support, including arrow key navigation, automatic focus management,
-    and click-outside-to-close behavior.
+    and click-outside-to-close behavior. Features smart positioning with
+    <a
+      href="https://floating-ui.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-indigo-600 hover:text-indigo-800"
+    >
+      Floating UI
+    </a>
+    for automatic flipping and repositioning.
   </p>
 
   <h2>Quick Start</h2>
@@ -66,9 +75,17 @@
     classes. Common patterns include background color changes, text color variations, and subtle animations to enhance the user experience.
   </p>
 
-  <h3>Menu Positioning</h3>
+  <h3>Smart Positioning</h3>
   <p>
-    Control dropdown positioning using standard CSS positioning classes. The component supports various alignment options and automatically handles menu overflow.
+    Powered by <a
+      href="https://floating-ui.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-indigo-600 hover:text-indigo-800"
+    >Floating UI</a>, the dropdown intelligently positions itself using the <code>placement</code>
+    and <code>offset</code>
+    attributes.
+    It automatically flips to the opposite side when there's insufficient space and repositions on scroll or resize.
   </p>
 
   <div class="not-prose">
@@ -76,9 +93,9 @@
   </div>
 
   <p>
-    Use classes like <code>origin-top-left</code>, <code>origin-top-right</code>, or
-    <code>origin-bottom-left</code>
-    to control the transform origin for smooth animations. Combine with <code>left-0</code>, <code>right-0</code>, or other positioning utilities as needed.
+    Use <code>placement="top-start"</code>, <code>placement="right-start"</code>, <code>placement="bottom-end"</code>, or other positioning options.
+    The <code>offset</code> attribute controls the distance in pixels from the trigger button.
+    The component automatically repositions when scrolling or resizing to stay visible and accessible.
   </p>
 
   <h2>Keyboard Interaction</h2>

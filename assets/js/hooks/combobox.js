@@ -12,6 +12,7 @@ const KEYS = {
 const SELECTORS = {
   SEARCH_INPUT: 'input[data-prima-ref=search_input]',
   SUBMIT_CONTAINER: '[data-prima-ref=submit_container]',
+  OPTIONS_WRAPPER: '[data-prima-ref="options-wrapper"]',
   OPTIONS: '[data-prima-ref="options"]',
   OPTION: '[role=option]',
   CREATE_OPTION: '[data-prima-ref=create-option]',
@@ -56,6 +57,7 @@ export default {
     this.refs = {
       searchInput: this.el.querySelector(SELECTORS.SEARCH_INPUT),
       submitContainer: this.el.querySelector(SELECTORS.SUBMIT_CONTAINER),
+      optionsWrapper: this.el.querySelector(SELECTORS.OPTIONS_WRAPPER),
       optionsContainer: this.el.querySelector(SELECTORS.OPTIONS),
       selectionsContainer: this.el.querySelector(SELECTORS.SELECTIONS)
     }
@@ -63,7 +65,7 @@ export default {
     this.refs.createOption = this.refs.optionsContainer?.querySelector(SELECTORS.CREATE_OPTION)
     this.refs.selectionTemplate = this.refs.selectionsContainer?.querySelector(SELECTORS.SELECTION_TEMPLATE)
 
-    const referenceSelector = this.refs.optionsContainer?.getAttribute('data-reference')
+    const referenceSelector = this.refs.optionsWrapper?.getAttribute('data-reference')
     this.refs.referenceElement = referenceSelector ? document.querySelector(referenceSelector) : this.refs.searchInput
 
     this.mode = this.getMode()
@@ -83,7 +85,9 @@ export default {
     if (this.refs.optionsContainer) {
       this.listeners.push(
         [this.refs.optionsContainer, 'click', this.handleClick.bind(this)],
-        [this.refs.optionsContainer, 'mouseover', this.handleHover.bind(this)]
+        [this.refs.optionsContainer, 'mouseover', this.handleHover.bind(this)],
+        [this.refs.optionsContainer, 'phx:show-start', this.handleShowStart.bind(this)],
+        [this.refs.optionsContainer, 'phx:hide-end', this.handleHideEnd.bind(this)]
       )
     }
 
@@ -389,8 +393,7 @@ export default {
 
   handleAsyncMode() {
     if (this.refs.searchInput.value.length > 0) {
-      this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
-      this.refs.searchInput.setAttribute('aria-expanded', 'true')
+      this.showOptions()
     }
     this.focusedOptionBeforeUpdate = this.getCurrentFocusedOption()?.dataset.value
   },
@@ -439,12 +442,12 @@ export default {
     option.setAttribute('data-hidden', 'true')
   },
 
-  async positionOptions() {
-    if (!this.refs.optionsContainer) return
+  positionOptions() {
+    if (!this.refs.optionsWrapper) return
 
-    const placement = this.refs.optionsContainer.getAttribute('data-placement') || 'bottom-start'
-    const shouldFlip = this.refs.optionsContainer.getAttribute('data-flip') !== 'false'
-    const offsetValue = this.refs.optionsContainer.getAttribute('data-offset')
+    const placement = this.refs.optionsWrapper.getAttribute('data-placement') || 'bottom-start'
+    const shouldFlip = this.refs.optionsWrapper.getAttribute('data-flip') !== 'false'
+    const offsetValue = this.refs.optionsWrapper.getAttribute('data-offset')
 
     const middleware = []
     if (offsetValue && !isNaN(parseInt(offsetValue))) {
@@ -454,20 +457,17 @@ export default {
       middleware.push(flip())
     }
 
-    try {
-      const {x, y} = await computePosition(this.refs.referenceElement, this.refs.optionsContainer, {
-        placement: placement,
-        middleware: middleware
-      })
-
-      Object.assign(this.refs.optionsContainer.style, {
-        position: 'absolute',
+    computePosition(this.refs.referenceElement, this.refs.optionsWrapper, {
+      placement: placement,
+      middleware: middleware
+    }).then(({x, y}) => {
+      Object.assign(this.refs.optionsWrapper.style, {
         top: `${y}px`,
         left: `${x}px`
       })
-    } catch (error) {
+    }).catch(error => {
       console.error('[Prima Combobox] Failed to position options:', error)
-    }
+    })
   },
 
   cleanupAutoUpdate() {
@@ -478,21 +478,29 @@ export default {
   },
 
   showOptions() {
+    // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
+    // then position it, then trigger inner options transition. This prevents the options from
+    // briefly appearing at wrong position before jumping to correct position.
+    this.refs.optionsWrapper.style.display = 'block'
+    this.positionOptions()
     this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
 
+    this.focusFirstOption()
+    this.setupClickOutsideHandler()
+  },
+
+  handleShowStart() {
     this.refs.searchInput.setAttribute('aria-expanded', 'true')
 
-    this.focusFirstOption()
-
-    requestAnimationFrame(() => {
+    // Setup autoUpdate to reposition on scroll/resize
+    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsWrapper, () => {
       this.positionOptions()
     })
+  },
 
-    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsContainer, () => {
-      this.positionOptions()
-    })
-
-    this.setupClickOutsideHandler()
+  handleHideEnd() {
+    this.refs.optionsWrapper.style.display = 'none'
+    this.cleanupAutoUpdate()
   },
 
   hideOptions() {
@@ -501,14 +509,13 @@ export default {
     this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'));
     this.refs.searchInput.setAttribute('aria-expanded', 'false')
     this.refs.searchInput.removeAttribute('aria-activedescendant')
-    this.cleanupAutoUpdate()
 
     this.refs.optionsContainer.addEventListener('phx:hide-end', () => {
       const regularOptions = this.getRegularOptions()
       for (const option of regularOptions) {
         this.showOption(option)
       }
-    })
+    }, { once: true })
   },
 
   setupClickOutsideHandler() {
