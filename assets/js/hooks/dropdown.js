@@ -279,10 +279,11 @@ export default {
       liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
       this.refs.menuWrapper.style.display = 'none'
     } else {
-      // Show wrapper and position it
+      // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
+      // then position it, then trigger inner menu transition. This prevents the menu from
+      // briefly appearing at wrong position before jumping to correct position.
       this.refs.menuWrapper.style.display = 'block'
       await this.positionMenu()
-      // Then trigger the inner menu transition
       liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
     }
   },

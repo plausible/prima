@@ -480,11 +480,11 @@ export default {
   },
 
   showOptions() {
-    // Show wrapper and position it
+    // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
+    // then position it, then trigger inner options transition. This prevents the options from
+    // briefly appearing at wrong position before jumping to correct position.
     this.refs.optionsWrapper.style.display = 'block'
     this.positionOptions()
-
-    // Then trigger the inner options transition
     this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
 
     this.focusFirstOption()
