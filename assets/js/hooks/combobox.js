@@ -442,7 +442,7 @@ export default {
     option.setAttribute('data-hidden', 'true')
   },
 
-  async positionOptions() {
+  positionOptions() {
     if (!this.refs.optionsWrapper) return
 
     const placement = this.refs.optionsWrapper.getAttribute('data-placement') || 'bottom-start'
@@ -457,19 +457,17 @@ export default {
       middleware.push(flip())
     }
 
-    try {
-      const {x, y} = await computePosition(this.refs.referenceElement, this.refs.optionsWrapper, {
-        placement: placement,
-        middleware: middleware
-      })
-
+    computePosition(this.refs.referenceElement, this.refs.optionsWrapper, {
+      placement: placement,
+      middleware: middleware
+    }).then(({x, y}) => {
       Object.assign(this.refs.optionsWrapper.style, {
         top: `${y}px`,
         left: `${x}px`
       })
-    } catch (error) {
+    }).catch(error => {
       console.error('[Prima Combobox] Failed to position options:', error)
-    }
+    })
   },
 
   cleanupAutoUpdate() {

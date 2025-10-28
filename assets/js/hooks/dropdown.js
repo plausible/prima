@@ -274,7 +274,7 @@ export default {
     this.refs.menuWrapper.style.display = 'none'
   },
 
-  async toggleMenu() {
+  toggleMenu() {
     if (this.isMenuVisible()) {
       liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
       this.refs.menuWrapper.style.display = 'none'
@@ -283,15 +283,15 @@ export default {
       // then position it, then trigger inner menu transition. This prevents the menu from
       // briefly appearing at wrong position before jumping to correct position.
       this.refs.menuWrapper.style.display = 'block'
-      await this.positionMenu()
+      this.positionMenu()
       liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
     }
   },
 
-  async showMenuAndFocusFirst() {
+  showMenuAndFocusFirst() {
     // Show wrapper and position it
     this.refs.menuWrapper.style.display = 'block'
-    await this.positionMenu()
+    this.positionMenu()
 
     // Use show to display the menu
     liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
@@ -303,10 +303,10 @@ export default {
     }
   },
 
-  async showMenuAndFocusLast() {
+  showMenuAndFocusLast() {
     // Show wrapper and position it
     this.refs.menuWrapper.style.display = 'block'
-    await this.positionMenu()
+    this.positionMenu()
 
     // Use show to display the menu
     liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
@@ -340,7 +340,7 @@ export default {
     })
   },
 
-  async positionMenu() {
+  positionMenu() {
     if (!this.refs.menuWrapper) return
 
     const placement = this.refs.menuWrapper.getAttribute('data-placement') || 'bottom-start'
@@ -355,18 +355,16 @@ export default {
       middleware.push(flip())
     }
 
-    try {
-      const {x, y} = await computePosition(this.refs.referenceElement, this.refs.menuWrapper, {
-        placement: placement,
-        middleware: middleware
-      })
-
+    computePosition(this.refs.referenceElement, this.refs.menuWrapper, {
+      placement: placement,
+      middleware: middleware
+    }).then(({x, y}) => {
       Object.assign(this.refs.menuWrapper.style, {
         top: `${y}px`,
         left: `${x}px`
       })
-    } catch (error) {
+    }).catch(error => {
       console.error('[Prima Dropdown] Failed to position menu:', error)
-    }
+    })
   }
 }
