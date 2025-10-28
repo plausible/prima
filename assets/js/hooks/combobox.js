@@ -227,6 +227,8 @@ export default {
     if (el.id) {
       this.refs.searchInput.setAttribute('aria-activedescendant', el.id)
     }
+
+    el.scrollIntoView({ block: 'nearest' })
   },
 
   focusFirstOption() {
