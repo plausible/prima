@@ -1,3 +1,5 @@
+import { computePosition, flip, offset, autoUpdate } from '@floating-ui/dom';
+
 const KEYS = {
   ARROW_UP: 'ArrowUp',
   ARROW_DOWN: 'ArrowDown',
@@ -12,6 +14,7 @@ const KEYS = {
 
 const SELECTORS = {
   BUTTON: '[aria-haspopup="menu"]',
+  MENU_WRAPPER: '[data-prima-ref="menu-wrapper"]',
   MENU: '[role="menu"]',
   MENUITEM: '[role="menuitem"]',
   ENABLED_MENUITEM: '[role="menuitem"]:not([aria-disabled="true"])',
@@ -40,11 +43,15 @@ export default {
 
   setupElements() {
     const button = this.el.querySelector(SELECTORS.BUTTON)
+    const menuWrapper = this.el.querySelector(SELECTORS.MENU_WRAPPER)
     const menu = this.el.querySelector(SELECTORS.MENU)
     const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
 
+    const referenceSelector = menuWrapper?.getAttribute('data-reference')
+    const referenceElement = referenceSelector ? document.querySelector(referenceSelector) : button
+
     this.setupAriaRelationships(button, menu)
-    this.refs = { button, menu, items }
+    this.refs = { button, menuWrapper, menu, items, referenceElement }
   },
 
   setupEventListeners() {
@@ -64,11 +71,20 @@ export default {
   },
 
   cleanup() {
+    this.cleanupAutoUpdate()
+
     if (this.listeners) {
       this.listeners.forEach(([element, event, handler]) => {
         element.removeEventListener(event, handler)
       })
       this.listeners = []
+    }
+  },
+
+  cleanupAutoUpdate() {
+    if (this.autoUpdateCleanup) {
+      this.autoUpdateCleanup()
+      this.autoUpdateCleanup = null
     }
   },
 
@@ -207,12 +223,19 @@ export default {
 
   handleShowStart() {
     this.refs.button.setAttribute('aria-expanded', 'true')
+
+    // Setup autoUpdate to reposition on scroll/resize
+    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.menuWrapper, () => {
+      this.positionMenu()
+    })
   },
 
   handleHideEnd() {
     this.clearFocus()
     this.refs.menu.removeAttribute('aria-activedescendant')
     this.refs.button.setAttribute('aria-expanded', 'false')
+    this.refs.menuWrapper.style.display = 'none'
+    this.cleanupAutoUpdate()
   },
 
   getAllMenuItems() {
@@ -224,8 +247,8 @@ export default {
   },
 
   isMenuVisible() {
-    const menu = this.refs.menu
-    return menu && menu.style.display !== 'none' && menu.offsetParent !== null
+    const wrapper = this.refs.menuWrapper
+    return wrapper && wrapper.style.display !== 'none' && wrapper.offsetParent !== null
   },
 
   getCurrentFocusIndex(items) {
@@ -248,15 +271,29 @@ export default {
 
   hideMenu() {
     liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
+    this.refs.menuWrapper.style.display = 'none'
   },
 
-  toggleMenu() {
-    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-toggle'))
+  async toggleMenu() {
+    if (this.isMenuVisible()) {
+      liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
+      this.refs.menuWrapper.style.display = 'none'
+    } else {
+      // Show wrapper and position it
+      this.refs.menuWrapper.style.display = 'block'
+      await this.positionMenu()
+      // Then trigger the inner menu transition
+      liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
+    }
   },
 
-  showMenuAndFocusFirst() {
-    // Use toggle to show the menu (same as clicking the button)
-    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-toggle'))
+  async showMenuAndFocusFirst() {
+    // Show wrapper and position it
+    this.refs.menuWrapper.style.display = 'block'
+    await this.positionMenu()
+
+    // Use show to display the menu
+    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
 
     // Focus the first enabled item after the menu appears
     const items = this.getEnabledMenuItems()
@@ -265,9 +302,13 @@ export default {
     }
   },
 
-  showMenuAndFocusLast() {
-    // Use toggle to show the menu (same as clicking the button)
-    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-toggle'))
+  async showMenuAndFocusLast() {
+    // Show wrapper and position it
+    this.refs.menuWrapper.style.display = 'block'
+    await this.positionMenu()
+
+    // Use show to display the menu
+    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
 
     // Focus the last enabled item after the menu appears
     const items = this.getEnabledMenuItems()
@@ -296,5 +337,35 @@ export default {
     items.forEach((item, index) => {
       item.id = `${dropdownId}-item-${index}`
     })
+  },
+
+  async positionMenu() {
+    if (!this.refs.menuWrapper) return
+
+    const placement = this.refs.menuWrapper.getAttribute('data-placement') || 'bottom-start'
+    const shouldFlip = this.refs.menuWrapper.getAttribute('data-flip') !== 'false'
+    const offsetValue = this.refs.menuWrapper.getAttribute('data-offset')
+
+    const middleware = []
+    if (offsetValue && !isNaN(parseInt(offsetValue))) {
+      middleware.push(offset(parseInt(offsetValue)))
+    }
+    if (shouldFlip) {
+      middleware.push(flip())
+    }
+
+    try {
+      const {x, y} = await computePosition(this.refs.referenceElement, this.refs.menuWrapper, {
+        placement: placement,
+        middleware: middleware
+      })
+
+      Object.assign(this.refs.menuWrapper.style, {
+        top: `${y}px`,
+        left: `${x}px`
+      })
+    } catch (error) {
+      console.error('[Prima Dropdown] Failed to position menu:', error)
+    }
   }
 }

@@ -1,4 +1,4 @@
-<.dropdown id="basic-dropdown" class="relative inline-block">
+<.dropdown id="basic-dropdown">
   <.dropdown_trigger as={&button/1}>
     Open Dropdown
     <svg
@@ -14,7 +14,7 @@
       />
     </svg>
   </.dropdown_trigger>
-  <.dropdown_menu class="absolute right-0 z-10 mt-2 w-56 py-1 origin-top-right rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none">
+  <.dropdown_menu class="w-56 py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none">
     <.dropdown_item
       :for={option <- ["Account settings", "Billing", "Documentation"]}
       class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm"

@@ -1,105 +1,103 @@
-<div class="relative inline-block text-left">
-  <.dropdown id="styled-dropdown">
-    <.dropdown_trigger as={&button/1}>
-      Options
-      <svg
-        class="-mr-1 h-5 w-5 text-gray-400"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-          clip-rule="evenodd"
-        />
-      </svg>
-    </.dropdown_trigger>
-    <.dropdown_menu
-      class="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-      transition_enter={
-        {"ease-out duration-100", "transform opacity-0 scale-95",
-         "transform opacity-100 scale-100"}
-      }
-      transition_leave={
-        {"transition ease-in duration-75", "transform opacity-100 scale-100",
-         "transform opacity-0 scale-95"}
-      }
+<.dropdown id="styled-dropdown">
+  <.dropdown_trigger as={&button/1}>
+    Options
+    <svg
+      class="-mr-1 h-5 w-5 text-gray-400"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden="true"
     >
-      <div class="py-1">
-        <.dropdown_item class="text-gray-700 data-focus:bg-indigo-100 data-focus:text-indigo-900 block px-4 py-2 text-sm transition-colors duration-150">
-          <svg
-            class="mr-3 h-4 w-4 text-gray-400 data-focus:text-indigo-500 inline"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-            />
-          </svg>
-          Edit Profile
-        </.dropdown_item>
-        <.dropdown_item class="text-gray-700 data-focus:bg-indigo-100 data-focus:text-indigo-900 block px-4 py-2 text-sm transition-colors duration-150">
-          <svg
-            class="mr-3 h-4 w-4 text-gray-400 data-focus:text-indigo-500 inline"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
-          Settings
-        </.dropdown_item>
-        <.dropdown_item class="text-gray-700 data-focus:bg-indigo-100 data-focus:text-indigo-900 block px-4 py-2 text-sm transition-colors duration-150">
-          <svg
-            class="mr-3 h-4 w-4 text-gray-400 data-focus:text-indigo-500 inline"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-            />
-          </svg>
-          Analytics
-        </.dropdown_item>
-      </div>
-      <div class="py-1">
-        <.dropdown_item class="text-gray-700 data-focus:bg-red-100 data-focus:text-red-900 block px-4 py-2 text-sm transition-colors duration-150">
-          <svg
-            class="mr-3 h-4 w-4 text-gray-400 data-focus:text-red-500 inline"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-            />
-          </svg>
-          Sign Out
-        </.dropdown_item>
-      </div>
-    </.dropdown_menu>
-  </.dropdown>
-</div>
+      <path
+        fill-rule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </.dropdown_trigger>
+  <.dropdown_menu
+    class="w-56 divide-y divide-gray-100 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none"
+    transition_enter={
+      {"ease-out duration-100", "transform opacity-0 scale-95",
+       "transform opacity-100 scale-100"}
+    }
+    transition_leave={
+      {"transition ease-in duration-75", "transform opacity-100 scale-100",
+       "transform opacity-0 scale-95"}
+    }
+  >
+    <div class="py-1">
+      <.dropdown_item class="text-gray-700 data-focus:bg-indigo-100 data-focus:text-indigo-900 block px-4 py-2 text-sm transition-colors duration-150">
+        <svg
+          class="mr-3 h-4 w-4 text-gray-400 data-focus:text-indigo-500 inline"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+          />
+        </svg>
+        Edit Profile
+      </.dropdown_item>
+      <.dropdown_item class="text-gray-700 data-focus:bg-indigo-100 data-focus:text-indigo-900 block px-4 py-2 text-sm transition-colors duration-150">
+        <svg
+          class="mr-3 h-4 w-4 text-gray-400 data-focus:text-indigo-500 inline"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+          />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+        </svg>
+        Settings
+      </.dropdown_item>
+      <.dropdown_item class="text-gray-700 data-focus:bg-indigo-100 data-focus:text-indigo-900 block px-4 py-2 text-sm transition-colors duration-150">
+        <svg
+          class="mr-3 h-4 w-4 text-gray-400 data-focus:text-indigo-500 inline"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+        Analytics
+      </.dropdown_item>
+    </div>
+    <div class="py-1">
+      <.dropdown_item class="text-gray-700 data-focus:bg-red-100 data-focus:text-red-900 block px-4 py-2 text-sm transition-colors duration-150">
+        <svg
+          class="mr-3 h-4 w-4 text-gray-400 data-focus:text-red-500 inline"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+          />
+        </svg>
+        Sign Out
+      </.dropdown_item>
+    </div>
+  </.dropdown_menu>
+</.dropdown>
