@@ -1,0 +1,19 @@
+<form phx-change="form_changed">
+  <.combobox id="form-change-combobox">
+    <.combobox_input
+      name="fruit"
+      placeholder="Select a fruit..."
+    />
+
+    <.combobox_options id="form-change-options" class="w-64 py-1">
+      <.combobox_option value="Apple">Apple</.combobox_option>
+      <.combobox_option value="Pear">Pear</.combobox_option>
+      <.combobox_option value="Mango">Mango</.combobox_option>
+      <.combobox_option value="Pineapple">Pineapple</.combobox_option>
+    </.combobox_options>
+  </.combobox>
+
+  <div id="change-count" data-testid="change-count">
+    Form changes: <%= @form_change_count %>
+  </div>
+</form>

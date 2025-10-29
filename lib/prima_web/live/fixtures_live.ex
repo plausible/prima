@@ -18,6 +18,7 @@ defmodule PrimaWeb.FixturesLive do
       socket
       |> assign(async_modal_open?: false)
       |> assign(selected_fruit: nil)
+      |> assign(form_change_count: 0)
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
       |> stream(:suggestions, [])
 
@@ -60,6 +61,11 @@ defmodule PrimaWeb.FixturesLive do
   @impl true
   def handle_event("selection_changed", %{"fruit" => fruit}, socket) do
     {:noreply, assign(socket, selected_fruit: fruit)}
+  end
+
+  @impl true
+  def handle_event("form_changed", _params, socket) do
+    {:noreply, update(socket, :form_change_count, &(&1 + 1))}
   end
 
   @impl true
