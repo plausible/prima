@@ -174,6 +174,28 @@ export default {
     return Array.from(inputs).map(input => input.value)
   },
 
+  findOptionByValue(value) {
+    if (!value) return null
+    const allOptions = this.getRegularOptions()
+    return Array.from(allOptions).find(option =>
+      option.getAttribute('data-value') === value
+    )
+  },
+
+  getSelectedOption() {
+    const selectedValues = this.getSelectedValues()
+    return this.findOptionByValue(selectedValues[0])
+  },
+
+  restoreSelectedDisplayValue() {
+    const selectedOption = this.getSelectedOption()
+    if (selectedOption) {
+      this.refs.searchInput.value = selectedOption.getAttribute('data-display')
+    } else {
+      this.refs.searchInput.value = ''
+    }
+  },
+
   getInputName() {
     if (!this.refs.submitContainer) return ''
     const baseName = this.refs.submitContainer.getAttribute('data-input-name')
@@ -280,9 +302,11 @@ export default {
     if (!el) return
 
     let value = el.getAttribute('data-value')
+    let displayValue = el.getAttribute('data-display')
 
     if (value === '__CREATE__') {
       value = this.refs.searchInput.value
+      displayValue = value
     }
 
     this.addSelection(value)
@@ -291,7 +315,7 @@ export default {
       this.refs.searchInput.value = ''
       this.refs.searchInput.focus()
     } else {
-      this.refs.searchInput.value = value
+      this.refs.searchInput.value = displayValue
     }
 
     this.hideOptions()
@@ -316,10 +340,13 @@ export default {
   appendSelectionPill(value) {
     if (!this.refs.selectionsContainer || !this.refs.selectionTemplate) return
 
+    const option = this.findOptionByValue(value)
+    const displayValue = option ? option.getAttribute('data-display') : value
+
     const pill = this.refs.selectionTemplate.content.cloneNode(true)
     const item = pill.querySelector(SELECTORS.SELECTION_ITEM)
     item.dataset.value = value
-    item.innerHTML = item.innerHTML.replaceAll('__VALUE__', value)
+    item.innerHTML = item.innerHTML.replaceAll('__VALUE__', displayValue)
 
     this.refs.selectionsContainer.appendChild(pill)
   },
@@ -377,13 +404,9 @@ export default {
   handleEscape(e) {
     e.preventDefault()
 
-    // Restore previously selected value
     if (!this.isMultiple) {
-      const selectedValues = this.getSelectedValues()
-      const previousValue = selectedValues[0] || ''
-      this.refs.searchInput.value = previousValue
+      this.restoreSelectedDisplayValue()
     } else {
-      // For multi-select, just clear the search input
       this.refs.searchInput.value = ''
     }
 
@@ -462,7 +485,7 @@ export default {
     let previouslyFocusedOptionIsHidden = false
 
     for (const option of allOptions) {
-      const optionVal = option.getAttribute('data-value').toLowerCase()
+      const optionVal = option.getAttribute('data-display').toLowerCase()
       if (optionVal.includes(q)) {
         this.showOption(option)
       } else {
@@ -583,12 +606,12 @@ export default {
   },
 
   handleBlur() {
-    const selectedValues = this.getSelectedValues()
-    const currentValue = selectedValues[0] || ''
+    const hasSelection = this.getSelectedValues().length > 0
+    const hasSearchText = this.refs.searchInput.value.length > 0
 
-    if (currentValue.length > 0 && this.refs.searchInput.value.length > 0) {
-      this.refs.searchInput.value = currentValue
-    } else if (this.refs.searchInput.value.length > 0) {
+    if (hasSelection && hasSearchText) {
+      this.restoreSelectedDisplayValue()
+    } else if (hasSearchText) {
       this.refs.searchInput.value = ''
       this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
       this.refs.submitContainer.innerHTML = ''

@@ -1,0 +1,22 @@
+<form>
+  <.combobox id="country-combobox">
+    <.combobox_input
+      name="country-combobox[country]"
+      placeholder="Select a country..."
+    />
+
+    <.combobox_options id="country-combobox-options">
+      <%= for {code, name} <- [
+        {"US", "United States"},
+        {"GB", "United Kingdom"},
+        {"CA", "Canada"},
+        {"AU", "Australia"},
+        {"DE", "Germany"}
+      ] do %>
+        <.combobox_option value={code} display={name}>
+          {name}
+        </.combobox_option>
+      <% end %>
+    </.combobox_options>
+  </.combobox>
+</form>

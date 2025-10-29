@@ -416,6 +416,7 @@ defmodule Prima.Combobox do
 
   attr :class, :string, default: ""
   attr :value, :any, required: true
+  attr :display, :string, default: nil
   slot :inner_block, required: true
   attr(:rest, :global)
 
@@ -429,6 +430,7 @@ defmodule Prima.Combobox do
   ## Attributes
 
     * `value` (required) - The value submitted when this option is selected
+    * `display` - The display value shown in the search input (defaults to `value` if not provided)
     * `inner_block` - The display content for the option
     * `class` - CSS classes for styling the option
 
@@ -470,8 +472,10 @@ defmodule Prima.Combobox do
 
   """
   def combobox_option(assigns) do
+    assigns = assign(assigns, :display_value, assigns.display || to_string(assigns.value))
+
     ~H"""
-    <div role="option" class={@class} data-value={@value} {@rest}>
+    <div role="option" class={@class} data-value={@value} data-display={@display_value} {@rest}>
       {render_slot(@inner_block)}
     </div>
     """
