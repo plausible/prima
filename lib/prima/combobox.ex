@@ -34,14 +34,14 @@ defmodule Prima.Combobox do
 
   ### Server-Side Search (Async Mode)
 
-  For large datasets or server-side filtering, add `prima-search` to the input.
+  For large datasets or server-side filtering, add `phx-change` to the search input.
   The component automatically switches to async mode when this attribute is present:
 
       <.combobox id="users-combobox">
         <.combobox_input
           name="user_id"
           placeholder="Search users..."
-          prima-search="search-users"
+          phx-change="search-users"
         />
 
         <.combobox_options id="users-options" phx-update="replace">
@@ -209,7 +209,7 @@ defmodule Prima.Combobox do
 
   This component renders the main input where users type to search/filter options.
   It automatically creates both a visible search input and a hidden submit input
-  for form integration. Adding `prima-search` switches the component to async mode
+  for form integration. Adding `phx-change` to the input switches the component to async mode
   for server-side filtering.
 
   ## Attributes
@@ -217,8 +217,8 @@ defmodule Prima.Combobox do
     * `name` (required) - Form field name. Creates `name_search` and `name` inputs
     * `class` - CSS classes for the visible input field
     * `placeholder` - Placeholder text for the input
-    * `prima-search` - Event name for async search (enables async mode)
-    * `phx-target` - Target for the prima-search event
+    * `phx-change` - Event name for async search (enables async mode)
+    * `phx-target` - Target for the phx-change event
 
   ## Examples
 
@@ -235,7 +235,7 @@ defmodule Prima.Combobox do
       <.combobox_input
         name="user_id"
         placeholder="Search users..."
-        prima-search="search-users"
+        phx-change="search-users"
         phx-target={@myself}
         class="w-full border rounded-md px-3 py-2"
       />
