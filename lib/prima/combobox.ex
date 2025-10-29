@@ -51,23 +51,6 @@ defmodule Prima.Combobox do
         </.combobox_options>
       </.combobox>
 
-  ### Selection Change Events
-
-  To react to selection changes (when user selects/deselects options), add `phx-change` to the combobox:
-
-      <.combobox id="countries" phx-change="country_changed">
-        <.combobox_input name="country" />
-        <.combobox_options id="country-options">
-          <.combobox_option value="US" display="United States">United States</.combobox_option>
-        </.combobox_options>
-      </.combobox>
-
-      # In your LiveView
-      def handle_event("country_changed", %{"country" => selected_value}, socket) do
-        # React to selection change
-        {:noreply, assign(socket, selected_country: selected_value)}
-      end
-
   ### Smart Positioning with Floating UI
 
   The options dropdown uses Floating UI for intelligent positioning:
