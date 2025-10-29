@@ -240,6 +240,7 @@ export default {
       pill?.remove()
     }
 
+    input.value = ''
     this.notifyFormChange(input)
     input.remove()
     this.syncSelectedAttributes()
@@ -460,22 +461,8 @@ export default {
     const searchValue = e.target.value
 
     // Clear selection when search input becomes empty
-    if (searchValue === '' && this.getSelectedValues().length > 0) {
-      if (this.isMultiple) {
-        // Multi-select: remove the last selected value
-        const values = this.getSelectedValues()
-        this.removeSelection(values[values.length - 1])
-      } else {
-        // Single-select: clear the selection entirely
-        const input = this.refs.submitContainer.querySelector('input[type="hidden"]')
-        if (input) {
-          // Clear value first, then notify, then remove
-          input.value = ''
-          this.notifyFormChange(input)
-          this.refs.submitContainer.innerHTML = ''
-        }
-        this.syncSelectedAttributes()
-      }
+    if (!this.isMultiple && searchValue === '' && this.getSelectedValues().length > 0) {
+      this.removeSelection(this.getSelectedValues()[0])
     }
 
     if (this.hasCreateOption) {
