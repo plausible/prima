@@ -1,7 +1,7 @@
-<form phx-submit="save">
-  <.combobox id="demo-async-combobox">
+<form phx-change="form_changed">
+  <.combobox id="async-form-change-combobox">
     <.combobox_input
-      name="user[favourite_fruit]"
+      name="fruit"
       phx-change="async_combobox_search"
       placeholder="Type to search..."
     />
@@ -9,7 +9,7 @@
     <.combobox_options
       phx-update="stream"
       class="w-64 py-1"
-      id="demo-async-combobox-options"
+      id="async-form-change-options"
     >
       <%= for {id, option} <- @streams.suggestions do %>
         <.combobox_option
@@ -21,4 +21,8 @@
       <% end %>
     </.combobox_options>
   </.combobox>
+
+  <div id="change-count" data-testid="change-count">
+    Form changes: <%= @form_change_count %>
+  </div>
 </form>

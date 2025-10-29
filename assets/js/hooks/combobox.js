@@ -225,12 +225,17 @@ export default {
 
     this.syncSelectedAttributes()
     this.dispatchSelectionChange()
+    this.notifyFormChange(input)
   },
 
   removeSelection(value) {
     const inputs = Array.from(this.refs.submitContainer.querySelectorAll('input[type="hidden"]'))
     const input = inputs.find(input => input.value === value)
-    input?.remove()
+
+    if (input) {
+      this.notifyFormChange(input)
+      input.remove()
+    }
 
     if (this.isMultiple) {
       const pill = this.refs.selectionsContainer?.querySelector(
@@ -659,23 +664,23 @@ export default {
     return hasStaticMatch || hasSelectedMatch
   },
 
+  notifyFormChange(input) {
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  },
+
   dispatchSelectionChange() {
     const phxChangeEvent = this.el.getAttribute('phx-change')
     if (!phxChangeEvent) return
 
-    // Get the input name and current selected values
     const inputName = this.refs.submitContainer.getAttribute('data-input-name')
     const selectedValues = this.getSelectedValues()
 
-    // Create params object matching Phoenix form convention
     const params = {
       [inputName]: this.isMultiple ? selectedValues : (selectedValues[0] || '')
     }
 
-    // Get phx-target if specified
     const phxTarget = this.el.getAttribute('phx-target')
 
-    // Push event to LiveView
     if (phxTarget) {
       this.pushEventTo(phxTarget, phxChangeEvent, params)
     } else {

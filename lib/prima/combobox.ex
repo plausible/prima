@@ -202,7 +202,7 @@ defmodule Prima.Combobox do
 
   attr :class, :string, default: ""
   attr :name, :string, required: true
-  attr(:rest, :global, include: ~w(placeholder prima-search phx-target))
+  attr(:rest, :global, include: ~w(placeholder phx-change phx-target))
 
   @doc """
   The searchable input field for the combobox.
@@ -242,16 +242,6 @@ defmodule Prima.Combobox do
 
   """
   def combobox_input(assigns) do
-    # Convert prima-search to phx-change for LiveView event handling
-    assigns =
-      if prima_search = assigns[:rest][:"prima-search"] do
-        rest = Map.drop(assigns.rest, [:"prima-search"])
-        rest = Map.put(rest, :"phx-change", prima_search)
-        assign(assigns, :rest, rest)
-      else
-        assigns
-      end
-
     ~H"""
     <input
       data-prima-ref="search_input"
@@ -265,6 +255,7 @@ defmodule Prima.Combobox do
       name={@name <> "_search"}
       tabindex="0"
       phx-debounce={200}
+      phx-update="ignore"
       {@rest}
     />
     <div
