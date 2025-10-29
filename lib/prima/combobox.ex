@@ -86,6 +86,31 @@ defmodule Prima.Combobox do
   * Submit input: `name` for the selected value (hidden)
 
   This allows seamless form submission while maintaining search functionality.
+
+  ### Form Change Events
+
+  When a combobox is nested in a form with `phx-change`, the form event will trigger
+  whenever the selection changes (e.g., when a user selects an option, clears the selection,
+  or removes a selection via keyboard). The search input typing does NOT trigger the form's
+  `phx-change` - only actual selection changes do.
+
+      <form phx-change="form_changed">
+        <.combobox id="fruit-selector">
+          <.combobox_input name="fruit" placeholder="Select a fruit..." />
+
+          <.combobox_options id="fruit-options">
+            <.combobox_option value="apple">Apple</.combobox_option>
+            <.combobox_option value="banana">Banana</.combobox_option>
+          </.combobox_options>
+        </.combobox>
+      </form>
+
+  In your LiveView, handle the event to react to selection changes:
+
+      def handle_event("form_changed", %{"fruit" => fruit}, socket) do
+        # React to the selected fruit changing
+        {:noreply, assign(socket, selected_fruit: fruit)}
+      end
   """
   use Phoenix.Component
   alias Phoenix.LiveView.JS
