@@ -1,0 +1,19 @@
+<div>
+  <.combobox id="selection-change-combobox" phx-change="selection_changed">
+    <.combobox_input
+      name="fruit"
+      placeholder="Select a fruit..."
+    />
+
+    <.combobox_options id="selection-change-options" class="w-64 py-1">
+      <.combobox_option value="Apple">Apple</.combobox_option>
+      <.combobox_option value="Pear">Pear</.combobox_option>
+      <.combobox_option value="Mango">Mango</.combobox_option>
+      <.combobox_option value="Pineapple">Pineapple</.combobox_option>
+    </.combobox_options>
+  </.combobox>
+
+  <div id="selection-display" data-testid="selection-display">
+    Selected: <%= @selected_fruit || "none" %>
+  </div>
+</div>

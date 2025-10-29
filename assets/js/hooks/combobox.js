@@ -224,6 +224,7 @@ export default {
     }
 
     this.syncSelectedAttributes()
+    this.dispatchSelectionChange()
   },
 
   removeSelection(value) {
@@ -239,6 +240,7 @@ export default {
     }
 
     this.syncSelectedAttributes()
+    this.dispatchSelectionChange()
   },
 
   setFocus(el) {
@@ -655,5 +657,29 @@ export default {
     const hasSelectedMatch = selectedValues.includes(searchValue)
 
     return hasStaticMatch || hasSelectedMatch
+  },
+
+  dispatchSelectionChange() {
+    const phxChangeEvent = this.el.getAttribute('phx-change')
+    if (!phxChangeEvent) return
+
+    // Get the input name and current selected values
+    const inputName = this.refs.submitContainer.getAttribute('data-input-name')
+    const selectedValues = this.getSelectedValues()
+
+    // Create params object matching Phoenix form convention
+    const params = {
+      [inputName]: this.isMultiple ? selectedValues : (selectedValues[0] || '')
+    }
+
+    // Get phx-target if specified
+    const phxTarget = this.el.getAttribute('phx-target')
+
+    // Push event to LiveView
+    if (phxTarget) {
+      this.pushEventTo(phxTarget, phxChangeEvent, params)
+    } else {
+      this.pushEvent(phxChangeEvent, params)
+    }
   }
 }

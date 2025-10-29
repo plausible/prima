@@ -30,7 +30,7 @@ defmodule PrimaWeb.DemoLive.AsyncComboboxDemo do
           <.combobox_input
             name="user[favourite_fruit]"
             class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 peer"
-            phx-change="async_combobox_search"
+            prima-search="async_combobox_search"
             phx-target={@myself}
             placeholder="Type to search..."
           />

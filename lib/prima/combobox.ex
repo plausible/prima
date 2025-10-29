@@ -34,14 +34,14 @@ defmodule Prima.Combobox do
 
   ### Server-Side Search (Async Mode)
 
-  For large datasets or server-side filtering, add `phx-change` to the input.
+  For large datasets or server-side filtering, add `prima-search` to the input.
   The component automatically switches to async mode when this attribute is present:
 
       <.combobox id="users-combobox">
         <.combobox_input
           name="user_id"
           placeholder="Search users..."
-          phx-change="search-users"
+          prima-search="search-users"
         />
 
         <.combobox_options id="users-options" phx-update="replace">
@@ -50,6 +50,23 @@ defmodule Prima.Combobox do
           <% end %>
         </.combobox_options>
       </.combobox>
+
+  ### Selection Change Events
+
+  To react to selection changes (when user selects/deselects options), add `phx-change` to the combobox:
+
+      <.combobox id="countries" phx-change="country_changed">
+        <.combobox_input name="country" />
+        <.combobox_options id="country-options">
+          <.combobox_option value="US" display="United States">United States</.combobox_option>
+        </.combobox_options>
+      </.combobox>
+
+      # In your LiveView
+      def handle_event("country_changed", %{"country" => selected_value}, socket) do
+        # React to selection change
+        {:noreply, assign(socket, selected_country: selected_value)}
+      end
 
   ### Smart Positioning with Floating UI
 
@@ -94,6 +111,7 @@ defmodule Prima.Combobox do
   slot :inner_block, required: true
   attr :class, :string, default: ""
   attr :multiple, :boolean, default: false
+  attr(:rest, :global, include: ~w(phx-change phx-target))
 
   @doc """
   The main combobox container component.
@@ -106,11 +124,14 @@ defmodule Prima.Combobox do
 
     * `id` (required) - Unique identifier for the combobox
     * `class` - Additional CSS classes to apply to the container
+    * `multiple` - Enable multi-select mode (default: `false`)
+    * `phx-change` - LiveView event triggered when selection changes (user selects/deselects options)
+    * `phx-target` - Target for the phx-change event
     * `inner_block` - Slot containing the input and options components
 
   ## Example
 
-      <.combobox id="my-combobox" class="w-full">
+      <.combobox id="my-combobox" class="w-full" phx-change="selection_changed">
         <.combobox_input name="selection" />
         <.combobox_options id="options">
           <!-- Options content -->
@@ -120,7 +141,7 @@ defmodule Prima.Combobox do
   """
   def combobox(assigns) do
     ~H"""
-    <div id={@id} class={@class} phx-hook="Combobox" data-multiple={@multiple && true}>
+    <div id={@id} class={@class} phx-hook="Combobox" data-multiple={@multiple && true} {@rest}>
       {render_slot(@inner_block)}
     </div>
     """
@@ -181,14 +202,14 @@ defmodule Prima.Combobox do
 
   attr :class, :string, default: ""
   attr :name, :string, required: true
-  attr(:rest, :global, include: ~w(placeholder phx-change phx-target))
+  attr(:rest, :global, include: ~w(placeholder prima-search phx-target))
 
   @doc """
   The searchable input field for the combobox.
 
   This component renders the main input where users type to search/filter options.
   It automatically creates both a visible search input and a hidden submit input
-  for form integration. Adding `phx-change` switches the component to async mode
+  for form integration. Adding `prima-search` switches the component to async mode
   for server-side filtering.
 
   ## Attributes
@@ -196,8 +217,8 @@ defmodule Prima.Combobox do
     * `name` (required) - Form field name. Creates `name_search` and `name` inputs
     * `class` - CSS classes for the visible input field
     * `placeholder` - Placeholder text for the input
-    * `phx-change` - LiveView event for async search (enables async mode)
-    * `phx-target` - Target for the phx-change event
+    * `prima-search` - Event name for async search (enables async mode)
+    * `phx-target` - Target for the prima-search event
 
   ## Examples
 
@@ -214,13 +235,23 @@ defmodule Prima.Combobox do
       <.combobox_input
         name="user_id"
         placeholder="Search users..."
-        phx-change="search-users"
+        prima-search="search-users"
         phx-target={@myself}
         class="w-full border rounded-md px-3 py-2"
       />
 
   """
   def combobox_input(assigns) do
+    # Convert prima-search to phx-change for LiveView event handling
+    assigns =
+      if prima_search = assigns[:rest][:"prima-search"] do
+        rest = Map.drop(assigns.rest, [:"prima-search"])
+        rest = Map.put(rest, :"phx-change", prima_search)
+        assign(assigns, :rest, rest)
+      else
+        assigns
+      end
+
     ~H"""
     <input
       data-prima-ref="search_input"
