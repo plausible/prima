@@ -64,18 +64,8 @@ defmodule PrimaWeb.FixturesLive do
   end
 
   @impl true
-  def handle_event("form_changed", params, socket) do
-    should_ignore =
-      case params["_target"] do
-        [field_name] -> String.ends_with?(field_name, "_search")
-        _ -> false
-      end
-
-    if should_ignore do
-      {:noreply, socket}
-    else
-      {:noreply, update(socket, :form_change_count, &(&1 + 1))}
-    end
+  def handle_event("form_changed", _params, socket) do
+    {:noreply, update(socket, :form_change_count, &(&1 + 1))}
   end
 
   @impl true

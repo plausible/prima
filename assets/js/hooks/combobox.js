@@ -83,6 +83,7 @@ export default {
       [this.el, 'click', this.handleClick.bind(this)],
       [this.refs.searchInput, 'focus', this.handleSearchFocus.bind(this)],
       [this.refs.searchInput, 'click', this.handleSearchClick.bind(this)],
+      [this.refs.searchInput, 'change', (e) => e.stopPropagation()],
       [this.refs.searchInput, 'input', this.handleInput.bind(this)]
     ]
 
@@ -467,6 +468,7 @@ export default {
     if (this.mode === 'async') {
       this.handleAsyncMode()
     } else {
+      e.stopPropagation()
       this.handleFrontendMode(searchValue)
     }
   },
