@@ -34,7 +34,7 @@ defmodule Prima.Combobox do
 
   ### Server-Side Search (Async Mode)
 
-  For large datasets or server-side filtering, add `phx-change` to the input.
+  For large datasets or server-side filtering, add `phx-change` to the search input.
   The component automatically switches to async mode when this attribute is present:
 
       <.combobox id="users-combobox">
@@ -86,6 +86,31 @@ defmodule Prima.Combobox do
   * Submit input: `name` for the selected value (hidden)
 
   This allows seamless form submission while maintaining search functionality.
+
+  ### Form Change Events
+
+  When a combobox is nested in a form with `phx-change`, the form event will trigger
+  whenever the selection changes (e.g., when a user selects an option, clears the selection,
+  or removes a selection via keyboard). The search input typing does NOT trigger the form's
+  `phx-change` - only actual selection changes do.
+
+      <form phx-change="form_changed">
+        <.combobox id="fruit-selector">
+          <.combobox_input name="fruit" placeholder="Select a fruit..." />
+
+          <.combobox_options id="fruit-options">
+            <.combobox_option value="apple">Apple</.combobox_option>
+            <.combobox_option value="banana">Banana</.combobox_option>
+          </.combobox_options>
+        </.combobox>
+      </form>
+
+  In your LiveView, handle the event to react to selection changes:
+
+      def handle_event("form_changed", %{"fruit" => fruit}, socket) do
+        # React to the selected fruit changing
+        {:noreply, assign(socket, selected_fruit: fruit)}
+      end
   """
   use Phoenix.Component
   alias Phoenix.LiveView.JS
@@ -94,6 +119,7 @@ defmodule Prima.Combobox do
   slot :inner_block, required: true
   attr :class, :string, default: ""
   attr :multiple, :boolean, default: false
+  attr(:rest, :global)
 
   @doc """
   The main combobox container component.
@@ -106,11 +132,12 @@ defmodule Prima.Combobox do
 
     * `id` (required) - Unique identifier for the combobox
     * `class` - Additional CSS classes to apply to the container
+    * `multiple` - Enable multi-select mode (default: `false`)
     * `inner_block` - Slot containing the input and options components
 
   ## Example
 
-      <.combobox id="my-combobox" class="w-full">
+      <.combobox id="my-combobox" class="w-full" phx-change="selection_changed">
         <.combobox_input name="selection" />
         <.combobox_options id="options">
           <!-- Options content -->
@@ -120,7 +147,7 @@ defmodule Prima.Combobox do
   """
   def combobox(assigns) do
     ~H"""
-    <div id={@id} class={@class} phx-hook="Combobox" data-multiple={@multiple && true}>
+    <div id={@id} class={@class} phx-hook="Combobox" data-multiple={@multiple && true} {@rest}>
       {render_slot(@inner_block)}
     </div>
     """
@@ -188,7 +215,7 @@ defmodule Prima.Combobox do
 
   This component renders the main input where users type to search/filter options.
   It automatically creates both a visible search input and a hidden submit input
-  for form integration. Adding `phx-change` switches the component to async mode
+  for form integration. Adding `phx-change` to the input switches the component to async mode
   for server-side filtering.
 
   ## Attributes
@@ -196,7 +223,7 @@ defmodule Prima.Combobox do
     * `name` (required) - Form field name. Creates `name_search` and `name` inputs
     * `class` - CSS classes for the visible input field
     * `placeholder` - Placeholder text for the input
-    * `phx-change` - LiveView event for async search (enables async mode)
+    * `phx-change` - Event name for async search (enables async mode)
     * `phx-target` - Target for the phx-change event
 
   ## Examples
@@ -234,6 +261,7 @@ defmodule Prima.Combobox do
       name={@name <> "_search"}
       tabindex="0"
       phx-debounce={200}
+      phx-update="ignore"
       {@rest}
     />
     <div
@@ -416,6 +444,7 @@ defmodule Prima.Combobox do
 
   attr :class, :string, default: ""
   attr :value, :any, required: true
+  attr :display, :string, default: nil
   slot :inner_block, required: true
   attr(:rest, :global)
 
@@ -429,6 +458,7 @@ defmodule Prima.Combobox do
   ## Attributes
 
     * `value` (required) - The value submitted when this option is selected
+    * `display` - The display value shown in the search input (defaults to `value` if not provided)
     * `inner_block` - The display content for the option
     * `class` - CSS classes for styling the option
 
@@ -470,8 +500,10 @@ defmodule Prima.Combobox do
 
   """
   def combobox_option(assigns) do
+    assigns = assign(assigns, :display_value, assigns.display || to_string(assigns.value))
+
     ~H"""
-    <div role="option" class={@class} data-value={@value} {@rest}>
+    <div role="option" class={@class} data-value={@value} data-display={@display_value} {@rest}>
       {render_slot(@inner_block)}
     </div>
     """

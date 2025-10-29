@@ -35,6 +35,9 @@ defmodule PrimaWeb.Router do
       live "/fixtures/multi-select-combobox", FixturesLive, :multi_select_combobox
       live "/fixtures/combobox-form-tab", FixturesLive, :combobox_form_tab
       live "/fixtures/overflow-combobox", FixturesLive, :overflow_combobox
+      live "/fixtures/display-value-combobox", FixturesLive, :display_value_combobox
+      live "/fixtures/combobox-change", FixturesLive, :combobox_change
+      live "/fixtures/async-combobox-form-change", FixturesLive, :async_combobox_form_change
     end
   end
 end

@@ -83,6 +83,7 @@ export default {
       [this.el, 'click', this.handleClick.bind(this)],
       [this.refs.searchInput, 'focus', this.handleSearchFocus.bind(this)],
       [this.refs.searchInput, 'click', this.handleSearchClick.bind(this)],
+      [this.refs.searchInput, 'change', (e) => e.stopPropagation()],
       [this.refs.searchInput, 'input', this.handleInput.bind(this)]
     ]
 
@@ -174,6 +175,28 @@ export default {
     return Array.from(inputs).map(input => input.value)
   },
 
+  findOptionByValue(value) {
+    if (!value) return null
+    const allOptions = this.getRegularOptions()
+    return Array.from(allOptions).find(option =>
+      option.getAttribute('data-value') === value
+    )
+  },
+
+  getSelectedOption() {
+    const selectedValues = this.getSelectedValues()
+    return this.findOptionByValue(selectedValues[0])
+  },
+
+  restoreSelectedDisplayValue() {
+    const selectedOption = this.getSelectedOption()
+    if (selectedOption) {
+      this.refs.searchInput.value = selectedOption.getAttribute('data-display')
+    } else {
+      this.refs.searchInput.value = ''
+    }
+  },
+
   getInputName() {
     if (!this.refs.submitContainer) return ''
     const baseName = this.refs.submitContainer.getAttribute('data-input-name')
@@ -202,12 +225,13 @@ export default {
     }
 
     this.syncSelectedAttributes()
+    this.notifyFormChange(input)
   },
 
   removeSelection(value) {
     const inputs = Array.from(this.refs.submitContainer.querySelectorAll('input[type="hidden"]'))
     const input = inputs.find(input => input.value === value)
-    input?.remove()
+
 
     if (this.isMultiple) {
       const pill = this.refs.selectionsContainer?.querySelector(
@@ -216,6 +240,9 @@ export default {
       pill?.remove()
     }
 
+    input.value = ''
+    this.notifyFormChange(input)
+    input.remove()
     this.syncSelectedAttributes()
   },
 
@@ -280,9 +307,11 @@ export default {
     if (!el) return
 
     let value = el.getAttribute('data-value')
+    let displayValue = el.getAttribute('data-display')
 
     if (value === '__CREATE__') {
       value = this.refs.searchInput.value
+      displayValue = value
     }
 
     this.addSelection(value)
@@ -291,7 +320,7 @@ export default {
       this.refs.searchInput.value = ''
       this.refs.searchInput.focus()
     } else {
-      this.refs.searchInput.value = value
+      this.refs.searchInput.value = displayValue
     }
 
     this.hideOptions()
@@ -316,10 +345,13 @@ export default {
   appendSelectionPill(value) {
     if (!this.refs.selectionsContainer || !this.refs.selectionTemplate) return
 
+    const option = this.findOptionByValue(value)
+    const displayValue = option ? option.getAttribute('data-display') : value
+
     const pill = this.refs.selectionTemplate.content.cloneNode(true)
     const item = pill.querySelector(SELECTORS.SELECTION_ITEM)
     item.dataset.value = value
-    item.innerHTML = item.innerHTML.replaceAll('__VALUE__', value)
+    item.innerHTML = item.innerHTML.replaceAll('__VALUE__', displayValue)
 
     this.refs.selectionsContainer.appendChild(pill)
   },
@@ -377,13 +409,9 @@ export default {
   handleEscape(e) {
     e.preventDefault()
 
-    // Restore previously selected value
     if (!this.isMultiple) {
-      const selectedValues = this.getSelectedValues()
-      const previousValue = selectedValues[0] || ''
-      this.refs.searchInput.value = previousValue
+      this.restoreSelectedDisplayValue()
     } else {
-      // For multi-select, just clear the search input
       this.refs.searchInput.value = ''
     }
 
@@ -399,6 +427,7 @@ export default {
   },
 
   handleBackspace(e) {
+    // Multi-select: if input is already empty, remove last selection
     if (this.isMultiple && this.refs.searchInput.value === '') {
       e.preventDefault()
       const values = this.getSelectedValues()
@@ -406,6 +435,7 @@ export default {
         this.removeSelection(values[values.length - 1])
       }
     }
+    // Note: When backspace empties the input (typing -> empty), clearing is handled in handleInput
   },
 
   handleHover(e) {
@@ -430,6 +460,11 @@ export default {
   handleInput(e) {
     const searchValue = e.target.value
 
+    // Clear selection when search input becomes empty
+    if (!this.isMultiple && searchValue === '' && this.getSelectedValues().length > 0) {
+      this.removeSelection(this.getSelectedValues()[0])
+    }
+
     if (this.hasCreateOption) {
       this.updateCreateOption(searchValue)
     }
@@ -437,6 +472,7 @@ export default {
     if (this.mode === 'async') {
       this.handleAsyncMode()
     } else {
+      e.stopPropagation()
       this.handleFrontendMode(searchValue)
     }
   },
@@ -462,7 +498,7 @@ export default {
     let previouslyFocusedOptionIsHidden = false
 
     for (const option of allOptions) {
-      const optionVal = option.getAttribute('data-value').toLowerCase()
+      const optionVal = option.getAttribute('data-display').toLowerCase()
       if (optionVal.includes(q)) {
         this.showOption(option)
       } else {
@@ -583,12 +619,12 @@ export default {
   },
 
   handleBlur() {
-    const selectedValues = this.getSelectedValues()
-    const currentValue = selectedValues[0] || ''
+    const hasSelection = this.getSelectedValues().length > 0
+    const hasSearchText = this.refs.searchInput.value.length > 0
 
-    if (currentValue.length > 0 && this.refs.searchInput.value.length > 0) {
-      this.refs.searchInput.value = currentValue
-    } else if (this.refs.searchInput.value.length > 0) {
+    if (hasSelection && hasSearchText) {
+      this.restoreSelectedDisplayValue()
+    } else if (hasSearchText) {
       this.refs.searchInput.value = ''
       this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
       this.refs.submitContainer.innerHTML = ''
@@ -632,5 +668,9 @@ export default {
     const hasSelectedMatch = selectedValues.includes(searchValue)
 
     return hasStaticMatch || hasSelectedMatch
+  },
+
+  notifyFormChange(input) {
+    input.dispatchEvent(new Event('input', { bubbles: true }))
   }
 }

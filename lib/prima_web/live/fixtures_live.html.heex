@@ -53,3 +53,15 @@
 <div :if={@live_action == :overflow_combobox}>
   <.overflow_combobox_fixture />
 </div>
+
+<div :if={@live_action == :display_value_combobox}>
+  <.display_value_combobox_fixture />
+</div>
+
+<div :if={@live_action == :combobox_change}>
+  <.combobox_change_fixture {assigns} />
+</div>
+
+<div :if={@live_action == :async_combobox_form_change}>
+  <.async_combobox_form_change_fixture {assigns} />
+</div>
