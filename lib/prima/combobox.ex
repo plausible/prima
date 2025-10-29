@@ -111,7 +111,7 @@ defmodule Prima.Combobox do
   slot :inner_block, required: true
   attr :class, :string, default: ""
   attr :multiple, :boolean, default: false
-  attr(:rest, :global, include: ~w(phx-change phx-target))
+  attr(:rest, :global)
 
   @doc """
   The main combobox container component.
@@ -125,8 +125,6 @@ defmodule Prima.Combobox do
     * `id` (required) - Unique identifier for the combobox
     * `class` - Additional CSS classes to apply to the container
     * `multiple` - Enable multi-select mode (default: `false`)
-    * `phx-change` - LiveView event triggered when selection changes (user selects/deselects options)
-    * `phx-target` - Target for the phx-change event
     * `inner_block` - Slot containing the input and options components
 
   ## Example

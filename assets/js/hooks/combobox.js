@@ -225,7 +225,6 @@ export default {
     }
 
     this.syncSelectedAttributes()
-    this.dispatchSelectionChange()
     this.notifyFormChange(input)
   },
 
@@ -233,10 +232,6 @@ export default {
     const inputs = Array.from(this.refs.submitContainer.querySelectorAll('input[type="hidden"]'))
     const input = inputs.find(input => input.value === value)
 
-    if (input) {
-      this.notifyFormChange(input)
-      input.remove()
-    }
 
     if (this.isMultiple) {
       const pill = this.refs.selectionsContainer?.querySelector(
@@ -245,8 +240,9 @@ export default {
       pill?.remove()
     }
 
+    this.notifyFormChange(input)
+    input.remove()
     this.syncSelectedAttributes()
-    this.dispatchSelectionChange()
   },
 
   setFocus(el) {
@@ -668,25 +664,5 @@ export default {
 
   notifyFormChange(input) {
     input.dispatchEvent(new Event('input', { bubbles: true }))
-  },
-
-  dispatchSelectionChange() {
-    const phxChangeEvent = this.el.getAttribute('phx-change')
-    if (!phxChangeEvent) return
-
-    const inputName = this.refs.submitContainer.getAttribute('data-input-name')
-    const selectedValues = this.getSelectedValues()
-
-    const params = {
-      [inputName]: this.isMultiple ? selectedValues : (selectedValues[0] || '')
-    }
-
-    const phxTarget = this.el.getAttribute('phx-target')
-
-    if (phxTarget) {
-      this.pushEventTo(phxTarget, phxChangeEvent, params)
-    } else {
-      this.pushEvent(phxChangeEvent, params)
-    }
   }
 }

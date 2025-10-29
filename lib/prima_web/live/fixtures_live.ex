@@ -59,13 +59,13 @@ defmodule PrimaWeb.FixturesLive do
   end
 
   @impl true
-  def handle_event("selection_changed", %{"fruit" => fruit}, socket) do
-    {:noreply, assign(socket, selected_fruit: fruit)}
-  end
+  def handle_event("form_changed", %{"fruit" => fruit}, socket) do
+    socket =
+      socket
+      |> update(:form_change_count, &(&1 + 1))
+      |> assign(selected_fruit: fruit)
 
-  @impl true
-  def handle_event("form_changed", _params, socket) do
-    {:noreply, update(socket, :form_change_count, &(&1 + 1))}
+    {:noreply, socket}
   end
 
   @impl true
