@@ -58,12 +58,8 @@
   <.display_value_combobox_fixture />
 </div>
 
-<div :if={@live_action == :combobox_selection_change}>
-  <.combobox_selection_change_fixture {assigns} />
-</div>
-
-<div :if={@live_action == :combobox_form_change}>
-  <.combobox_form_change_fixture {assigns} />
+<div :if={@live_action == :combobox_change}>
+  <.combobox_change_fixture {assigns} />
 </div>
 
 <div :if={@live_action == :async_combobox_form_change}>
