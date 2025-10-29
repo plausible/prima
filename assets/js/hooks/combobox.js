@@ -426,6 +426,7 @@ export default {
   },
 
   handleBackspace(e) {
+    // Multi-select: if input is already empty, remove last selection
     if (this.isMultiple && this.refs.searchInput.value === '') {
       e.preventDefault()
       const values = this.getSelectedValues()
@@ -433,6 +434,7 @@ export default {
         this.removeSelection(values[values.length - 1])
       }
     }
+    // Note: When backspace empties the input (typing -> empty), clearing is handled in handleInput
   },
 
   handleHover(e) {
@@ -456,6 +458,25 @@ export default {
 
   handleInput(e) {
     const searchValue = e.target.value
+
+    // Clear selection when search input becomes empty
+    if (searchValue === '' && this.getSelectedValues().length > 0) {
+      if (this.isMultiple) {
+        // Multi-select: remove the last selected value
+        const values = this.getSelectedValues()
+        this.removeSelection(values[values.length - 1])
+      } else {
+        // Single-select: clear the selection entirely
+        const input = this.refs.submitContainer.querySelector('input[type="hidden"]')
+        if (input) {
+          // Clear value first, then notify, then remove
+          input.value = ''
+          this.notifyFormChange(input)
+          this.refs.submitContainer.innerHTML = ''
+        }
+        this.syncSelectedAttributes()
+      }
+    }
 
     if (this.hasCreateOption) {
       this.updateCreateOption(searchValue)

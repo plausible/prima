@@ -60,10 +60,13 @@ defmodule PrimaWeb.FixturesLive do
 
   @impl true
   def handle_event("form_changed", %{"fruit" => fruit}, socket) do
+    # Treat empty string as nil for display purposes
+    selected_fruit = if fruit == "", do: nil, else: fruit
+
     socket =
       socket
       |> update(:form_change_count, &(&1 + 1))
-      |> assign(selected_fruit: fruit)
+      |> assign(selected_fruit: selected_fruit)
 
     {:noreply, socket}
   end

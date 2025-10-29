@@ -157,4 +157,22 @@ defmodule PrimaWeb.ComboboxFormIntegrationTest do
     |> click(Query.css("#async-form-change-combobox [role=option][data-value='Banana']"))
     |> assert_form_change_count("#async-form-change-combobox", 2)
   end
+
+  feature "phx-change fires when clearing selection via backspace", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/combobox-change", "#change-combobox")
+    # Select Apple first
+    |> click(@search_input)
+    |> click(Query.css("#change-combobox [role=option][data-value='Apple']"))
+    |> assert_has(@selection_display |> Query.text("Selected: Apple"))
+    |> assert_form_change_count("#change-combobox", 1)
+    # Click outside to blur
+    |> click(Query.css("body"))
+    # Click back in and hit backspace to clear
+    |> click(@search_input)
+    |> send_keys([:backspace])
+    # Should trigger phx-change with cleared value
+    |> assert_form_change_count("#change-combobox", 2)
+    |> assert_has(@selection_display |> Query.text("Selected: none"))
+  end
 end

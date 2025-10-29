@@ -488,4 +488,61 @@ defmodule PrimaWeb.ComboboxTest do
       end
     )
   end
+
+  feature "backspacing after selection and blur clears both inputs", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Select Apple
+    |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
+    |> assert_has(@options_container |> Query.visible(false))
+    # Click outside to lose focus
+    |> click(Query.css("body"))
+    # Focus back on the input and hit backspace
+    |> click(@search_input)
+    |> send_keys([:backspace])
+    # Both search and submit inputs should be empty
+    |> execute_script(
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
+      fn values ->
+        assert values["search"] == "",
+               "Expected search input to be empty after backspace, got '#{values["search"]}'"
+
+        assert values["submit"] == "",
+               "Expected submit input to be empty after backspace, got '#{values["submit"]}'"
+      end
+    )
+  end
+
+  feature "backspacing with remaining text does not clear submit value", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+    |> click(@search_input)
+    |> assert_has(@options_container |> Query.visible(true))
+    # Select Apple
+    |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
+    |> assert_has(@options_container |> Query.visible(false))
+    # Click outside to lose focus
+    |> click(Query.css("body"))
+    # Click back in (whole input text is selected)
+    |> click(@search_input)
+    # Click again to de-select and move cursor to end
+    |> execute_script(
+      "const input = document.querySelector('#demo-combobox input[data-prima-ref=search_input]'); input.setSelectionRange(input.value.length, input.value.length)"
+    )
+    # Hit backspace - removes one character
+    |> send_keys([:backspace])
+    # Search input should have "Appl" but submit input should still be "Apple"
+    |> execute_script(
+      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
+      fn values ->
+        assert values["search"] == "Appl",
+               "Expected search input to be 'Appl' after backspace, got '#{values["search"]}'"
+
+        assert values["submit"] == "Apple",
+               "Expected submit input to remain 'Apple', got '#{values["submit"]}'"
+      end
+    )
+  end
 end
