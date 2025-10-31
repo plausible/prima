@@ -1,0 +1,312 @@
+<div class="prose prose-slate">
+  <div class="border-b border-gray-200 mb-6">
+    <h1>Combobox</h1>
+  </div>
+
+  <p>
+    A fully accessible searchable input with intelligent positioning, keyboard navigation, and flexible data handling.
+    Perfect for autocomplete scenarios, large option sets, and user-generated content.
+  </p>
+
+  <p>
+    The combobox combines text input with dropdown suggestions, supporting both frontend filtering and server-side async search.
+    Features full keyboard navigation, smart positioning with <a
+      href="https://floating-ui.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-indigo-600 hover:text-indigo-800"
+    >Floating UI</a>, and seamless Phoenix form integration.
+  </p>
+
+  <h2>Quick Start</h2>
+  <p>
+    The most basic combobox requires three components: <code>.combobox</code>, <code>.combobox_input</code>, and
+    <code>.combobox_options</code>
+    with <code>.combobox_option</code>
+    elements.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="combobox/basic.html.heex" id="basic-combobox-demo" />
+  </div>
+
+  <p>
+    Start typing to filter through options. The component automatically handles frontend filtering and keyboard navigation.
+    Use arrow keys to navigate and Enter to select.
+  </p>
+
+  <h2>Advanced Usage</h2>
+
+  <h3>Server-side Search</h3>
+  <p>
+    For large datasets or dynamic content, enable server-side search by adding
+    <code>phx-change</code>
+    to the input.
+    The component automatically switches to async mode with debounced search queries.
+  </p>
+
+  <div class="not-prose">
+    <.code_example
+      file="combobox/async_combobox_demo.ex"
+      module={DemoWeb.DemoLive.AsyncComboboxDemo}
+      id="async-combobox-demo"
+    />
+  </div>
+
+  <p>
+    The async pattern sends search queries to your LiveView with automatic debouncing. Handle the
+    <code>phx-change</code>
+    event to filter results server-side and update the options dynamically.
+  </p>
+
+  <h3>Create Custom Values</h3>
+  <p>
+    Allow users to create values that don't exist in the predefined list using the
+    <code>.creatable_option</code>
+    component.
+    Perfect for tags, categories, or any user-generated content scenarios.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="combobox/creatable.html.heex" id="creatable-combobox-demo" />
+  </div>
+
+  <p>
+    The creatable option automatically appears when the user types something that doesn't match existing options.
+    It shows "Create '[user input]'" and submits the typed value when selected.
+  </p>
+
+  <h3>Multiple Selection</h3>
+  <p>
+    Enable multiple selection by adding the <code>multiple={"{true}"}</code>
+    attribute to the combobox. Use the <code>.combobox_selections</code>
+    component to display selected items as removable pills.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="combobox/multi_select.html.heex" id="multi-select-combobox-demo" />
+  </div>
+
+  <p>
+    The <code>.combobox_selections</code>
+    component uses a template-based approach for rendering pills. Customize the appearance using the
+    <code>:selection</code>
+    slot - it supports any markup including icons, badges, and remove buttons. The dropdown stays open after each selection for quick multi-select workflows, and selected items are visually highlighted with <code>data-selected="true"</code>.
+  </p>
+
+  <p>
+    For a react-select style appearance, wrap the selections and input in a flex container styled to look like an input field. The pills and input appear together in the same visual container, creating a seamless multi-select experience.
+  </p>
+
+  <h3>Smart Positioning</h3>
+  <p>
+    Powered by <a
+      href="https://floating-ui.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-indigo-600 hover:text-indigo-800"
+    >Floating UI</a>, the combobox intelligently positions itself using the <code>placement</code>
+    and <code>offset</code>
+    attributes.
+    It automatically flips to the opposite side when there's insufficient space.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="combobox/positioned.html.heex" id="positioned-combobox-demo" />
+  </div>
+
+  <p>
+    Use <code>placement="top-start"</code>, <code>placement="right-start"</code>, or other positioning options.
+    The component automatically repositions on scroll and window resize to stay visible.
+  </p>
+
+  <h3>Flexible Markup</h3>
+  <p>
+    Combobox options support rich, custom markup including icons, descriptions, badges, and complex layouts.
+    The component is completely unstyled, giving you full control over the visual presentation.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="combobox/flexible_markup.html.heex" id="flexible-markup-combobox-demo" />
+  </div>
+
+  <p>
+    Build complex option layouts with multiple text elements, icons, images, or any HTML content.
+    Use <code>group-data-focus:text-white</code>
+    and similar selectors to style elements based on focus state.
+  </p>
+
+  <h3>Styling States</h3>
+  <p>
+    Combobox options expose two data attributes for styling different interaction states:
+  </p>
+
+  <ul>
+    <li>
+      <code>data-focus</code>
+      - Set to <code>true</code>
+      when an option is focused via keyboard navigation or mouse hover. Perfect for highlighting the currently focused item.
+    </li>
+    <li>
+      <code>data-selected</code>
+      - Set to <code>true</code>
+      on the option that matches the current selection. Use this to visually indicate which option is selected, even when reopening the dropdown.
+    </li>
+  </ul>
+
+  <p>
+    Use Tailwind's <code>data-focus:</code>
+    and <code>data-selected:</code>
+    modifiers to style these states.
+  </p>
+
+  <h2>Keyboard Interaction</h2>
+  <p>
+    The combobox component provides full keyboard accessibility with comprehensive navigation support. All interactions follow standard ARIA patterns for combobox components.
+  </p>
+
+  <div class="not-prose my-6">
+    <div class="overflow-hidden rounded-lg border border-gray-200">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Key
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Description
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr>
+            <td
+              colspan="2"
+              class="px-6 py-3 text-xs font-semibold text-indigo-900 bg-indigo-50 border-b border-indigo-100"
+            >
+              When the input is focused:
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↓
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↑
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Opens the combobox and focuses the first option
+            </td>
+          </tr>
+          <tr>
+            <td
+              colspan="2"
+              class="px-6 py-3 text-xs font-semibold text-indigo-900 bg-indigo-50 border-b border-indigo-100"
+            >
+              When the combobox is open:
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Esc
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Closes the combobox and restores the previously selected value
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↑
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↓
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Focuses the previous/next option (wraps around)
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Home
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                PageUp
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Focuses the first option
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                End
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                PageDown
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Focuses the last option
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Enter
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Selects the currently focused option and closes the combobox
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Tab
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Selects the currently focused option and closes the combobox
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                A-Z
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                a-z
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Filters available options (frontend mode) or triggers search event (async mode)
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Backspace
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Removes the last selected item (multi-select mode, when input is empty)
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

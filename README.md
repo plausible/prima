@@ -50,23 +50,37 @@ Use components in your templates:
 
 ## Development
 
-### Setup
+This repository is structured with the library at the root and a demo application in the `demo/` directory.
+
+### Library Development
 
 ```bash
-mix setup                # Full setup (deps, assets setup, assets build)
+# From root directory
+mix deps.get           # Get library dependencies
+mix compile            # Compile library
+mix assets.build       # Build library JavaScript bundle
+mix hex.build          # Build hex package
 ```
 
-### Running the Demo
+### Running the Demo Application
 
 ```bash
-mix phx.server          # Start development server
+# From demo/ directory
+cd demo
+mix setup              # Full setup (deps, assets setup, assets build)
+mix phx.server         # Start development server
 ```
 
-Visit `http://localhost:4000/demo` to see all components in action.
+Visit `http://localhost:4000` to see all components in action. The demo application automatically reloads when you make changes to library code.
 
 ### Testing
 
 ```bash
+# Library tests (from root)
+mix test
+
+# Demo/integration tests (from demo/)
+cd demo
 mix test               # Run all tests (includes ExUnit and Wallaby tests)
 ```
 
