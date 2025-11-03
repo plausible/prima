@@ -60,7 +60,7 @@ defmodule Demo.MixProject do
 
       # Dev tools
       {:tidewave, "~> 0.5", only: [:dev]},
-      {:autumn, "~> 0.5", only: [:dev]},
+      {:autumn, "~> 0.5"},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false}
     ]
   end
