@@ -35,7 +35,7 @@ defmodule Demo.MixProject do
   defp deps do
     [
       # Library dependency from parent directory
-      {:prima, path: ".."},
+      {:prima, path: "../prima"},
 
       # Phoenix framework
       {:phoenix, ">= 1.7.0"},
@@ -68,13 +68,14 @@ defmodule Demo.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.setup": [
+        "tailwind.install --if-missing",
+        "esbuild.install --if-missing",
+        "cmd --cd assets npm install"
+      ],
       "assets.build": ["tailwind default", "esbuild default"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
-      test: [
-        "esbuild default",
-        "test"
-      ]
+      test: ["assets.build", "test"]
     ]
   end
 end
