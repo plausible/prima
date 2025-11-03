@@ -7,7 +7,7 @@ defmodule Prima.MixProject do
       name: "Prima",
       description: "Unstyled, accessible components for LiveView applications",
       app: :prima,
-      version: "0.1.6",
+      version: "0.1.7",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -53,7 +53,7 @@ defmodule Prima.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w(lib priv assets/js mix.exs README.md LICENSE)
+      files: ~w(lib priv mix.exs README.md LICENSE package.json)
     ]
   end
 
