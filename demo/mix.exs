@@ -34,8 +34,8 @@ defmodule Demo.MixProject do
 
   defp deps do
     [
-      # Library dependency from parent directory
-      {:prima, path: "../prima"},
+      # Library dependency from parent directory (repository root)
+      {:prima, path: ".."},
 
       # Phoenix framework
       {:phoenix, ">= 1.7.0"},
