@@ -17,7 +17,9 @@ config :demo, DemoWeb.Endpoint,
   server: true,
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
+    # Auto-rebuild library JavaScript when source files change
+    library: {Mix.Tasks.WatchLibrary, :run, [[]]}
   ],
   live_reload: [
     patterns: [

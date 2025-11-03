@@ -4,7 +4,8 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
-import { Dropdown, Modal, Combobox } from "../../../assets/js/prima"
+// Import from built library bundle
+import { Dropdown, Modal, Combobox } from "../../../priv/static/assets/prima"
 
 
 let Hooks = {}
