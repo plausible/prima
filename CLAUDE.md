@@ -261,3 +261,26 @@ This prevents test failures from missing infrastructure.
 - Remember to not add unnecessary comments
 - Only add comments to document tricky operations or add additional context
 - Pedantic comments are useless
+
+## Git Commit Messages
+
+### Format
+- Use conventional commit format: `type: description`
+- Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
+- Keep first line under 72 characters
+- Use present tense ("Add feature" not "Added feature")
+- Reference issue numbers when applicable
+
+### Examples
+```
+feat: add keyboard navigation to dropdown component
+fix: resolve focus trap issue in modal overlay
+test: add Wallaby tests for combobox selection
+refactor: simplify hook initialization logic
+docs: update component usage examples
+```
+
+### Guidelines
+- Focus on the "why" rather than the "what"
+- Separate library changes from demo changes
+- Don't include the Claude Code attribution footer
