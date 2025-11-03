@@ -8,6 +8,5 @@ config :esbuild,
   version: "0.17.11",
   library: [
     args: ~w(js/prima.js --bundle --format=esm --target=es2017 --outdir=../priv/static/assets),
-    cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    cd: Path.expand("../assets", __DIR__)
   ]
