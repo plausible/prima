@@ -62,55 +62,55 @@ jobs:
       # Build prima library first
       - name: Install prima dependencies
         if: steps.cache-prima-deps.outputs.cache-hit != 'true'
-        working-directory: ./prima
+        working-directory: prima
         run: mix deps.get
 
       - name: Compile prima dependencies
         if: steps.cache-prima-build.outputs.cache-hit != 'true'
-        working-directory: ./prima
+        working-directory: prima
         run: mix deps.compile
 
       - name: Compile prima library
-        working-directory: ./prima
+        working-directory: prima
         run: mix compile
 
       - name: Setup prima assets
-        working-directory: ./prima
+        working-directory: prima
         run: mix assets.setup
 
       - name: Build prima assets
-        working-directory: ./prima
+        working-directory: prima
         run: mix assets.build
 
       # Build demo application
       - name: Install demo dependencies
         if: steps.cache-demo-deps.outputs.cache-hit != 'true'
-        working-directory: ./demo
+        working-directory: demo
         run: mix deps.get
 
       - name: Compile demo dependencies
         if: steps.cache-demo-build.outputs.cache-hit != 'true'
-        working-directory: ./demo
+        working-directory: demo
         run: mix deps.compile
 
       - name: Setup demo assets
-        working-directory: ./demo
+        working-directory: demo
         run: mix assets.setup
 
       - name: Build demo assets
-        working-directory: ./demo
+        working-directory: demo
         run: mix assets.build
 
       # Check formatting (both projects)
       - name: Check prima formatting
-        working-directory: ./prima
+        working-directory: prima
         run: mix format --check-formatted
 
       - name: Check demo formatting
-        working-directory: ./demo
+        working-directory: demo
         run: mix format --check-formatted
 
       # Run tests (in demo, includes Wallaby tests)
       - name: Run tests
-        working-directory: ./demo
+        working-directory: demo
         run: mix test --trace
