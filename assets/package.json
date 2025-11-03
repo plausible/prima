@@ -1,0 +1,9 @@
+{
+  "name": "prima-assets",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Assets for Prima component library",
+  "dependencies": {
+    "@floating-ui/dom": "^1.6.3"
+  }
+}
