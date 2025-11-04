@@ -82,7 +82,7 @@ COPY demo/config/runtime.exs config/
 
 # Copy rel directory if it exists
 RUN mkdir -p rel
-COPY demo/rel rel 2>/dev/null || true
+COPY demo/rel ./rel
 RUN mix release
 
 # start a new build stage so that the final image will only contain
