@@ -38,6 +38,7 @@ defmodule Prima.Dropdown do
     end
   end
 
+  attr :id, :string, required: true
   attr :transition_enter, :any, default: nil
   attr :transition_leave, :any, default: nil
   attr :class, :string, default: ""
@@ -62,25 +63,27 @@ defmodule Prima.Dropdown do
   # repositioning. Floating UI cannot measure display:none elements.
   def dropdown_menu(assigns) do
     ~H"""
-    <div
-      style="display: none; position: absolute; top: 0; left: 0;"
-      data-prima-ref="menu-wrapper"
-      data-reference={@reference}
-      data-placement={@placement}
-      data-flip={@flip}
-      data-offset={@offset}
-    >
+    <.portal id={"#{@id}-portal"} target="body">
       <div
-        class={@class}
-        style="display: none;"
-        js-show={JS.show(transition: @transition_enter)}
-        js-hide={JS.hide(transition: @transition_leave)}
-        role="menu"
-        phx-click-away={JS.dispatch("prima:close")}
+        style="display: none; position: absolute; top: 0; left: 0;"
+        data-prima-ref="menu-wrapper"
+        data-reference={@reference}
+        data-placement={@placement}
+        data-flip={@flip}
+        data-offset={@offset}
       >
-        {render_slot(@inner_block)}
+        <div
+          class={@class}
+          style="display: none;"
+          js-show={JS.show(transition: @transition_enter)}
+          js-hide={JS.hide(transition: @transition_leave)}
+          role="menu"
+          phx-click-away={JS.dispatch("prima:close")}
+        >
+          {render_slot(@inner_block)}
+        </div>
       </div>
-    </div>
+    </.portal>
     """
   end
 
