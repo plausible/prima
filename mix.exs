@@ -7,44 +7,31 @@ defmodule Prima.MixProject do
       name: "Prima",
       description: "Unstyled, accessible components for LiveView applications",
       app: :prima,
-      version: "0.1.6",
+      version: "0.1.7",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
       package: package(),
-      docs: docs(),
-      compilers: [:phoenix_live_view] ++ Mix.compilers(),
-      listeners: [Phoenix.CodeReloader]
+      docs: docs()
     ]
   end
 
   def application do
     [
-      mod: {Prima.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger]
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
     [
-      {:lazy_html, ">= 0.0.0", only: :test},
       {:phoenix, ">= 1.7.0"},
       {:phoenix_html, "~> 4.2"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.1"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.4.0", runtime: Mix.env() == :dev},
-      {:telemetry_metrics, "~> 1.0", optional: true},
-      {:telemetry_poller, "~> 1.0", optional: true},
-      {:plug_cowboy, "~> 2.5", optional: true},
-      {:autumn, "~> 0.5", optional: true},
-      {:wallaby, "~> 0.30", runtime: false, only: :test},
-      {:tidewave, "~> 0.5", only: [:dev]},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false}
     ]
   end
@@ -52,14 +39,13 @@ defmodule Prima.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind default", "esbuild default", "esbuild library"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      "assets.setup": ["esbuild.install --if-missing"],
+      "assets.build": ["esbuild library"],
       "docs.serve": ["docs", "cmd open doc/index.html"],
-      test: [
-        "esbuild default",
-        "test"
-      ]
+
+      # Demo application convenience aliases
+      "phx.server": ["cmd cd demo && mix phx.server"],
+      test: ["cmd cd demo && mix test"]
     ]
   end
 
@@ -67,12 +53,7 @@ defmodule Prima.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      exclude_patterns: [
-        "lib/prima_web.ex",
-        "lib/prima_web",
-        "priv/code_examples"
-      ],
-      files: ~w(lib priv/static/assets/prima.js mix.exs README.md LICENSE package.json)
+      files: ~w(lib priv mix.exs README.md LICENSE package.json)
     ]
   end
 

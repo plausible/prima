@@ -27,40 +27,63 @@ jobs:
       - name: Setup ChromeDriver
         uses: nanasess/setup-chromedriver@v2
 
-      - name: Cache dependencies
+      # Cache library (root) dependencies
+      - name: Cache library dependencies
         id: cache-deps
         uses: actions/cache@v4
         with:
           path: deps
-          key: ${{ runner.os }}-mix-deps-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/mix.lock') }}
 
-      - name: Cache compiled build
+      # Cache library (root) build
+      - name: Cache library build
         id: cache-build
         uses: actions/cache@v4
         with:
           path: _build
-          key: ${{ runner.os }}-mix-build-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-build-${{ hashFiles('**/mix.lock') }}
 
-      - name: Install dependencies
+      # Build library first (at root)
+      - name: Install library dependencies
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: mix deps.get
 
-      - name: Compile dependencies
+      - name: Compile library dependencies
         if: steps.cache-build.outputs.cache-hit != 'true'
         run: mix deps.compile
 
-      - name: Setup assets
-        run: mix assets.setup
+      - name: Compile library
+        run: mix compile
 
-      - name: Install npm dependencies
-        working-directory: ./assets
+      - name: Install library npm dependencies
+        working-directory: assets
         run: npm install
 
-      - name: Build assets
+      - name: Build library assets
         run: mix assets.build
 
-      - name: Check formatting
+      # Build demo application
+      - name: Install demo dependencies
+        working-directory: demo
+        run: mix deps.get
+
+      - name: Setup demo assets
+        working-directory: demo
+        run: mix assets.setup
+
+      - name: Build demo assets
+        working-directory: demo
+        run: mix assets.build
+
+      # Check formatting (both projects)
+      - name: Check library formatting
         run: mix format --check-formatted
 
+      - name: Check demo formatting
+        working-directory: demo
+        run: mix format --check-formatted
+
+      # Run tests (in demo, includes Wallaby tests)
       - name: Run tests
+        working-directory: demo
         run: mix test --trace

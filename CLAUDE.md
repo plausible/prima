@@ -4,37 +4,81 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Prima is a Phoenix LiveView component library providing unstyled, accessible UI components. It's designed as a reusable library that developers can integrate into Phoenix applications and style according to their needs.
+Prima is a Phoenix LiveView component library providing unstyled, accessible UI components. The repository is structured as:
+- **Root directory** - Library code (published to Hex)
+- **demo/ directory** - Demo application for development and testing
 
 ## Essential Commands
 
-### Setup & Dependencies
+### Library Development (from root)
 ```bash
-mix setup                # Full setup (deps, assets setup, assets build)
-mix deps.get            # Get Elixir dependencies
-mix assets.setup        # Install Tailwind and esbuild
+mix deps.get            # Get library dependencies
+mix compile             # Compile library
+mix assets.build        # Build library JavaScript (prima.js)
+mix hex.build           # Build hex package for publishing
 ```
 
-### Development
+### Demo Application (from demo/)
 ```bash
+cd demo
+mix setup               # Full setup (deps, assets setup, assets build)
+mix deps.get            # Get demo dependencies
+mix assets.setup        # Install Tailwind and esbuild
+mix assets.build        # Build demo assets
+
 # Check if server is already running at localhost:4000 before starting
 mix phx.server          # Start development server (demo app at localhost:4000)
-mix assets.build        # Build assets for development
 ```
 
 ### Testing
+
+**Library tests (from root):**
 ```bash
-mix test                    # Run ExUnit tests (includes esbuild default build)
-mix test path/to/file       # Run ExUnit tests for a single file
-mix test path/to/file:123   # Run a single ExUnit test starting on the given line number
+mix test                    # Run library unit tests
+```
+
+**Demo/integration tests (from demo/):**
+```bash
+cd demo
+mix test                    # Run all tests including Wallaby browser tests
+mix test path/to/file       # Run tests for a single file
+mix test path/to/file:123   # Run a single test starting on given line
 ```
 
 For Wallaby browser tests specifically:
-- Tests are in `test/wallaby/prima_web/`
+- Tests are in `demo/test/wallaby/demo_web/`
 - ChromeDriver-based integration tests for UI interactions
-- Run with standard `mix test` command
+- Run with standard `mix test` command from demo/ directory
 
 ## Architecture & Component Patterns
+
+### Repository Structure
+```
+prima/                       # Root - library code only
+  lib/prima/                 # Library components (published to Hex)
+    modal.ex
+    dropdown.ex
+    combobox.ex
+  assets/js/                 # Library JavaScript
+    prima.js                 # Main export
+    hooks/                   # Component hooks
+  priv/static/assets/        # Built library bundle
+    prima.js
+  mix.exs                    # Library-only dependencies
+  config/config.exs          # Library build config (esbuild only)
+
+  demo/                      # Demo app (not published)
+    lib/demo/
+      application.ex         # Demo OTP application
+    lib/demo_web/            # Demo Phoenix application
+      endpoint.ex
+      router.ex
+      live/                  # Demo pages and fixtures
+    config/                  # Demo config files
+    assets/                  # Demo assets
+    test/                    # Demo tests including Wallaby
+    mix.exs                  # Demo dependencies (includes {:prima, path: ".."})
+```
 
 ### Core Architecture
 The library follows a three-layer pattern for each component:
@@ -78,6 +122,7 @@ end
 **Playwright MCP is the preferred tool for exploring and debugging the demo application.**
 
 - The development server runs on `http://localhost:4000`
+- Start the server from demo/ directory: `cd demo && mix phx.server`
 - **Always assume the server is running** - navigate to `localhost:4000` to view components
 - If nothing loads or the server isn't running, ask the user how to continue
 - Use Playwright MCP tools to:
@@ -94,8 +139,8 @@ end
 - Consider adding temporary debug logs when troubleshooting component issues
 
 ### Testing Strategy
-- **ExUnit tests** for simple component logic and rendering
-- **Wallaby tests** for complex UI interactions and components with JavaScript behavior, especially:
+- **ExUnit tests** for simple component logic and rendering (library tests in root `test/`)
+- **Wallaby tests** for complex UI interactions and components with JavaScript behavior (in `demo/test/wallaby/`), especially:
   - Modal transitions and overlay behavior
   - Dropdown keyboard navigation and interactions
   - Combobox search and selection behavior
@@ -105,13 +150,20 @@ end
 
 ### Frontend Build System
 - **esbuild** with two configurations:
-  - `default` - Demo app development
-  - `library` - Library export for distribution
-- **Tailwind CSS** with standard data attribute selectors for component states
-- Assets are built automatically during development
+  - Root: `library` - Library export for distribution (builds `priv/static/assets/prima.js`)
+  - Demo: `default` - Demo app development (builds `demo/priv/static/assets/app.js`)
+- **Tailwind CSS** (demo only) with standard data attribute selectors for component states
+- Library assets built from root: `mix assets.build`
+- Demo assets built from demo/: `cd demo && mix assets.build`
+
+### Auto-Reload During Development
+When running the demo server (`cd demo && mix phx.server`):
+- Phoenix automatically recompiles the library dependency when files in `lib/prima/` change
+- Browser automatically refreshes when library or demo files change
+- Watch patterns configured in `demo/config/dev.exs` include `../lib/prima/`
 
 ### Demo Application
-- Located in `lib/prima_web/` (excluded from package)
+- Located in `demo/lib/demo_web/`
 - Structured with sidebar navigation and separate component pages:
   - `/` - Introduction page
   - `/dropdown` - Dropdown component demos
@@ -133,14 +185,14 @@ end
 - All hooks export to main `assets/js/prima.js` for easy integration
 
 ### Library vs Application Code
-- Library code: `lib/prima/` (included in package)
-- Demo/development code: `lib/prima_web/` (excluded from package)
+- Library code: `lib/prima/` (included in package, published to Hex)
+- Demo/development code: `demo/` (excluded from package)
 - Keep library components free of demo-specific dependencies
 
 ### Styling Approach
 - Standard Tailwind data attribute selectors (e.g., `data-[focus=true]:`) for component state styling
 - Components use standard HTML data attributes for state management
-- Heroicons integrated for consistent icon usage
+- Heroicons integrated in demo for consistent icon usage
 
 ## Wallaby Testing Tips
 - For hidden elements in Wallaby, use Query.visible(false)
@@ -189,9 +241,9 @@ the URL and waits for the component with given ID to initialize before continuin
 ## Creating Fixture Tests
 
 Before writing any code, batch read these files in ONE message:
-- `lib/prima_web/router.ex`
-- `lib/prima_web/live/fixtures_live.ex`
-- `lib/prima_web/live/fixtures_live.html.heex`
+- `demo/lib/demo_web/router.ex`
+- `demo/lib/demo_web/live/fixtures_live.ex`
+- `demo/lib/demo_web/live/fixtures_live.html.heex`
 - A similar existing fixture file
 
 Then create ALL required files in this order:
@@ -209,3 +261,26 @@ This prevents test failures from missing infrastructure.
 - Remember to not add unnecessary comments
 - Only add comments to document tricky operations or add additional context
 - Pedantic comments are useless
+
+## Git Commit Messages
+
+### Format
+- Use conventional commit format: `type: description`
+- Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
+- Keep first line under 72 characters
+- Use present tense ("Add feature" not "Added feature")
+- Reference issue numbers when applicable
+
+### Examples
+```
+feat: add keyboard navigation to dropdown component
+fix: resolve focus trap issue in modal overlay
+test: add Wallaby tests for combobox selection
+refactor: simplify hook initialization logic
+docs: update component usage examples
+```
+
+### Guidelines
+- Focus on the "why" rather than the "what"
+- Separate library changes from demo changes
+- Don't include the Claude Code attribution footer
