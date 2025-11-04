@@ -2,13 +2,17 @@ defmodule Prima.Dropdown do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
-  attr :id, :string, default: ""
+  attr :id, :string, required: true
+  attr :menu_id, :string, default: nil
   attr :rest, :global
   slot :inner_block, required: true
 
   def dropdown(assigns) do
+    # Auto-generate menu_id if not provided
+    assigns = assign_new(assigns, :menu_id, fn -> "#{assigns.id}-menu" end)
+
     ~H"""
-    <div id={@id} phx-hook="Dropdown" {@rest}>
+    <div id={@id} phx-hook="Dropdown" data-menu-id={@menu_id} {@rest}>
       {render_slot(@inner_block)}
     </div>
     """
@@ -38,6 +42,7 @@ defmodule Prima.Dropdown do
     end
   end
 
+  attr :id, :string, required: true
   attr :transition_enter, :any, default: nil
   attr :transition_leave, :any, default: nil
   attr :class, :string, default: ""
@@ -62,25 +67,28 @@ defmodule Prima.Dropdown do
   # repositioning. Floating UI cannot measure display:none elements.
   def dropdown_menu(assigns) do
     ~H"""
-    <div
-      style="display: none; position: absolute; top: 0; left: 0;"
-      data-prima-ref="menu-wrapper"
-      data-reference={@reference}
-      data-placement={@placement}
-      data-flip={@flip}
-      data-offset={@offset}
-    >
+    <.portal id={"#{@id}-portal"} target="body">
       <div
-        class={@class}
-        style="display: none;"
-        js-show={JS.show(transition: @transition_enter)}
-        js-hide={JS.hide(transition: @transition_leave)}
-        role="menu"
-        phx-click-away={JS.dispatch("prima:close")}
+        style="display: none; position: absolute; top: 0; left: 0;"
+        data-prima-ref="menu-wrapper"
+        data-reference={@reference}
+        data-placement={@placement}
+        data-flip={@flip}
+        data-offset={@offset}
       >
-        {render_slot(@inner_block)}
+        <div
+          id={@id}
+          class={@class}
+          style="display: none;"
+          js-show={JS.show(transition: @transition_enter)}
+          js-hide={JS.hide(transition: @transition_leave)}
+          role="menu"
+          phx-click-away={JS.dispatch("prima:close")}
+        >
+          {render_slot(@inner_block)}
+        </div>
       </div>
-    </div>
+    </.portal>
     """
   end
 

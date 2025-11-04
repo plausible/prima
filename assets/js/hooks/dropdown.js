@@ -43,18 +43,40 @@ export default {
 
   setupElements() {
     const button = this.el.querySelector(SELECTORS.BUTTON)
-    const menuWrapper = this.el.querySelector(SELECTORS.MENU_WRAPPER)
-    const menu = this.el.querySelector(SELECTORS.MENU)
-    const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
+
+    // First try to find menu wrapper in the local element (for backwards compatibility)
+    let menuWrapper = this.el.querySelector(SELECTORS.MENU_WRAPPER)
+    let menu = this.el.querySelector(SELECTORS.MENU)
+
+    // If not found locally, the menu is portaled - find it using the data-menu-id attribute
+    if (!menuWrapper || !menu) {
+      const menuId = this.el.getAttribute('data-menu-id')
+      if (menuId) {
+        // Find the menu by its ID in the portaled content
+        menu = document.getElementById(menuId)
+        if (menu) {
+          menuWrapper = menu.closest(SELECTORS.MENU_WRAPPER)
+        }
+      }
+    }
 
     const referenceSelector = menuWrapper?.getAttribute('data-reference')
     const referenceElement = referenceSelector ? document.querySelector(referenceSelector) : button
 
     this.setupAriaRelationships(button, menu)
+    const items = menu ? menu.querySelectorAll(SELECTORS.MENUITEM) : []
     this.refs = { button, menuWrapper, menu, items, referenceElement }
   },
 
   setupEventListeners() {
+    if (!this.refs || !this.refs.button || !this.refs.menu) {
+      console.error('[Prima Dropdown] Cannot setup event listeners: refs not initialized', {
+        dropdownId: this.el.id,
+        refs: this.refs
+      })
+      return
+    }
+
     this.listeners = [
       [this.refs.button, 'click', this.handleToggle.bind(this)],
       [this.refs.menu, 'mouseover', this.handleMouseOver.bind(this)],
@@ -66,7 +88,9 @@ export default {
     ]
 
     this.listeners.forEach(([element, event, handler]) => {
-      element.addEventListener(event, handler)
+      if (element) {
+        element.addEventListener(event, handler)
+      }
     })
   },
 
@@ -186,7 +210,7 @@ export default {
 
     if (matchingItems.length === 0) return
 
-    const currentFocused = this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)
+    const currentFocused = this.refs.menu ? this.refs.menu.querySelector(SELECTORS.FOCUSED_MENUITEM) : null
     const currentIndex = currentFocused && matchingItems.includes(currentFocused)
       ? matchingItems.indexOf(currentFocused)
       : -1
@@ -239,11 +263,11 @@ export default {
   },
 
   getAllMenuItems() {
-    return this.el.querySelectorAll(SELECTORS.MENUITEM)
+    return this.refs.menu ? this.refs.menu.querySelectorAll(SELECTORS.MENUITEM) : []
   },
 
   getEnabledMenuItems() {
-    return this.el.querySelectorAll(SELECTORS.ENABLED_MENUITEM)
+    return this.refs.menu ? this.refs.menu.querySelectorAll(SELECTORS.ENABLED_MENUITEM) : []
   },
 
   isMenuVisible() {
@@ -266,7 +290,10 @@ export default {
   },
 
   clearFocus() {
-    this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)?.removeAttribute('data-focus')
+    const focusedItem = this.refs.menu ? this.refs.menu.querySelector(SELECTORS.FOCUSED_MENUITEM) : null
+    if (focusedItem) {
+      focusedItem.removeAttribute('data-focus')
+    }
   },
 
   hideMenu() {
@@ -319,13 +346,26 @@ export default {
   },
 
   setupAriaRelationships(button, menu) {
+    if (!button || !menu) {
+      console.error('[Prima Dropdown] Cannot setup ARIA relationships: button or menu is null', {
+        dropdownId: this.el.id,
+        button: button,
+        menu: menu
+      })
+      return
+    }
+
     const dropdownId = this.el.id
     const triggerId = `${dropdownId}-trigger`
-    const menuId = `${dropdownId}-menu`
+    // Use the menu's existing ID if it has one, otherwise generate one
+    const menuId = menu.id || `${dropdownId}-menu`
 
     button.id = triggerId
     button.setAttribute('aria-controls', menuId)
-    menu.id = menuId
+    // Only set menu ID if it doesn't have one already
+    if (!menu.id) {
+      menu.id = menuId
+    }
     menu.setAttribute('aria-labelledby', triggerId)
 
     this.setupMenuitemIds()
@@ -333,7 +373,7 @@ export default {
 
   setupMenuitemIds() {
     const dropdownId = this.el.id
-    const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
+    const items = this.refs.menu ? this.refs.menu.querySelectorAll(SELECTORS.MENUITEM) : []
 
     items.forEach((item, index) => {
       item.id = `${dropdownId}-item-${index}`

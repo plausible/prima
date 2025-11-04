@@ -3,8 +3,8 @@ defmodule DemoWeb.DropdownTest do
 
   @dropdown_container Query.css("#dropdown")
   @dropdown_button Query.css("#dropdown [aria-haspopup=menu]")
-  @dropdown_menu Query.css("#dropdown [role=menu]")
-  @dropdown_items Query.css("#dropdown [role=menuitem]")
+  @dropdown_menu Query.css("#dropdown-menu")
+  @dropdown_items Query.css("#dropdown-menu [role=menuitem]")
 
   feature "shows dropdown menu when button is clicked", %{session: session} do
     session

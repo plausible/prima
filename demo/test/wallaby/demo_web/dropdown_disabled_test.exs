@@ -3,22 +3,22 @@ defmodule DemoWeb.DropdownDisabledTest do
 
   @dropdown_container Query.css("#dropdown-with-disabled")
   @dropdown_button Query.css("#dropdown-with-disabled [aria-haspopup=menu]")
-  @dropdown_menu Query.css("#dropdown-with-disabled [role=menu]")
-  @enabled_items Query.css("#dropdown-with-disabled [role=menuitem]:not([aria-disabled])")
-  @disabled_item Query.css("#dropdown-with-disabled [role=menuitem][aria-disabled=true]")
+  @dropdown_menu Query.css("#dropdown-with-disabled-menu")
+  @enabled_items Query.css("#dropdown-with-disabled-menu [role=menuitem]:not([aria-disabled])")
+  @disabled_item Query.css("#dropdown-with-disabled-menu [role=menuitem][aria-disabled=true]")
 
   feature "disabled items have proper aria attributes", %{session: session} do
     session
     |> visit_fixture("/fixtures/dropdown-with-disabled", "#dropdown-with-disabled")
     |> assert_has(@dropdown_container)
     |> assert_has(
-      Query.css("#dropdown-with-disabled [role=menuitem]")
+      Query.css("#dropdown-with-disabled-menu [role=menuitem]")
       |> Query.count(3)
       |> Query.visible(false)
     )
     |> assert_has(@disabled_item |> Query.visible(false))
     |> assert_has(
-      Query.css("#dropdown-with-disabled [role=menuitem][aria-disabled=true][data-disabled=true]")
+      Query.css("#dropdown-with-disabled-menu [role=menuitem][aria-disabled=true][data-disabled=true]")
       |> Query.visible(false)
     )
     |> assert_has(@enabled_items |> Query.count(2) |> Query.visible(false))
