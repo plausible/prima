@@ -29,7 +29,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y nodejs
 
 # prepare build dir
-WORKDIR /build
+WORKDIR /app
 
 # install hex + rebar
 RUN mix local.hex --force && \
@@ -44,8 +44,8 @@ COPY lib /prima/lib
 COPY assets /prima/assets
 COPY priv /prima/priv
 
-# Copy demo application files to /build/demo (so path ".." resolves to /prima)
-WORKDIR /build/demo
+# Copy demo application files to /app/demo (so path ".." resolves to /prima)
+WORKDIR /app/demo
 COPY demo/mix.exs demo/mix.lock ./
 RUN mix deps.get --only $MIX_ENV
 RUN mkdir config
@@ -101,7 +101,7 @@ RUN chown nobody /app
 ENV MIX_ENV="prod"
 
 # Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /build/demo/_build/${MIX_ENV}/rel/demo ./
+COPY --from=builder --chown=nobody:root /app/demo/_build/${MIX_ENV}/rel/demo ./
 
 USER nobody
 

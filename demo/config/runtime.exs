@@ -7,22 +7,12 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 
-# ## Prima Demo Application Mode
-#
-# When PRIMA_START_DEMO_APP is set to "true", Prima will start the demo
-# application components (DemoWeb.Endpoint, Telemetry, PubSub).
-# This is used for the Fly.io demo deployment.
-# When Prima is used as a library dependency, these components won't start.
-if System.get_env("PRIMA_START_DEMO_APP") == "true" do
-  config :demo, start_demo_app: true
-end
-
 # ## Using releases
 #
 # If you use `mix release`, you need to explicitly enable the server
 # by passing the PHX_SERVER=true when you start it:
 #
-#     PHX_SERVER=true bin/prima start
+#     PHX_SERVER=true bin/demo start
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
