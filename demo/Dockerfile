@@ -47,6 +47,7 @@ COPY config /prima/config
 # Build prima library assets
 WORKDIR /prima
 RUN mix deps.get --only prod
+RUN npm install --prefix ./assets
 RUN mix assets.setup
 RUN mix assets.build
 
