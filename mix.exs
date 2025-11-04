@@ -39,13 +39,13 @@ defmodule Prima.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
-      "assets.setup": ["esbuild.install --if-missing"],
+      "assets.setup": ["esbuild.install --if-missing", "cmd --cd assets npm install"],
       "assets.build": ["esbuild library"],
       "docs.serve": ["docs", "cmd open doc/index.html"],
 
       # Demo application convenience aliases
-      "phx.server": ["cmd cd demo && mix phx.server"],
-      test: ["cmd cd demo && mix test"]
+      "phx.server": ["cmd --cd demo mix phx.server"],
+      test: ["assets.build", "cmd --cd demo mix test"]
     ]
   end
 
