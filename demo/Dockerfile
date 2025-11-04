@@ -42,7 +42,13 @@ ENV MIX_ENV="prod"
 COPY mix.exs mix.lock /prima/
 COPY lib /prima/lib
 COPY assets /prima/assets
-COPY priv /prima/priv
+COPY config /prima/config
+
+# Build prima library assets
+WORKDIR /prima
+RUN mix deps.get --only prod
+RUN mix assets.setup
+RUN mix assets.build
 
 # Copy demo application files to /app/demo (so path ".." resolves to /prima)
 WORKDIR /app/demo
