@@ -284,3 +284,4 @@ docs: update component usage examples
 - Focus on the "why" rather than the "what"
 - Separate library changes from demo changes
 - Don't include the Claude Code attribution footer
+- Always run `mix format` before committing
