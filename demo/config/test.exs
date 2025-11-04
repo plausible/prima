@@ -1,8 +1,5 @@
 import Config
 
-# Enable Prima demo application in test (needed for Wallaby browser tests)
-config :demo, start_demo_app: true
-
 config :demo, DemoWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "/qGx+vs80toFVnnA2ZjkIuFNfeiDRPRGVR/QA2yVZ8vteEpXhkJUWiCRhLFzHw38",
