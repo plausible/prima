@@ -50,6 +50,7 @@ RUN mix deps.get --only prod
 RUN npm install --prefix ./assets
 RUN mix assets.setup
 RUN mix assets.build
+RUN mix compile
 
 # Copy demo application files to /app/demo (so path ".." resolves to /prima)
 WORKDIR /app/demo
