@@ -69,9 +69,6 @@ COPY demo/lib lib
 
 COPY demo/assets assets
 
-# install npm dependencies
-RUN npm install --prefix ./assets
-
 # compile assets
 RUN mix assets.deploy
 
