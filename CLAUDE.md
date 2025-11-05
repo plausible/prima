@@ -237,6 +237,7 @@ the URL and waits for the component with given ID to initialize before continuin
     # ... rest of test
   end
   ```
+  - **NEVER** use sleep or setTimout in tests. It's okay for temporary debugging but all tests that are kept and checking in eventually need to work without artificial waiting
 
 ## Creating Fixture Tests
 
