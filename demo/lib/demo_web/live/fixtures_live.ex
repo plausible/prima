@@ -83,6 +83,10 @@ defmodule DemoWeb.FixturesLive do
     {:noreply, assign(socket, modal_title: "Updated Title")}
   end
 
+  def handle_event("close-frontend-modal", _params, socket) do
+    {:noreply, push_event(socket, "prima:modal:close", %{})}
+  end
+
   @impl true
   def handle_info(:show_async_modal, socket) do
     {:noreply, assign(socket, async_modal_open?: true)}

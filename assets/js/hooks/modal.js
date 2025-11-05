@@ -19,8 +19,20 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupEventListeners()
+    this.setupPushEventListeners()
     this.checkInitialShow()
     this.el.setAttribute('data-prima-ready', 'true')
+  },
+
+  setupPushEventListeners() {
+    this.pushEventRefs = [
+      this.handleEvent("prima:modal:close", () => {
+        this.modalEl.dispatchEvent(new Event('prima:modal:close'))
+      }),
+      this.handleEvent("prima:modal:open", () => {
+        this.modalEl.dispatchEvent(new Event('prima:modal:open'))
+      })
+    ]
   },
 
   setupElements() {
@@ -70,6 +82,13 @@ export default {
         element.removeEventListener(event, handler)
       })
       this.listeners = []
+    }
+
+    if (this.pushEventRefs) {
+      this.pushEventRefs.forEach(ref => {
+        if (ref) this.removeHandleEvent(ref)
+      })
+      this.pushEventRefs = []
     }
   },
 
