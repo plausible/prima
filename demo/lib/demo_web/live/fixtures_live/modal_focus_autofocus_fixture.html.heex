@@ -1,5 +1,5 @@
 <div id="modal-focus-autofocus">
-  <.button type="button" phx-click={Prima.Modal.open("autofocus-modal")}>
+  <.button type="button" phx-click={Prima.Modal.JS.open("autofocus-modal")}>
     Open Modal
   </.button>
 
@@ -21,7 +21,7 @@
           </div>
           <div>
             <button
-              phx-click={Prima.Modal.close()}
+              phx-click={Prima.Modal.JS.close()}
               type="button"
               testing-ref="close-button"
               class="inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"

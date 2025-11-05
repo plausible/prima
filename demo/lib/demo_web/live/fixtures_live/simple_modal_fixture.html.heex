@@ -1,5 +1,5 @@
 <div id="simple-modal">
-  <.button type="button" phx-click={Prima.Modal.open("demo-modal")}>
+  <.button type="button" phx-click={Prima.Modal.JS.open("demo-modal")}>
     Open Modal
   </.button>
 
@@ -11,7 +11,7 @@
         <.modal_panel id="demo-modal-panel">
           <div>
             <button
-              phx-click={Prima.Modal.close()}
+              phx-click={Prima.Modal.JS.close()}
               testing-ref="close-button"
             >
               Close
@@ -19,7 +19,7 @@
             <.modal_title>Good news</.modal_title>
           </div>
           <div>
-            <.button phx-click={Prima.Modal.close()} type="button">
+            <.button phx-click={Prima.Modal.JS.close()} type="button">
               Got it
             </.button>
           </div>

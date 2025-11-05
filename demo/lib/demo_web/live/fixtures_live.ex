@@ -84,22 +84,22 @@ defmodule DemoWeb.FixturesLive do
   end
 
   def handle_event("close-frontend-modal", _params, socket) do
-    {:noreply, push_event(socket, "prima:modal:close", %{})}
+    {:noreply, Prima.Modal.push_close(socket)}
   end
 
   @impl true
   def handle_event("open-frontend-modal", _params, socket) do
-    {:noreply, push_event(socket, "prima:modal:open", %{})}
+    {:noreply, Prima.Modal.push_open(socket)}
   end
 
   @impl true
   def handle_event("close-specific-modal", %{"id" => id}, socket) do
-    {:noreply, push_event(socket, "prima:modal:close", %{id: id})}
+    {:noreply, Prima.Modal.push_close(socket, id)}
   end
 
   @impl true
   def handle_event("open-specific-modal", %{"id" => id}, socket) do
-    {:noreply, push_event(socket, "prima:modal:open", %{id: id})}
+    {:noreply, Prima.Modal.push_open(socket, id)}
   end
 
   @impl true

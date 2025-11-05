@@ -1,7 +1,7 @@
 <.button
   id="open-form-modal-button"
   type="button"
-  phx-click={Prima.Modal.open("demo-form-modal") |> JS.push("open-async-modal")}
+  phx-click={Prima.Modal.JS.open("demo-form-modal") |> JS.push("open-async-modal")}
 >
   Open Async Modal
 </.button>
@@ -21,7 +21,7 @@
       >
         <div>
           <button
-            phx-click={Prima.Modal.close()}
+            phx-click={Prima.Modal.JS.close()}
             testing-ref="close-button"
           >
             Close

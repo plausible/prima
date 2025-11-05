@@ -10,7 +10,7 @@ defmodule Prima.Modal do
   The most basic modal requires just a trigger button and three components:
   `.modal`, `.modal_overlay`, and `.modal_panel`.
 
-      <.button phx-click={Prima.Modal.open("my-modal")}>
+      <.button phx-click={Prima.Modal.JS.open("my-modal")}>
         Open Modal
       </.button>
 
@@ -48,20 +48,20 @@ defmodule Prima.Modal do
 
   **Opening/Closing from the Client:**
 
-      <.button phx-click={Prima.Modal.open("my-modal")}>Open</.button>
-      <.button phx-click={Prima.Modal.close()}>Close</.button>
+      <.button phx-click={Prima.Modal.JS.open("my-modal")}>Open</.button>
+      <.button phx-click={Prima.Modal.JS.close()}>Close</.button>
 
   **Opening/Closing from the Backend:**
 
-  Use `push_event/3` to control modals from LiveView event handlers:
+  Use `Prima.Modal.push_open/2` and `Prima.Modal.push_close/2`:
 
       def handle_event("close_modal", _params, socket) do
-        {:noreply, push_event(socket, "prima:modal:close", %{})}
+        {:noreply, Prima.Modal.push_close(socket)}
       end
 
-  To target a specific modal when multiple are present, include the modal's `id`:
+  To target a specific modal when multiple are present, pass the modal's `id`:
 
-      {:noreply, push_event(socket, "prima:modal:open", %{id: "settings-modal"})}
+      {:noreply, Prima.Modal.push_open(socket, "settings-modal")}
 
   ### Async Modals (Server-Side Control)
 
@@ -70,7 +70,7 @@ defmodule Prima.Modal do
 
   **Opening from the Client:**
 
-      <.button phx-click={Prima.Modal.open("async-modal") |> JS.push("load_data")}>
+      <.button phx-click={Prima.Modal.JS.open("async-modal") |> JS.push("load_data")}>
         Open
       </.button>
 
@@ -284,9 +284,9 @@ defmodule Prima.Modal do
       phx-mounted={panel_mounted()}
       phx-remove={panel_removed()}
       data-prima-ref="modal-panel"
-      phx-window-keydown={close()}
+      phx-window-keydown={Prima.Modal.JS.close()}
       phx-key="escape"
-      phx-click-away={close()}
+      phx-click-away={Prima.Modal.JS.close()}
     >
       <.focus_wrap id={@id} class={@class}>
         {render_slot(@inner_block)}
@@ -305,76 +305,139 @@ defmodule Prima.Modal do
     JS.dispatch("prima:modal:panel-mounted")
   end
 
-  @doc """
-  Opens a modal with the given ID.
+  defmodule JS do
+    @moduledoc """
+    JavaScript commands for client-side modal control.
+    """
+    alias Phoenix.LiveView.JS
 
-  This function dispatches a JavaScript event to show the modal. The modal
-  must already be rendered in the DOM with the corresponding ID.
+    @doc """
+    Opens a modal with the given ID.
 
-  ## Parameters
+    This function dispatches a JavaScript event to show the modal. The modal
+    must already be rendered in the DOM with the corresponding ID.
 
-    * `id` - The ID of the modal to open (string)
+    ## Parameters
 
-  ## Example
+      * `id` - The ID of the modal to open (string)
 
-      <.button phx-click={Prima.Modal.open("my-modal")}>
-        Open Modal
-      </.button>
+    ## Example
 
-  """
-  def open(id) do
-    JS.dispatch("prima:modal:open", to: "##{id}")
+        <.button phx-click={Prima.Modal.JS.open("my-modal")}>
+          Open Modal
+        </.button>
+
+    """
+    def open(id) do
+      JS.dispatch("prima:modal:open", to: "##{id}")
+    end
+
+    @doc """
+    Opens a modal with the given ID, chaining with existing JS commands.
+
+    This function allows you to chain modal opening with other JavaScript
+    commands, enabling complex interactions like navigation combined with
+    modal display.
+
+    ## Parameters
+
+      * `js` - A `Phoenix.LiveView.JS` struct containing previous commands
+      * `id` - The ID of the modal to open (string)
+
+    ## Example
+
+        # Chain with navigation
+        <.button phx-click={JS.patch("/modal/history") |> Prima.Modal.JS.open("my-modal")}>
+          Navigate and Open Modal
+        </.button>
+
+        # Chain with custom events
+        <.button phx-click={JS.push("track") |> Prima.Modal.JS.open("my-modal")}>
+          Track and Open
+        </.button>
+
+    """
+    def open(%JS{} = js, id) do
+      JS.dispatch(js, "prima:modal:open", to: "##{id}")
+    end
+
+    @doc """
+    Closes the currently open modal.
+
+    This function dispatches a JavaScript event to close any open modal.
+    It can be used from buttons, form submissions, or other user interactions.
+
+    ## Example
+
+        <.button phx-click={Prima.Modal.JS.close()}>
+          Close
+        </.button>
+
+        # Chain with other JS commands
+        <.button phx-click={Prima.Modal.JS.close() |> JS.push("modal-closed")}>
+          Close and Notify
+        </.button>
+
+    """
+    def close() do
+      JS.dispatch("prima:modal:close")
+    end
   end
 
   @doc """
-  Opens a modal with the given ID, chaining with existing JS commands.
+  Pushes an event to open a modal from the backend.
 
-  This function allows you to chain modal opening with other JavaScript
-  commands, enabling complex interactions like navigation combined with
-  modal display.
+  Use this in LiveView event handlers to open a modal via `push_event/3`.
 
   ## Parameters
 
-    * `js` - A `Phoenix.LiveView.JS` struct containing previous commands
-    * `id` - The ID of the modal to open (string)
+    * `socket` - The LiveView socket
+    * `id` - Optional modal ID to target a specific modal
 
-  ## Example
+  ## Examples
 
-      # Chain with navigation
-      <.button phx-click={JS.patch("/modal/history") |> Prima.Modal.open("my-modal")}>
-        Navigate and Open Modal
-      </.button>
+      # Open a specific modal
+      def handle_event("show_settings", _params, socket) do
+        {:noreply, Prima.Modal.push_open(socket, "settings-modal")}
+      end
 
-      # Chain with custom events
-      <.button phx-click={JS.push("track") |> Prima.Modal.open("my-modal")}>
-        Track and Open
-      </.button>
+      # Open all modals (when id is nil)
+      def handle_event("show_modal", _params, socket) do
+        {:noreply, Prima.Modal.push_open(socket)}
+      end
 
   """
-  def open(%JS{} = js, id) do
-    JS.dispatch(js, "prima:modal:open", to: "##{id}")
+  def push_open(socket, id \\ nil) do
+    payload = if id, do: %{id: id}, else: %{}
+    Phoenix.LiveView.push_event(socket, "prima:modal:open", payload)
   end
 
   @doc """
-  Closes the currently open modal.
+  Pushes an event to close a modal from the backend.
 
-  This function dispatches a JavaScript event to close any open modal.
-  It can be used from buttons, form submissions, or other user interactions.
+  Use this in LiveView event handlers to close a modal via `push_event/3`.
 
-  ## Example
+  ## Parameters
 
-      <.button phx-click={Prima.Modal.close()}>
-        Close
-      </.button>
+    * `socket` - The LiveView socket
+    * `id` - Optional modal ID to target a specific modal
 
-      # Chain with other JS commands
-      <.button phx-click={Prima.Modal.close() |> JS.push("modal-closed")}>
-        Close and Notify
-      </.button>
+  ## Examples
+
+      # Close a specific modal
+      def handle_event("dismiss_notification", _params, socket) do
+        {:noreply, Prima.Modal.push_close(socket, "notification-modal")}
+      end
+
+      # Close all modals (when id is nil)
+      def handle_event("close_modals", _params, socket) do
+        {:noreply, Prima.Modal.push_close(socket)}
+      end
 
   """
-  def close() do
-    JS.dispatch("prima:modal:close")
+  def push_close(socket, id \\ nil) do
+    payload = if id, do: %{id: id}, else: %{}
+    Phoenix.LiveView.push_event(socket, "prima:modal:close", payload)
   end
 
   attr :class, :string, default: nil
