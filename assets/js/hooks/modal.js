@@ -14,7 +14,7 @@ export default {
   initialize() {
     this.cleanup()
     this.setupElements()
-    this.setupEventListeners()
+    this.setupDOMEventListeners()
     this.setupPushEventListeners()
     this.checkInitialShow()
     this.el.setAttribute('data-prima-ready', 'true')
@@ -44,7 +44,7 @@ export default {
     this.setupAriaRelationships()
   },
 
-  setupEventListeners() {
+  setupDOMEventListeners() {
     this.listeners = [
       [this.modalEl, "prima:modal:open", this.handleModalOpen.bind(this)],
       [this.modalEl, "prima:modal:close", this.handleModalClose.bind(this)],
