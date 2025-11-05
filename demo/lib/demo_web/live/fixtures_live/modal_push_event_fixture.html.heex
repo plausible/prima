@@ -1,6 +1,6 @@
 <div id="modal-push-event">
   <h2>Single Modal Tests (no ID in payload)</h2>
-  <.button type="button" phx-click={Prima.Modal.open("frontend-modal")}>
+  <.button type="button" phx-click={Prima.Modal.JS.open("frontend-modal")}>
     Open Frontend Modal
   </.button>
 
@@ -14,7 +14,7 @@
       <div>
         <.modal_panel id="frontend-modal-panel">
           <div>
-            <button phx-click={Prima.Modal.close()} testing-ref="close-button">
+            <button phx-click={Prima.Modal.JS.close()} testing-ref="close-button">
               Close
             </button>
             <.modal_title>Frontend Modal</.modal_title>
@@ -49,7 +49,7 @@
       <div>
         <.modal_panel id="modal-one-panel">
           <div>
-            <button phx-click={Prima.Modal.close()} testing-ref="modal-one-close">
+            <button phx-click={Prima.Modal.JS.close()} testing-ref="modal-one-close">
               Close
             </button>
             <.modal_title>Modal One</.modal_title>
@@ -75,7 +75,7 @@
       <div>
         <.modal_panel id="modal-two-panel">
           <div>
-            <button phx-click={Prima.Modal.close()} testing-ref="modal-two-close">
+            <button phx-click={Prima.Modal.JS.close()} testing-ref="modal-two-close">
               Close
             </button>
             <.modal_title>Modal Two</.modal_title>
