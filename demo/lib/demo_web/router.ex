@@ -31,8 +31,7 @@ defmodule DemoWeb.Router do
       live "/fixtures/modal-title-custom-tag", FixturesLive, :modal_title_custom_tag
       live "/fixtures/modal-title-function", FixturesLive, :modal_title_function
       live "/fixtures/modal-focus-autofocus", FixturesLive, :modal_focus_autofocus
-      live "/fixtures/frontend-modal-push-event", FixturesLive, :frontend_modal_push_event
-      live "/fixtures/multiple-modals-push-event", FixturesLive, :multiple_modals_push_event
+      live "/fixtures/modal-push-event", FixturesLive, :modal_push_event
       live "/fixtures/simple-combobox", FixturesLive, :simple_combobox
       live "/fixtures/async-combobox", FixturesLive, :async_combobox
       live "/fixtures/creatable-combobox", FixturesLive, :creatable_combobox
