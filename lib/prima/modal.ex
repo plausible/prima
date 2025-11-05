@@ -36,38 +36,72 @@ defmodule Prima.Modal do
 
   Focus is automatically restored to the triggering element when the modal closes.
 
-  ## Advanced Usage
 
-  ### Async Loading
+  ## Modal Control Patterns
 
-  Asynchronous modals enable server-side data fetching before displaying content.
-  This pattern is ideal when you need to load user-specific data or perform
-  database queries before showing modal content.
+  There are two main patterns for controlling modal visibility, each suited to different use cases.
 
-      <.button phx-click={Prima.Modal.open("async-modal") |> JS.push("load-data")}>
-        Open Async Modal
+  ### Frontend Modals (Client-Side Control)
+
+  Frontend modals are always rendered in the DOM and controlled via JavaScript commands.
+  They're ideal for simple interactions that don't require server-side state.
+
+  **Opening/Closing from the Client:**
+
+      <.button phx-click={Prima.Modal.open("my-modal")}>Open</.button>
+      <.button phx-click={Prima.Modal.close()}>Close</.button>
+
+  **Opening/Closing from the Backend:**
+
+  Use `push_event/3` to control modals from LiveView event handlers:
+
+      def handle_event("close_modal", _params, socket) do
+        {:noreply, push_event(socket, "prima:modal:close", %{})}
+      end
+
+  To target a specific modal when multiple are present, include the modal's `id`:
+
+      {:noreply, push_event(socket, "prima:modal:open", %{id: "settings-modal"})}
+
+  ### Async Modals (Server-Side Control)
+
+  Async modals are controlled by conditionally rendering the modal panel based on
+  a LiveView assign. They're ideal when you need to load data before showing the modal.
+
+  **Opening from the Client:**
+
+      <.button phx-click={Prima.Modal.open("async-modal") |> JS.push("load_data")}>
+        Open
       </.button>
 
-      <.modal id="async-modal" on_close={JS.push("close-modal")}>
-        <.modal_loader>
-          <div class="spinner">Loading...</div>
-        </.modal_loader>
+      def handle_event("load_data", _params, socket) do
+        {:noreply, assign(socket, show_modal: true)}
+      end
 
-        <.modal_panel :if={@data_loaded?} id="async-modal-panel">
-          <!-- Content rendered after async operation -->
-        </.modal_panel>
+      <.modal_panel :if={@show_modal} id="async-modal-panel">
+        <!-- Content -->
+      </.modal_panel>
+
+  **Closing from the Client:**
+
+  User clicks close button, which triggers backend update via `on_close`:
+
+      <.modal on_close={JS.push("close_modal")}>
+        <!-- ... -->
       </.modal>
 
-  ### Form Integration
+      def handle_event("close_modal", _params, socket) do
+        {:noreply, assign(socket, show_modal: false)}
+      end
 
-  Modals work seamlessly with Phoenix forms, validation, and submission handling.
-  Use the `on_close` attribute to chain JavaScript commands with LiveView events
-  for backend state synchronization.
+  **Closing from the Backend:**
 
-  ### Browser History
+  Simply update the assign to remove the panel:
 
-  Integrate modals with browser navigation for bookmarkable and shareable modal states
-  by using Phoenix LiveView routing.
+      def handle_event("submit_form", params, socket) do
+        # Process form...
+        {:noreply, assign(socket, show_modal: false)}
+      end
   """
   use Phoenix.Component
   import Prima.Component, only: [render_as: 2]
