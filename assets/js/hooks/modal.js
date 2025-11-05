@@ -26,8 +26,16 @@ export default {
 
   setupPushEventListeners() {
     this.pushEventRefs = [
-      this.handleEvent("prima:modal:open", this.handleModalOpen.bind(this)),
-      this.handleEvent("prima:modal:close", this.handleModalClose.bind(this)),
+      this.handleEvent("prima:modal:open", (payload) => {
+        if (!payload.id || payload.id === this.el.id) {
+          this.handleModalOpen()
+        }
+      }),
+      this.handleEvent("prima:modal:close", (payload) => {
+        if (!payload.id || payload.id === this.el.id) {
+          this.handleModalClose()
+        }
+      })
     ]
   },
 
