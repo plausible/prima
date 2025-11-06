@@ -70,6 +70,7 @@ defmodule Prima.Modal do
   by using Phoenix LiveView routing.
   """
   use Phoenix.Component
+  import Prima.Component, only: [render_as: 2]
   alias Phoenix.LiveView.JS
 
   attr :id, :string, required: true
@@ -376,20 +377,6 @@ defmodule Prima.Modal do
         "data-prima-ref": "modal-title"
       })
 
-    case assigns[:as] do
-      as when is_function(as) ->
-        {_, assigns} = Map.pop(assigns, :as)
-        as.(assigns)
-
-      as when is_binary(as) ->
-        dynamic_tag(
-          Map.merge(assigns, %{
-            tag_name: as
-          })
-        )
-
-      as ->
-        raise "Cannot render modal title `as` #{inspect(as)}. Expected a function or string"
-    end
+    render_as(assigns, "h3")
   end
 end
