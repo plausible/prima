@@ -205,6 +205,6 @@ defmodule Prima.Dropdown do
         "data-disabled": if(assigns.disabled, do: "true", else: nil)
       })
 
-    render_as(assigns, %{tag_name: "div"})
+    render_as(assigns, %{tag_name: "button", type: "button"})
   end
 end
