@@ -73,11 +73,10 @@ defmodule Prima.Dropdown do
     assigns =
       assign(assigns, %{
         "aria-haspopup": "menu",
-        "aria-expanded": "false",
-        type: "button"
+        "aria-expanded": "false"
       })
 
-    render_as(assigns, "button")
+    render_as(assigns, %{tag_name: "button", type: "button"})
   end
 
   attr :transition_enter, :any, default: nil
@@ -206,6 +205,6 @@ defmodule Prima.Dropdown do
         "data-disabled": if(assigns.disabled, do: "true", else: nil)
       })
 
-    render_as(assigns, "div")
+    render_as(assigns, %{tag_name: "div"})
   end
 end

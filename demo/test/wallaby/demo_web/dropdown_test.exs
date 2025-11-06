@@ -6,6 +6,12 @@ defmodule DemoWeb.DropdownTest do
   @dropdown_menu Query.css("#dropdown [role=menu]")
   @dropdown_items Query.css("#dropdown [role=menuitem]")
 
+  feature "default dropdown trigger has type='button'", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown", "#dropdown")
+    |> assert_has(Query.css("#dropdown button[aria-haspopup=menu][type=button]"))
+  end
+
   feature "shows dropdown menu when button is clicked", %{session: session} do
     session
     |> visit_fixture("/fixtures/dropdown", "#dropdown")

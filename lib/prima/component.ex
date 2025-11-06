@@ -11,47 +11,50 @@ defmodule Prima.Component do
   ## Parameters
 
     * `assigns` - The component assigns map
-    * `default_tag` - The default HTML tag name (string) to use when no custom
-      component is specified
+    * `default_tag_attrs` - Map of attributes for the default tag, including `:tag_name`.
+      This map is passed directly to `dynamic_tag/1` when rendering the default element.
+      Attributes in this map are NOT passed to custom components.
 
   ## Returns
 
   Returns the rendered component by either:
     * Calling the custom component function with merged assigns (if `as` is a function)
     * Rendering a dynamic tag with the custom tag name (if `as` is a string)
-    * Rendering a dynamic tag with the default tag name (if `as` is not provided)
+    * Rendering a dynamic tag with default_tag_attrs (if `as` is not provided)
 
   ## Behavior
 
   1. Pops the `:as` attribute from assigns
   2. Pops and merges the `:rest` attributes into assigns
-  3. If `as` is a function, calls it with the merged assigns
-  4. If `as` is a string, renders a dynamic tag with that tag name
-  5. Otherwise, renders a dynamic tag with default tag name
+  3. If `as` is a function, calls it with the merged assigns (without default_tag_attrs)
+  4. If `as` is a string, renders a dynamic tag with that tag name (without default_tag_attrs)
+  5. Otherwise, renders a dynamic tag with default_tag_attrs merged into assigns
 
   ## Examples
 
-      # With default tag name
-      def my_component(assigns) do
-        assigns = assign(assigns, %{"aria-label": "My Component"})
-        render_as(assigns, "button")
+      # With default button element
+      def my_button(assigns) do
+        assigns = assign(assigns, %{"aria-label": "My Button"})
+        render_as(assigns, %{tag_name: "button", type: "button"})
       end
 
       # Can be used with as={&custom_component/1}
-      <.my_component as={&custom_component/1} />
+      # Custom component won't receive the type="button" attribute
+      <.my_button as={&custom_component/1} />
 
       # Can be used with as="span"
-      <.my_component as="span" />
+      # Renders a span without type="button"
+      <.my_button as="span" />
 
   """
-  def render_as(assigns, default_tag) when is_binary(default_tag) do
+  def render_as(assigns, default_tag_attrs) when is_map(default_tag_attrs) do
     {as, assigns} = Map.pop(assigns, :as)
     {rest, assigns} = Map.pop(assigns, :rest, %{})
     assigns = Map.merge(assigns, rest)
 
     cond do
       is_nil(as) ->
-        dynamic_tag(Map.merge(assigns, %{tag_name: default_tag}))
+        dynamic_tag(Map.merge(assigns, default_tag_attrs))
 
       is_function(as) ->
         as.(assigns)

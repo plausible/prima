@@ -377,6 +377,6 @@ defmodule Prima.Modal do
         "data-prima-ref": "modal-title"
       })
 
-    render_as(assigns, "h3")
+    render_as(assigns, %{tag_name: "h3"})
   end
 end
