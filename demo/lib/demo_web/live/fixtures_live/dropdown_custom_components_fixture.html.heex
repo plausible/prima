@@ -1,0 +1,18 @@
+<div>
+  <.dropdown id="dropdown-custom">
+    <.dropdown_trigger as={&custom_button/1} data-custom-attr="test-value">
+      Open Dropdown
+    </.dropdown_trigger>
+    <.dropdown_menu>
+      <.dropdown_item>
+        Regular Item
+      </.dropdown_item>
+      <.dropdown_item as={&link/1} navigate={~p"/"}>
+        Link Item
+      </.dropdown_item>
+      <.dropdown_item disabled={true} as={&link/1} href="#disabled">
+        Disabled Link
+      </.dropdown_item>
+    </.dropdown_menu>
+  </.dropdown>
+</div>

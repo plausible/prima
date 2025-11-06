@@ -6,6 +6,10 @@
   <.dropdown_with_disabled_fixture />
 </div>
 
+<div :if={@live_action == :dropdown_custom_components}>
+  <.dropdown_custom_components_fixture />
+</div>
+
 <div :if={@live_action == :simple_modal}>
   <.simple_modal_fixture />
 </div>
