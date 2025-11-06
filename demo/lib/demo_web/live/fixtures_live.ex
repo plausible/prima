@@ -83,4 +83,15 @@ defmodule DemoWeb.FixturesLive do
     </span>
     """
   end
+
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  defp custom_button(assigns) do
+    ~H"""
+    <button type="button" {@rest}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
 end

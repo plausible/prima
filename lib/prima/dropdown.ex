@@ -16,8 +16,58 @@ defmodule Prima.Dropdown do
 
   attr :class, :string, default: ""
   attr :as, :any, default: nil
+  attr :rest, :global
   slot :inner_block, required: true
 
+  @doc """
+  The trigger button/element for a dropdown menu.
+
+  This component renders the clickable element that opens and closes the dropdown
+  menu. By default, it renders as a `button` element, but can be customized to
+  render as any component using the `as` attribute.
+
+  ## Attributes
+
+    * `class` - CSS classes for styling the trigger
+    * `as` - Custom function component to render instead of the default button element
+
+  ## Examples
+
+      # Basic trigger
+      <.dropdown_trigger>
+        Open Menu
+      </.dropdown_trigger>
+
+      # With custom component
+      <.dropdown_trigger as={&my_custom_button/1}>
+        Open Menu
+      </.dropdown_trigger>
+
+  ## Custom Component Requirements
+
+  When using the `as` attribute, the custom component receives accessibility
+  attributes including `aria-haspopup="menu"` and `aria-expanded`.
+
+  **IMPORTANT**: Custom components must accept and pass through global attributes
+  using the `:global` attribute type (commonly via `@rest`). This ensures that
+  Prima's accessibility attributes are properly applied to the rendered element.
+
+  Example of a properly configured custom component:
+
+      attr :rest, :global
+      slot :inner_block, required: true
+
+      def my_custom_button(assigns) do
+        ~H\"\"\"
+        <button type="button" {@rest}>
+          {\render_slot(@inner_block)}
+        </button>
+        \"\"\"
+      end
+
+  Without `{@rest}`, accessibility attributes will not be applied and the dropdown
+  will not function correctly with keyboard navigation and screen readers.
+  """
   def dropdown_trigger(assigns) do
     assigns =
       assign(assigns, %{
@@ -25,8 +75,11 @@ defmodule Prima.Dropdown do
         "aria-expanded": "false"
       })
 
-    if assigns[:as] do
-      {as, assigns} = Map.pop(assigns, :as)
+    {as, assigns} = Map.pop(assigns, :as)
+    {rest, assigns} = Map.pop(assigns, :rest, %{})
+    assigns = Map.merge(assigns, rest)
+
+    if as do
       as.(assigns)
     else
       dynamic_tag(
@@ -86,22 +139,96 @@ defmodule Prima.Dropdown do
 
   attr :class, :string, default: ""
   attr :disabled, :boolean, default: false
+  attr :as, :any, default: nil
+
+  # Workaround - unfortunately there seems to be no way to pass through arbitrary assigns without emitting compile warnings
+  # Since dropdown items are often rendered as links, we add the <.link> attributes here as well.
+  attr :rest, :global, include: ~w(navigate patch href)
   slot :inner_block, required: true
 
-  def dropdown_item(assigns) do
-    assigns = assign(assigns, :aria_disabled, if(assigns.disabled, do: "true", else: nil))
-    assigns = assign(assigns, :data_disabled, if(assigns.disabled, do: "true", else: nil))
+  @doc """
+  A menu item component for use within a dropdown menu.
 
-    ~H"""
-    <div
-      class={@class}
-      role="menuitem"
-      tabindex="-1"
-      aria-disabled={@aria_disabled}
-      data-disabled={@data_disabled}
-    >
-      {render_slot(@inner_block)}
-    </div>
-    """
+  This component represents an individual item in a dropdown menu with proper
+  ARIA attributes and keyboard navigation support. By default, it renders as a
+  `div` element, but can be customized to render as any component using the `as`
+  attribute.
+
+  ## Attributes
+
+    * `class` - CSS classes for styling the menu item
+    * `disabled` - Boolean to mark the item as disabled (default: false)
+    * `as` - Custom function component to render instead of the default div element
+
+  ## Examples
+
+      # Basic menu item
+      <.dropdown_item>
+        Save
+      </.dropdown_item>
+
+      # Disabled menu item
+      <.dropdown_item disabled={true}>
+        Delete (unavailable)
+      </.dropdown_item>
+
+      # With custom component (e.g., a link)
+      <.dropdown_item as={&my_link_component/1}>
+        View Profile
+      </.dropdown_item>
+
+      # With Phoenix.Component.link
+      <.dropdown_item as={&link/1} navigate={~p"/profile"}>
+        View Profile
+      </.dropdown_item>
+
+  ## Custom Component Requirements
+
+  When using the `as` attribute, the custom component receives all the standard
+  attributes including `role="menuitem"`, `tabindex="-1"`, and accessibility
+  attributes like `aria-disabled` when appropriate.
+
+  **IMPORTANT**: Custom components must accept and pass through global attributes
+  using the `:global` attribute type (commonly via `@rest`). This ensures that
+  Prima's accessibility attributes are properly applied to the rendered element.
+
+  Example of a properly configured custom component:
+
+      attr :rest, :global
+      slot :inner_block, required: true
+
+      def my_custom_item(assigns) do
+        ~H\"\"\"
+        <a {@rest}>
+          {\render_slot(@inner_block)}
+        </a>
+        \"\"\"
+      end
+
+  Without `{@rest}`, accessibility attributes will not be applied and the component
+  will not function correctly with keyboard navigation and screen readers.
+  """
+  def dropdown_item(assigns) do
+    {as, assigns} = Map.pop(assigns, :as)
+    {rest, assigns} = Map.pop(assigns, :rest, %{})
+    assigns = Map.merge(assigns, rest)
+
+    assigns =
+      assign(assigns, %{
+        role: "menuitem",
+        tabindex: "-1",
+        "aria-disabled": if(assigns.disabled, do: "true", else: nil),
+        "data-disabled": if(assigns.disabled, do: "true", else: nil)
+      })
+
+    if as do
+      as.(assigns)
+    else
+      dynamic_tag(
+        Map.merge(assigns, %{
+          tag_name: "div"
+        })
+      )
+    end
   end
 end
