@@ -45,19 +45,19 @@ defmodule DemoWeb.ModalTitleTest do
     import Prima.Modal
 
     assert_raise RuntimeError,
-                 "Cannot render modal title `as` 123. Expected a function or string",
+                 "Cannot render component `as` 123. Expected a function or string",
                  fn ->
                    render_component(&modal_title/1, %{as: 123}, %{})
                  end
 
     assert_raise RuntimeError,
-                 "Cannot render modal title `as` []. Expected a function or string",
+                 "Cannot render component `as` []. Expected a function or string",
                  fn ->
                    render_component(&modal_title/1, %{as: []}, %{})
                  end
 
     assert_raise RuntimeError,
-                 "Cannot render modal title `as` %{}. Expected a function or string",
+                 "Cannot render component `as` %{}. Expected a function or string",
                  fn ->
                    render_component(&modal_title/1, %{as: %{}}, %{})
                  end

@@ -1,5 +1,6 @@
 defmodule Prima.Dropdown do
   use Phoenix.Component
+  import Prima.Component, only: [render_as: 2]
   alias Phoenix.LiveView.JS
 
   attr :id, :string, default: ""
@@ -75,20 +76,7 @@ defmodule Prima.Dropdown do
         "aria-expanded": "false"
       })
 
-    {as, assigns} = Map.pop(assigns, :as)
-    {rest, assigns} = Map.pop(assigns, :rest, %{})
-    assigns = Map.merge(assigns, rest)
-
-    if as do
-      as.(assigns)
-    else
-      dynamic_tag(
-        Map.merge(assigns, %{
-          tag_name: "button",
-          type: "button"
-        })
-      )
-    end
+    render_as(assigns, %{tag_name: "button", type: "button"})
   end
 
   attr :transition_enter, :any, default: nil
@@ -209,10 +197,6 @@ defmodule Prima.Dropdown do
   will not function correctly with keyboard navigation and screen readers.
   """
   def dropdown_item(assigns) do
-    {as, assigns} = Map.pop(assigns, :as)
-    {rest, assigns} = Map.pop(assigns, :rest, %{})
-    assigns = Map.merge(assigns, rest)
-
     assigns =
       assign(assigns, %{
         role: "menuitem",
@@ -221,14 +205,6 @@ defmodule Prima.Dropdown do
         "data-disabled": if(assigns.disabled, do: "true", else: nil)
       })
 
-    if as do
-      as.(assigns)
-    else
-      dynamic_tag(
-        Map.merge(assigns, %{
-          tag_name: "div"
-        })
-      )
-    end
+    render_as(assigns, %{tag_name: "div"})
   end
 end
