@@ -32,6 +32,9 @@ const SELECTORS = {
 export default {
   mounted() {
     this.initialize()
+
+  updated() {
+    this.initialize();
   },
 
   reconnected() {
