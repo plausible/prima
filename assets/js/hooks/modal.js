@@ -1,87 +1,104 @@
 export default {
   mounted() {
-    this.initialize()
+    this.initialize();
+  },
 
   updated() {
     this.initialize();
   },
 
   reconnected() {
-    this.initialize()
+    this.initialize();
   },
 
   destroyed() {
-    this.cleanup()
+    this.cleanup();
   },
 
   initialize() {
-    this.cleanup()
-    this.setupElements()
-    this.setupEventListeners()
-    this.checkInitialShow()
-    this.el.setAttribute('data-prima-ready', 'true')
+    this.cleanup();
+    this.setupElements();
+    this.setupEventListeners();
+    this.checkInitialShow();
+    this.el.setAttribute("data-prima-ready", "true");
   },
 
   setupElements() {
-    this.modalEl = document.getElementById(this.el.id.replace('-portal', ''))
+    this.modalEl = document.getElementById(this.el.id.replace("-portal", ""));
 
     if (!this.modalEl) {
-      throw new Error(`[Prima Modal] Could not find modal element for portal ${this.el.id}`)
+      throw new Error(
+        `[Prima Modal] Could not find modal element for portal ${this.el.id}`,
+      );
     }
 
     if (!this.ref("modal-panel")) {
-      this.async = true
+      this.async = true;
     }
-    this.setupAriaRelationships()
+    this.setupAriaRelationships();
   },
 
   setupEventListeners() {
     this.listeners = [
       [this.modalEl, "prima:modal:open", this.handleModalOpen.bind(this)],
       [this.modalEl, "prima:modal:close", this.handleModalClose.bind(this)],
-      [this.ref("modal-overlay"), "phx:hide-end", this.handleOverlayHideEnd.bind(this)]
-    ]
+      [
+        this.ref("modal-overlay"),
+        "phx:hide-end",
+        this.handleOverlayHideEnd.bind(this),
+      ],
+    ];
 
     if (this.async) {
       this.listeners.push(
-        [this.modalEl, "prima:modal:panel-mounted", this.handlePanelMounted.bind(this)],
-        [this.modalEl, "prima:modal:panel-removed", this.handlePanelRemoved.bind(this)]
-      )
+        [
+          this.modalEl,
+          "prima:modal:panel-mounted",
+          this.handlePanelMounted.bind(this),
+        ],
+        [
+          this.modalEl,
+          "prima:modal:panel-removed",
+          this.handlePanelRemoved.bind(this),
+        ],
+      );
     }
 
     // Focus management - when panel is shown, focus first element
     if (this.ref("modal-panel")) {
-      this.listeners.push(
-        [this.ref("modal-panel"), "phx:show-end", this.handlePanelShowEnd.bind(this)]
-      )
+      this.listeners.push([
+        this.ref("modal-panel"),
+        "phx:show-end",
+        this.handlePanelShowEnd.bind(this),
+      ]);
     }
 
     this.listeners.forEach(([element, event, handler]) => {
       if (element) {
-        element.addEventListener(event, handler)
+        element.addEventListener(event, handler);
       }
-    })
+    });
   },
 
   cleanup() {
     if (this.listeners) {
       this.listeners.forEach(([element, event, handler]) => {
-        element.removeEventListener(event, handler)
-      })
-      this.listeners = []
+        element.removeEventListener(event, handler);
+      });
+      this.listeners = [];
     }
   },
 
   checkInitialShow() {
-    if (Object.hasOwn(this.modalEl.dataset, 'primaShow')) {
-      this.modalEl.dispatchEvent(new Event('prima:modal:open'))
+    if (Object.hasOwn(this.modalEl.dataset, "primaShow")) {
+      this.modalEl.dispatchEvent(new Event("prima:modal:open"));
     }
   },
 
   handleModalOpen() {
-    this.storeFocusedElement()
-    this.preventBodyScroll()
-    this.modalEl.removeAttribute('aria-hidden')
+    this.storeFocusedElement();
+    this.preventBodyScroll();
+    this.modalEl.removeAttribute("aria-hidden");
     this.maybeExecJS(this.modalEl, "js-show");
     this.maybeExecJS(this.ref("modal-overlay"), "js-show");
     if (this.async) {
@@ -94,38 +111,45 @@ export default {
   handlePanelMounted() {
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     this.maybeExecJS(this.ref("modal-panel"), "js-show");
-    this.setupAriaRelationships()
-    this.modalEl.removeAttribute('aria-hidden')
+    this.setupAriaRelationships();
+    this.modalEl.removeAttribute("aria-hidden");
 
-    const panelShowEndHandler = this.handlePanelShowEnd.bind(this)
-    this.ref("modal-panel").addEventListener("phx:show-end", panelShowEndHandler);
-    this.listeners.push([this.ref("modal-panel"), "phx:show-end", panelShowEndHandler])
+    const panelShowEndHandler = this.handlePanelShowEnd.bind(this);
+    this.ref("modal-panel").addEventListener(
+      "phx:show-end",
+      panelShowEndHandler,
+    );
+    this.listeners.push([
+      this.ref("modal-panel"),
+      "phx:show-end",
+      panelShowEndHandler,
+    ]);
   },
 
   handlePanelRemoved() {
     if (!this.panelIsDirty()) {
-      this.modalEl.dispatchEvent(new Event('prima:modal:close'))
+      this.modalEl.dispatchEvent(new Event("prima:modal:close"));
     }
   },
 
   handleModalClose() {
-    this.restoreBodyScroll()
+    this.restoreBodyScroll();
     this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
     this.maybeExecJS(this.ref("modal-panel"), "js-hide");
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     if (this.async) {
-      this.ref("modal-panel").dataset.primaDirty = true
+      this.ref("modal-panel").dataset.primaDirty = true;
     }
   },
 
   handleOverlayHideEnd() {
     this.maybeExecJS(this.modalEl, "js-hide");
-    this.modalEl.setAttribute('aria-hidden', 'true')
-    this.restoreFocusedElement()
+    this.modalEl.setAttribute("aria-hidden", "true");
+    this.restoreFocusedElement();
   },
 
   handlePanelShowEnd() {
-    this.focusFirstElement()
+    this.focusFirstElement();
   },
 
   maybeExecJS(el, attribute) {
@@ -135,7 +159,9 @@ export default {
   },
 
   panelIsDirty() {
-    return this.ref('modal-panel') && this.ref("modal-panel").dataset.primaDirty
+    return (
+      this.ref("modal-panel") && this.ref("modal-panel").dataset.primaDirty
+    );
   },
 
   ref(ref) {
@@ -143,53 +169,54 @@ export default {
   },
 
   preventBodyScroll() {
-    this.originalBodyOverflow = document.body.style.overflow
-    this.originalBodyPaddingRight = document.body.style.paddingRight
+    this.originalBodyOverflow = document.body.style.overflow;
+    this.originalBodyPaddingRight = document.body.style.paddingRight;
 
-    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
-    document.body.style.overflow = 'hidden'
-    document.body.style.paddingRight = scrollBarWidth + 'px'
+    const scrollBarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = scrollBarWidth + "px";
   },
 
   restoreBodyScroll() {
-    document.body.style.overflow = this.originalBodyOverflow || ''
-    document.body.style.paddingRight = this.originalBodyPaddingRight || ''
+    document.body.style.overflow = this.originalBodyOverflow || "";
+    document.body.style.paddingRight = this.originalBodyPaddingRight || "";
   },
 
   setupAriaRelationships() {
-    const modalId = this.modalEl.id
-    const titleElement = this.ref('modal-title')
+    const modalId = this.modalEl.id;
+    const titleElement = this.ref("modal-title");
 
     if (titleElement) {
       // Generate ID for the title if it doesn't have one
       if (!titleElement.id) {
-        titleElement.id = `${modalId}-title`
+        titleElement.id = `${modalId}-title`;
       }
 
       // Set aria-labelledby on the modal container
-      this.modalEl.setAttribute('aria-labelledby', titleElement.id)
+      this.modalEl.setAttribute("aria-labelledby", titleElement.id);
     }
   },
 
   storeFocusedElement() {
-    this.previouslyFocusedElement = document.activeElement
+    this.previouslyFocusedElement = document.activeElement;
   },
 
   restoreFocusedElement() {
     if (this.previouslyFocusedElement && this.previouslyFocusedElement.focus) {
-      this.previouslyFocusedElement.focus()
+      this.previouslyFocusedElement.focus();
     }
   },
 
   focusFirstElement() {
-    const panel = this.ref("modal-panel")
+    const panel = this.ref("modal-panel");
 
     // First, check if there's an element with data-autofocus
-    const autofocusElement = panel.querySelector('[data-autofocus]')
+    const autofocusElement = panel.querySelector("[data-autofocus]");
     if (autofocusElement) {
-      autofocusElement.focus()
+      autofocusElement.focus();
     } else {
-      this.maybeExecJS(panel, 'js-focus-first')
+      this.maybeExecJS(panel, "js-focus-first");
     }
-  }
+  },
 };
