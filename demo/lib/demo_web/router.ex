@@ -27,6 +27,7 @@ defmodule DemoWeb.Router do
       live "/fixtures/dropdown-rerender-trigger", FixturesLive, :dropdown_rerender_trigger
       live "/fixtures/simple-modal", FixturesLive, :simple_modal
       live "/fixtures/async-modal", FixturesLive, :async_modal
+      live "/fixtures/modal-rerender-title", FixturesLive, :modal_rerender_title
       live "/fixtures/modal-title-custom-tag", FixturesLive, :modal_title_custom_tag
       live "/fixtures/modal-title-function", FixturesLive, :modal_title_function
       live "/fixtures/modal-focus-autofocus", FixturesLive, :modal_focus_autofocus

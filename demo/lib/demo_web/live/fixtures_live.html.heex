@@ -22,6 +22,10 @@
   <.async_modal_fixture {assigns} />
 </div>
 
+<div :if={@live_action == :modal_rerender_title}>
+  <.modal_rerender_title_fixture {assigns} />
+</div>
+
 <div :if={@live_action == :modal_title_custom_tag}>
   <.modal_title_custom_tag_fixture />
 </div>
