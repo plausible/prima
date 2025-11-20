@@ -10,12 +10,20 @@
   <.dropdown_custom_components_fixture />
 </div>
 
+<div :if={@live_action == :dropdown_rerender_trigger}>
+  <.dropdown_rerender_trigger_fixture {assigns} />
+</div>
+
 <div :if={@live_action == :simple_modal}>
   <.simple_modal_fixture />
 </div>
 
 <div :if={@live_action == :async_modal}>
   <.async_modal_fixture {assigns} />
+</div>
+
+<div :if={@live_action == :modal_rerender_title}>
+  <.modal_rerender_title_fixture {assigns} />
 </div>
 
 <div :if={@live_action == :modal_title_custom_tag}>

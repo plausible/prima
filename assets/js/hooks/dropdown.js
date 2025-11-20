@@ -26,6 +26,10 @@ export default {
     this.initialize()
   },
 
+  updated() {
+    this.initialize()
+  },
+
   reconnected() {
     this.initialize()
   },

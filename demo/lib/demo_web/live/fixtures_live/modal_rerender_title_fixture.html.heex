@@ -1,0 +1,37 @@
+<div id="modal-rerender">
+  <.button type="button" phx-click={Prima.Modal.open("demo-modal")}>
+    Open Modal
+  </.button>
+
+  <button id="update-title" type="button" phx-click="update-modal-title">
+    Update Title
+  </button>
+
+  <.modal id="demo-modal">
+    <.modal_overlay />
+
+    <div>
+      <div>
+        <.modal_panel id="demo-modal-panel">
+          <div>
+            <button
+              phx-click={Prima.Modal.close()}
+              testing-ref="close-button"
+            >
+              Close
+            </button>
+            <.modal_title>{@modal_title}</.modal_title>
+          </div>
+          <div>
+            <button id="update-title-inside" type="button" phx-click="update-modal-title">
+              Update Title
+            </button>
+            <.button phx-click={Prima.Modal.close()} type="button">
+              Got it
+            </.button>
+          </div>
+        </.modal_panel>
+      </div>
+    </div>
+  </.modal>
+</div>
