@@ -40,20 +40,6 @@ export default {
   },
 
   setupElements() {
-    // Check if this hook is attached to a portal or directly to the modal
-    // The modal element has role="dialog", the portal wrapper does not
-    if (this.el.getAttribute('role') === 'dialog') {
-      // Non-portal mode: the hook element IS the modal
-      this.modalEl = this.el
-    } else {
-      // Portal mode: find the actual modal element inside the portal
-      this.modalEl = document.getElementById(this.el.id.replace('-portal', ''))
-
-      if (!this.modalEl) {
-        throw new Error(`[Prima Modal] Could not find modal element for portal ${this.el.id}`)
-      }
-    }
-
     if (!this.ref("modal-panel")) {
       this.async = true
     }
