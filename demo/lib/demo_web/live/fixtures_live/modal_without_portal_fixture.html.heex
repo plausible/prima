@@ -1,0 +1,19 @@
+<div id="modal-without-portal">
+  <.button type="button" phx-click={Prima.Modal.open("no-portal-modal")}>
+    Open Modal (No Portal)
+  </.button>
+
+  <.modal id="no-portal-modal" portal={false}>
+    <.modal_overlay />
+    <.modal_panel id="no-portal-modal-panel">
+      <button phx-click={Prima.Modal.close()} testing-ref="close-button">
+        Close
+      </button>
+      <.modal_title>Modal Without Portal</.modal_title>
+      <p>This modal renders inline without using a portal.</p>
+      <.button phx-click={Prima.Modal.close()} type="button">
+        Got it
+      </.button>
+    </.modal_panel>
+  </.modal>
+</div>

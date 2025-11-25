@@ -32,6 +32,7 @@ defmodule DemoWeb.Router do
       live "/fixtures/modal-title-function", FixturesLive, :modal_title_function
       live "/fixtures/modal-focus-autofocus", FixturesLive, :modal_focus_autofocus
       live "/fixtures/modal-push-event", FixturesLive, :modal_push_event
+      live "/fixtures/modal-without-portal", FixturesLive, :modal_without_portal
       live "/fixtures/simple-combobox", FixturesLive, :simple_combobox
       live "/fixtures/async-combobox", FixturesLive, :async_combobox
       live "/fixtures/creatable-combobox", FixturesLive, :creatable_combobox
