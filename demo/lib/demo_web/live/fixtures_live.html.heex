@@ -42,6 +42,10 @@
   <.modal_push_event_fixture />
 </div>
 
+<div :if={@live_action == :modal_without_portal}>
+  <.modal_without_portal_fixture />
+</div>
+
 <div :if={@live_action == :simple_combobox}>
   <.simple_combobox_fixture />
 </div>

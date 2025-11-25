@@ -36,6 +36,24 @@ defmodule Prima.Modal do
 
   Focus is automatically restored to the triggering element when the modal closes.
 
+  ## Portal Behavior
+
+  By default, modals use Phoenix's portal component to teleport content to the
+  document body, ensuring proper z-index stacking above other page content.
+
+  To render a modal inline without a portal:
+
+      <.modal id="my-modal" portal={false}>
+        <.modal_overlay class="fixed inset-0 bg-gray-500/75" />
+        <.modal_panel id="my-panel">
+          <p>This modal renders inline</p>
+        </.modal_panel>
+      </.modal>
+
+  **Important:** When `portal={false}`, ensure your CSS positioning allows
+  the modal to overlay the page properly. Parent containers with `overflow: hidden`
+  or `position: relative` may interfere with modal display. If you cannot control
+  parent styles, use the default portal mode instead.
 
   ## Modal Control Patterns
 
@@ -111,6 +129,7 @@ defmodule Prima.Modal do
   attr :class, :string, default: ""
   attr :on_close, JS, default: %JS{}
   attr :show, :boolean, default: false
+  attr :portal, :boolean, default: true
 
   slot :inner_block
 
@@ -127,6 +146,9 @@ defmodule Prima.Modal do
     * `class` - Additional CSS classes to apply
     * `on_close` - JavaScript commands to execute when modal closes
     * `show` - Boolean indicating initial visibility state
+    * `portal` - Boolean controlling portal usage (default: true).
+      When true (default), modal is teleported to document body for proper
+      z-index stacking. When false, modal renders in its natural DOM position.
 
   ## Example
 
@@ -140,22 +162,30 @@ defmodule Prima.Modal do
   """
   def modal(assigns) do
     ~H"""
-    <.portal id={"#{@id}-portal"} target="body">
-      <div
-        id={@id}
-        js-show={JS.show()}
-        js-hide={@on_close |> JS.hide()}
-        data-prima-show={@show}
-        style="display: none;"
-        phx-hook="Modal"
-        class={@class}
-        role="dialog"
-        aria-modal="true"
-        aria-hidden="true"
-      >
-        {render_slot(@inner_block)}
-      </div>
+    <.portal :if={@portal} id={"#{@id}-portal"} target="body">
+      <.modal_container {assigns} />
     </.portal>
+
+    <.modal_container :if={!@portal} {assigns} />
+    """
+  end
+
+  defp modal_container(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      js-show={JS.show()}
+      js-hide={@on_close |> JS.hide()}
+      data-prima-show={@show}
+      style="display: none;"
+      phx-hook="Modal"
+      class={@class}
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+    >
+      {render_slot(@inner_block)}
+    </div>
     """
   end
 
