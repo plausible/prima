@@ -18,35 +18,45 @@ export default {
   initialize() {
     this.cleanup()
     this.setupElements()
-    this.setupEventListeners()
+    this.setupDOMEventListeners()
+    this.setupPushEventListeners()
     this.checkInitialShow()
     this.el.setAttribute('data-prima-ready', 'true')
   },
 
+  setupPushEventListeners() {
+    this.pushEventRefs = [
+      this.handleEvent("prima:modal:open", (payload) => {
+        if (!payload.id || payload.id === this.el.id) {
+          this.handleModalOpen()
+        }
+      }),
+      this.handleEvent("prima:modal:close", (payload) => {
+        if (!payload.id || payload.id === this.el.id) {
+          this.handleModalClose()
+        }
+      })
+    ]
+  },
+
   setupElements() {
-    this.modalEl = document.getElementById(this.el.id.replace('-portal', ''))
-
-    if (!this.modalEl) {
-      throw new Error(`[Prima Modal] Could not find modal element for portal ${this.el.id}`)
-    }
-
     if (!this.ref("modal-panel")) {
       this.async = true
     }
     this.setupAriaRelationships()
   },
 
-  setupEventListeners() {
+  setupDOMEventListeners() {
     this.listeners = [
-      [this.modalEl, "prima:modal:open", this.handleModalOpen.bind(this)],
-      [this.modalEl, "prima:modal:close", this.handleModalClose.bind(this)],
+      [this.el, "prima:modal:open", this.handleModalOpen.bind(this)],
+      [this.el, "prima:modal:close", this.handleModalClose.bind(this)],
       [this.ref("modal-overlay"), "phx:hide-end", this.handleOverlayHideEnd.bind(this)]
     ]
 
     if (this.async) {
       this.listeners.push(
-        [this.modalEl, "prima:modal:panel-mounted", this.handlePanelMounted.bind(this)],
-        [this.modalEl, "prima:modal:panel-removed", this.handlePanelRemoved.bind(this)]
+        [this.el, "prima:modal:panel-mounted", this.handlePanelMounted.bind(this)],
+        [this.el, "prima:modal:panel-removed", this.handlePanelRemoved.bind(this)]
       )
     }
 
@@ -71,19 +81,26 @@ export default {
       })
       this.listeners = []
     }
+
+    if (this.pushEventRefs) {
+      this.pushEventRefs.forEach(ref => {
+        if (ref) this.removeHandleEvent(ref)
+      })
+      this.pushEventRefs = []
+    }
   },
 
   checkInitialShow() {
-    if (Object.hasOwn(this.modalEl.dataset, 'primaShow')) {
-      this.modalEl.dispatchEvent(new Event('prima:modal:open'))
+    if (Object.hasOwn(this.el.dataset, 'primaShow')) {
+      this.el.dispatchEvent(new Event('prima:modal:open'))
     }
   },
 
   handleModalOpen() {
     this.storeFocusedElement()
     this.preventBodyScroll()
-    this.modalEl.removeAttribute('aria-hidden')
-    this.maybeExecJS(this.modalEl, "js-show");
+    this.el.removeAttribute('aria-hidden')
+    this.maybeExecJS(this.el, "js-show");
     this.maybeExecJS(this.ref("modal-overlay"), "js-show");
     if (this.async) {
       this.maybeExecJS(this.ref("modal-loader"), "js-show");
@@ -96,7 +113,7 @@ export default {
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     this.maybeExecJS(this.ref("modal-panel"), "js-show");
     this.setupAriaRelationships()
-    this.modalEl.removeAttribute('aria-hidden')
+    this.el.removeAttribute('aria-hidden')
 
     const panelShowEndHandler = this.handlePanelShowEnd.bind(this)
     this.ref("modal-panel").addEventListener("phx:show-end", panelShowEndHandler);
@@ -105,7 +122,7 @@ export default {
 
   handlePanelRemoved() {
     if (!this.panelIsDirty()) {
-      this.modalEl.dispatchEvent(new Event('prima:modal:close'))
+      this.el.dispatchEvent(new Event('prima:modal:close'))
     }
   },
 
@@ -120,8 +137,8 @@ export default {
   },
 
   handleOverlayHideEnd() {
-    this.maybeExecJS(this.modalEl, "js-hide");
-    this.modalEl.setAttribute('aria-hidden', 'true')
+    this.maybeExecJS(this.el, "js-hide");
+    this.el.setAttribute('aria-hidden', 'true')
     this.restoreFocusedElement()
   },
 
@@ -140,7 +157,7 @@ export default {
   },
 
   ref(ref) {
-    return this.modalEl.querySelector(`[data-prima-ref="${ref}"]`);
+    return this.el.querySelector(`[data-prima-ref="${ref}"]`);
   },
 
   preventBodyScroll() {
@@ -158,7 +175,7 @@ export default {
   },
 
   setupAriaRelationships() {
-    const modalId = this.modalEl.id
+    const modalId = this.el.id
     const titleElement = this.ref('modal-title')
 
     if (titleElement) {
@@ -168,7 +185,7 @@ export default {
       }
 
       // Set aria-labelledby on the modal container
-      this.modalEl.setAttribute('aria-labelledby', titleElement.id)
+      this.el.setAttribute('aria-labelledby', titleElement.id)
     }
   },
 

@@ -1,0 +1,97 @@
+<div id="modal-push-event">
+  <h2>Single Modal Tests (no ID in payload)</h2>
+  <.button type="button" phx-click={Prima.Modal.JS.open("frontend-modal")}>
+    Open Frontend Modal
+  </.button>
+
+  <.button type="button" phx-click={JS.push("open-frontend-modal")} id="backend-open-button">
+    Open via Backend push_event
+  </.button>
+
+  <.modal id="frontend-modal">
+    <.modal_overlay />
+    <div>
+      <div>
+        <.modal_panel id="frontend-modal-panel">
+          <div>
+            <button phx-click={Prima.Modal.JS.close()} testing-ref="close-button">
+              Close
+            </button>
+            <.modal_title>Frontend Modal</.modal_title>
+          </div>
+          <div>
+            <p>This modal can be opened and closed via push_event from backend</p>
+            <.button
+              type="button"
+              phx-click={JS.push("close-frontend-modal")}
+              id="backend-close-button"
+            >
+              Close via Backend push_event
+            </.button>
+          </div>
+        </.modal_panel>
+      </div>
+    </div>
+  </.modal>
+
+  <h2>Multiple Modal Tests (with ID in payload)</h2>
+  <.button type="button" phx-click={JS.push("open-specific-modal", value: %{id: "modal-one"})}>
+    Open Modal One via Backend
+  </.button>
+
+  <.button type="button" phx-click={JS.push("open-specific-modal", value: %{id: "modal-two"})}>
+    Open Modal Two via Backend
+  </.button>
+
+  <.modal id="modal-one">
+    <.modal_overlay />
+    <div>
+      <div>
+        <.modal_panel id="modal-one-panel">
+          <div>
+            <button phx-click={Prima.Modal.JS.close()} testing-ref="modal-one-close">
+              Close
+            </button>
+            <.modal_title>Modal One</.modal_title>
+          </div>
+          <div>
+            <p>This is modal one</p>
+            <.button
+              type="button"
+              phx-click={JS.push("close-specific-modal", value: %{id: "modal-one"})}
+              id="backend-close-modal-one"
+            >
+              Close Modal One via Backend
+            </.button>
+          </div>
+        </.modal_panel>
+      </div>
+    </div>
+  </.modal>
+
+  <.modal id="modal-two">
+    <.modal_overlay />
+    <div>
+      <div>
+        <.modal_panel id="modal-two-panel">
+          <div>
+            <button phx-click={Prima.Modal.JS.close()} testing-ref="modal-two-close">
+              Close
+            </button>
+            <.modal_title>Modal Two</.modal_title>
+          </div>
+          <div>
+            <p>This is modal two</p>
+            <.button
+              type="button"
+              phx-click={JS.push("close-specific-modal", value: %{id: "modal-two"})}
+              id="backend-close-modal-two"
+            >
+              Close Modal Two via Backend
+            </.button>
+          </div>
+        </.modal_panel>
+      </div>
+    </div>
+  </.modal>
+</div>

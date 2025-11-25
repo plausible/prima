@@ -31,5 +31,3 @@ jobs:
         uses: superfly/fly-pr-review-apps@1.2.1
         with:
           config: demo/fly.toml
-          dockerfile: demo/Dockerfile
-          build_args: BUILD_CONTEXT=.

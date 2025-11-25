@@ -38,6 +38,10 @@
   <.modal_focus_autofocus_fixture />
 </div>
 
+<div :if={@live_action == :modal_push_event}>
+  <.modal_push_event_fixture />
+</div>
+
 <div :if={@live_action == :simple_combobox}>
   <.simple_combobox_fixture />
 </div>
