@@ -7,7 +7,7 @@ defmodule Prima.MixProject do
       name: "Prima",
       description: "Unstyled, accessible components for LiveView applications",
       app: :prima,
-      version: "0.2.1",
+      version: "0.2.2",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
