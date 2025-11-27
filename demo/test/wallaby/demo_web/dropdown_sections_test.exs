@@ -1,10 +1,8 @@
 defmodule DemoWeb.DropdownSectionsTest do
   use Prima.WallabyCase, async: true
 
-  @dropdown_container Query.css("#dropdown-sections")
   @dropdown_button Query.css("#dropdown-sections [aria-haspopup=menu]")
   @dropdown_menu Query.css("#dropdown-sections [role=menu]")
-  @dropdown_items Query.css("#dropdown-sections [role=menuitem]")
 
   feature "renders sections with proper ARIA roles", %{session: session} do
     session
@@ -25,7 +23,10 @@ defmodule DemoWeb.DropdownSectionsTest do
     session
     |> visit_fixture("/fixtures/dropdown-sections", "#dropdown-sections")
     |> click(@dropdown_button)
-    |> assert_has(Query.css("#dropdown-sections [role=separator]", count: 2))
+    |> assert_has(
+      Query.css("#dropdown-sections [role=separator]", count: 2)
+      |> Query.visible(false)
+    )
   end
 
   feature "sections are automatically labeled by headings via JS hook", %{session: session} do
@@ -54,15 +55,15 @@ defmodule DemoWeb.DropdownSectionsTest do
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#dropdown-sections [role=menuitem]:nth-of-type(1)[data-focus]"))
+    |> assert_has(Query.css("#dropdown-sections-item-0[data-focus]"))
     |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#dropdown-sections [role=menuitem]:nth-of-type(2)[data-focus]"))
+    |> assert_has(Query.css("#dropdown-sections-item-1[data-focus]"))
     |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#dropdown-sections [role=menuitem]:nth-of-type(3)[data-focus]"))
+    |> assert_has(Query.css("#dropdown-sections-item-2[data-focus]"))
     |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#dropdown-sections [role=menuitem]:nth-of-type(4)[data-focus]"))
+    |> assert_has(Query.css("#dropdown-sections-item-3[data-focus]"))
     |> send_keys([:down_arrow])
-    |> assert_has(Query.css("#dropdown-sections [role=menuitem]:nth-of-type(5)[data-focus]"))
+    |> assert_has(Query.css("#dropdown-sections-item-4[data-focus]"))
   end
 
   feature "Home key navigates to first menu item, skipping headings", %{session: session} do
