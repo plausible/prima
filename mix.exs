@@ -59,7 +59,7 @@ defmodule Prima.MixProject do
 
   defp docs do
     [
-      main: "Prima",
+      main: "readme",
       source_url: @source_url,
       homepage_url: @source_url,
       extras: ["README.md"],
@@ -69,9 +69,6 @@ defmodule Prima.MixProject do
           Prima.Dropdown,
           Prima.Combobox
         ]
-      ],
-      groups_for_extras: [
-        Guides: ["README.md"]
       ]
     ]
   end
