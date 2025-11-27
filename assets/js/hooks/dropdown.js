@@ -333,6 +333,7 @@ export default {
     menu.setAttribute('aria-labelledby', triggerId)
 
     this.setupMenuitemIds()
+    this.setupSectionLabels()
   },
 
   setupMenuitemIds() {
@@ -341,6 +342,24 @@ export default {
 
     items.forEach((item, index) => {
       item.id = `${dropdownId}-item-${index}`
+    })
+  },
+
+  setupSectionLabels() {
+    const dropdownId = this.el.id
+    const sections = this.el.querySelectorAll('[role="group"]')
+
+    sections.forEach((section, sectionIndex) => {
+      // Check if the first child is a heading (role="presentation")
+      const firstChild = section.firstElementChild
+      if (firstChild && firstChild.getAttribute('role') === 'presentation') {
+        // Ensure the heading has an ID
+        if (!firstChild.id) {
+          firstChild.id = `${dropdownId}-section-${sectionIndex}-heading`
+        }
+        // Link the section to the heading
+        section.setAttribute('aria-labelledby', firstChild.id)
+      }
     })
   },
 
