@@ -22,7 +22,7 @@ defmodule PrimaWeb.DemoLive.FormModalDemo do
         id="open-form-demo-button"
         type="button"
         phx-click={
-          Prima.Modal.open("form-integration-modal") |> JS.push("open-form-modal", target: @myself)
+          Prima.Modal.JS.open("form-integration-modal") |> JS.push("open-form-modal", target: @myself)
         }
       >
         Open Modal

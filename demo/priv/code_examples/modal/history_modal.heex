@@ -1,4 +1,4 @@
-<.button phx-click={JS.patch("/modal/history") |> Prima.Modal.open("demo-history-modal")}>
+<.button phx-click={JS.patch("/modal/history") |> Prima.Modal.JS.open("demo-history-modal")}>
   Open Modal
 </.button>
 
@@ -75,7 +75,7 @@
           </div>
         </div>
         <div class="mt-5 sm:mt-6">
-          <.button phx-click={Prima.Modal.close()} type="button" class="w-full">
+          <.button phx-click={Prima.Modal.JS.close()} type="button" class="w-full">
             Go back to dashboard
           </.button>
         </div>
