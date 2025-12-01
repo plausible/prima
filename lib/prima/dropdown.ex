@@ -89,7 +89,7 @@ defmodule Prima.Dropdown do
 
   # Floating UI positioning options
   attr :placement, :string,
-    default: "bottom-start",
+    default: "bottom-end",
     values:
       ~w(top top-start top-end right right-start right-end bottom bottom-start bottom-end left left-start left-end)
 
