@@ -61,4 +61,21 @@ defmodule DemoWeb.DropdownCustomComponentsTest do
     |> assert_has(Query.css("#dropdown-custom a[role=menuitem]:nth-child(2)[data-focus]"))
     |> assert_missing(Query.css("#dropdown-custom [role=menuitem]:nth-child(1)[data-focus]"))
   end
+
+  feature "pressing Enter on a focused link item navigates to the link", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown-custom-components", "#dropdown-custom")
+    |> click(@dropdown_trigger)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+    # Navigate down to the link item (which links to "/")
+    |> send_keys([:down_arrow])
+    |> send_keys([:down_arrow])
+    |> assert_has(
+      Query.css("#dropdown-custom a[role=menuitem]:nth-child(2)[data-focus]", text: "Link Item")
+    )
+    # Press Enter to follow the link
+    |> send_keys([:enter])
+    # Should navigate away from the fixture page - the dropdown should no longer exist
+    |> assert_missing(@dropdown_container)
+  end
 end

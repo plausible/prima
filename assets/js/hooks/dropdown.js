@@ -151,7 +151,14 @@ export default {
   },
 
   handleEnterOrSpace(e) {
-    if (document.activeElement === this.refs.button) {
+    const focusedItem = this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)
+
+    if (focusedItem && focusedItem.getAttribute('aria-disabled') !== 'true') {
+      // A menu item is focused - click it
+      e.preventDefault()
+      focusedItem.click()
+    } else if (document.activeElement === this.refs.button) {
+      // Button is focused - open menu
       e.preventDefault()
       this.showMenuAndFocusFirst()
     }
