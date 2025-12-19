@@ -10,6 +10,10 @@
   <.dropdown_custom_components_fixture />
 </div>
 
+<div :if={@live_action == :dropdown_custom_ids}>
+  <.dropdown_custom_ids_fixture />
+</div>
+
 <div :if={@live_action == :dropdown_rerender_trigger}>
   <.dropdown_rerender_trigger_fixture {assigns} />
 </div>

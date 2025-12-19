@@ -82,6 +82,7 @@ defmodule Prima.Dropdown do
   attr :transition_enter, :any, default: nil
   attr :transition_leave, :any, default: nil
   attr :class, :string, default: ""
+  attr :rest, :global
   slot :inner_block, required: true
 
   # Positioning reference
@@ -118,6 +119,7 @@ defmodule Prima.Dropdown do
         js-hide={JS.hide(transition: @transition_leave)}
         role="menu"
         phx-click-away={JS.dispatch("prima:close")}
+        {@rest}
       >
         {render_slot(@inner_block)}
       </div>

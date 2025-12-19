@@ -331,12 +331,12 @@ export default {
 
   setupAriaRelationships(button, menu) {
     const dropdownId = this.el.id
-    const triggerId = `${dropdownId}-trigger`
-    const menuId = `${dropdownId}-menu`
+    const triggerId = button.id || `${dropdownId}-trigger`
+    const menuId = menu.id || `${dropdownId}-menu`
 
-    button.id = triggerId
+    if (!button.id) button.id = triggerId
     button.setAttribute('aria-controls', menuId)
-    menu.id = menuId
+    if (!menu.id) menu.id = menuId
     menu.setAttribute('aria-labelledby', triggerId)
 
     this.setupMenuitemIds()
@@ -348,7 +348,9 @@ export default {
     const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
 
     items.forEach((item, index) => {
-      item.id = `${dropdownId}-item-${index}`
+      if (!item.id) {
+        item.id = `${dropdownId}-item-${index}`
+      }
     })
   },
 
