@@ -28,7 +28,7 @@ erl_crash.dump
 prima-*.tar
 
 # Ignore assets that are produced by build tools.
-/priv/static/assets/
+# /priv/static/assets/
 /demo/priv/static/assets/
 
 # Ignore digested assets cache.
