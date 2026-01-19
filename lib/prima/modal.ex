@@ -128,6 +128,7 @@ defmodule Prima.Modal do
   attr :id, :string, required: true
   attr :class, :string, default: ""
   attr :on_close, JS, default: %JS{}
+  attr :auto_close, :boolean, default: true
   attr :show, :boolean, default: false
   attr :portal, :boolean, default: true
 
@@ -175,7 +176,8 @@ defmodule Prima.Modal do
     <div
       id={@id}
       js-show={JS.show()}
-      js-hide={@on_close |> JS.hide()}
+      js-hide={@on_close}
+      data-prima-auto-close={@auto_close}
       data-prima-show={@show}
       style="display: none;"
       phx-hook="Modal"
