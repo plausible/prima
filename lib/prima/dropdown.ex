@@ -130,10 +130,7 @@ defmodule Prima.Dropdown do
   attr :class, :string, default: ""
   attr :disabled, :boolean, default: false
   attr :as, :any, default: nil
-
-  # Workaround - unfortunately there seems to be no way to pass through arbitrary assigns without emitting compile warnings
-  # Since dropdown items are often rendered as links, we add the <.link> attributes here as well.
-  attr :rest, :global, include: ~w(navigate patch href)
+  attr :args, :map, default: %{}
   slot :inner_block, required: true
 
   @doc """
@@ -149,6 +146,7 @@ defmodule Prima.Dropdown do
     * `class` - CSS classes for styling the menu item
     * `disabled` - Boolean to mark the item as disabled (default: false)
     * `as` - Custom function component to render instead of the default div element
+    * `args` - A map of args passed directly to the `as` function
 
   ## Examples
 

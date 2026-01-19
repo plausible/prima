@@ -40,6 +40,8 @@ export default {
   },
 
   setupElements() {
+    this.autoClose = Object.hasOwn(this.el.dataset, 'primaAutoClose')
+
     if (!this.ref("modal-panel")) {
       this.async = true
     }
@@ -126,18 +128,23 @@ export default {
     }
   },
 
-  handleModalClose() {
-    this.restoreBodyScroll()
-    this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
-    this.maybeExecJS(this.ref("modal-panel"), "js-hide");
-    this.maybeExecJS(this.ref("modal-loader"), "js-hide");
-    if (this.async) {
-      this.ref("modal-panel").dataset.primaDirty = true
+  handleModalClose(e) {
+    if (this.autoClose || !e) {
+      this.restoreBodyScroll()
+      this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
+      this.maybeExecJS(this.ref("modal-panel"), "js-hide");
+      this.maybeExecJS(this.ref("modal-loader"), "js-hide");
+      if (this.async) {
+        this.ref("modal-panel").dataset.primaDirty = true
+      }
+    } else {
+      this.maybeExecJS(this.el, "js-hide");
     }
   },
 
   handleOverlayHideEnd() {
     this.maybeExecJS(this.el, "js-hide");
+    this.js().hide(this.el)
     this.el.setAttribute('aria-hidden', 'true')
     this.restoreFocusedElement()
   },
