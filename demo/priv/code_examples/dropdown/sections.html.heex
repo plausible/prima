@@ -1,5 +1,5 @@
 <.dropdown id="sections-dropdown">
-  <.dropdown_trigger as={&button/1}>
+  <.dropdown_trigger id="sections-dropdown-trigger" as={&button/1}>
     Account Menu
     <svg
       class="-mr-1 h-5 w-5 text-white"
@@ -14,15 +14,15 @@
       />
     </svg>
   </.dropdown_trigger>
-  <.dropdown_menu class="w-56 py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none">
+  <.dropdown_menu id="sections-dropdown-menu" class="w-56 py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none">
     <.dropdown_section class="px-1 py-1">
-      <.dropdown_heading class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+      <.dropdown_heading id="sections-dropdown-heading-account" class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
         Account
       </.dropdown_heading>
-      <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm rounded">
+      <.dropdown_item id="sections-dropdown-item-0" class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm rounded">
         Profile
       </.dropdown_item>
-      <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm rounded">
+      <.dropdown_item id="sections-dropdown-item-1" class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm rounded">
         Settings
       </.dropdown_item>
     </.dropdown_section>
@@ -30,20 +30,20 @@
     <.dropdown_separator class="my-1 border-t border-gray-200" />
 
     <.dropdown_section class="px-1 py-1">
-      <.dropdown_heading class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+      <.dropdown_heading id="sections-dropdown-heading-support" class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
         Support
       </.dropdown_heading>
-      <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm rounded">
+      <.dropdown_item id="sections-dropdown-item-2" class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm rounded">
         Documentation
       </.dropdown_item>
-      <.dropdown_item class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm rounded">
+      <.dropdown_item id="sections-dropdown-item-3" class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm rounded">
         Contact Us
       </.dropdown_item>
     </.dropdown_section>
 
     <.dropdown_separator class="my-1 border-t border-gray-200" />
 
-    <.dropdown_item class="text-red-700 data-focus:bg-red-100 data-focus:text-red-900 block px-4 py-2 text-sm rounded mx-1">
+    <.dropdown_item id="sections-dropdown-item-4" class="text-red-700 data-focus:bg-red-100 data-focus:text-red-900 block px-4 py-2 text-sm rounded mx-1">
       Sign Out
     </.dropdown_item>
   </.dropdown_menu>

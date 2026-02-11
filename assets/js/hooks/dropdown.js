@@ -330,42 +330,19 @@ export default {
   },
 
   setupAriaRelationships(button, menu) {
-    const dropdownId = this.el.id
-    const triggerId = button.id || `${dropdownId}-trigger`
-    const menuId = menu.id || `${dropdownId}-menu`
+    button.setAttribute('aria-controls', menu.id)
+    menu.setAttribute('aria-labelledby', button.id)
 
-    if (!button.id) button.id = triggerId
-    button.setAttribute('aria-controls', menuId)
-    if (!menu.id) menu.id = menuId
-    menu.setAttribute('aria-labelledby', triggerId)
-
-    this.setupMenuitemIds()
     this.setupSectionLabels()
   },
 
-  setupMenuitemIds() {
-    const dropdownId = this.el.id
-    const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
-
-    items.forEach((item, index) => {
-      if (!item.id) {
-        item.id = `${dropdownId}-item-${index}`
-      }
-    })
-  },
-
   setupSectionLabels() {
-    const dropdownId = this.el.id
     const sections = this.el.querySelectorAll('[role="group"]')
 
-    sections.forEach((section, sectionIndex) => {
+    sections.forEach((section) => {
       // Check if the first child is a heading (role="presentation")
       const firstChild = section.firstElementChild
       if (firstChild && firstChild.getAttribute('role') === 'presentation') {
-        // Ensure the heading has an ID
-        if (!firstChild.id) {
-          firstChild.id = `${dropdownId}-section-${sectionIndex}-heading`
-        }
         // Link the section to the heading
         section.setAttribute('aria-labelledby', firstChild.id)
       }

@@ -1,16 +1,16 @@
 <div>
   <.dropdown id="dropdown-with-disabled">
-    <.dropdown_trigger>
+    <.dropdown_trigger id="dropdown-with-disabled-trigger">
       Open Dropdown
     </.dropdown_trigger>
-    <.dropdown_menu>
-      <.dropdown_item>
+    <.dropdown_menu id="dropdown-with-disabled-menu">
+      <.dropdown_item id="dropdown-with-disabled-item-0">
         Enabled Item 1
       </.dropdown_item>
-      <.dropdown_item disabled={true}>
+      <.dropdown_item id="dropdown-with-disabled-item-1" disabled={true}>
         Disabled Item
       </.dropdown_item>
-      <.dropdown_item>
+      <.dropdown_item id="dropdown-with-disabled-item-2">
         Enabled Item 2
       </.dropdown_item>
     </.dropdown_menu>

@@ -1,16 +1,16 @@
 <.dropdown id="dropdown-sections">
-  <.dropdown_trigger as={&button/1}>
+  <.dropdown_trigger id="dropdown-sections-trigger" as={&button/1}>
     Account Menu
   </.dropdown_trigger>
-  <.dropdown_menu>
+  <.dropdown_menu id="dropdown-sections-menu">
     <.dropdown_section>
-      <.dropdown_heading>
+      <.dropdown_heading id="dropdown-sections-heading-account">
         Account
       </.dropdown_heading>
-      <.dropdown_item>
+      <.dropdown_item id="dropdown-sections-item-0">
         Profile
       </.dropdown_item>
-      <.dropdown_item>
+      <.dropdown_item id="dropdown-sections-item-1">
         Settings
       </.dropdown_item>
     </.dropdown_section>
@@ -18,20 +18,20 @@
     <.dropdown_separator />
 
     <.dropdown_section>
-      <.dropdown_heading>
+      <.dropdown_heading id="dropdown-sections-heading-support">
         Support
       </.dropdown_heading>
-      <.dropdown_item>
+      <.dropdown_item id="dropdown-sections-item-2">
         Documentation
       </.dropdown_item>
-      <.dropdown_item>
+      <.dropdown_item id="dropdown-sections-item-3">
         Contact Us
       </.dropdown_item>
     </.dropdown_section>
 
     <.dropdown_separator />
 
-    <.dropdown_item>
+    <.dropdown_item id="dropdown-sections-item-4">
       Sign Out
     </.dropdown_item>
   </.dropdown_menu>
