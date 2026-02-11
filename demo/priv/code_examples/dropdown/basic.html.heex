@@ -1,5 +1,5 @@
 <.dropdown id="basic-dropdown">
-  <.dropdown_trigger as={&button/1}>
+  <.dropdown_trigger id="basic-dropdown-trigger" as={&button/1}>
     Open Dropdown
     <svg
       class="-mr-1 h-5 w-5 text-whites"
@@ -14,9 +14,13 @@
       />
     </svg>
   </.dropdown_trigger>
-  <.dropdown_menu class="w-56 py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none">
+  <.dropdown_menu
+    id="basic-dropdown-menu"
+    class="w-56 py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none"
+  >
     <.dropdown_item
-      :for={option <- ["Account settings", "Billing", "Documentation"]}
+      :for={{option, index} <- Enum.with_index(["Account settings", "Billing", "Documentation"])}
+      id={"basic-dropdown-item-#{index}"}
       class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm"
     >
       {option}
