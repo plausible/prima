@@ -54,7 +54,7 @@ export default {
       this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
     }
 
-    this.el.setAttribute('data-prima-ready', 'true')
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   setupElements() {
@@ -108,7 +108,7 @@ export default {
     if (this.refs.optionsContainer && this.refs.searchInput) {
       const optionsId = this.refs.optionsContainer.getAttribute('id')
       if (optionsId) {
-        this.refs.searchInput.setAttribute('aria-controls', optionsId)
+        this.js().setAttribute(this.refs.searchInput, 'aria-controls', optionsId)
       }
     }
 
@@ -123,7 +123,7 @@ export default {
     options.forEach((option, index) => {
       if (!option.id) {
         const comboboxId = this.el.id || 'combobox'
-        option.id = `${comboboxId}-option-${index}`
+        this.js().setAttribute(option, 'id', `${comboboxId}-option-${index}`)
       }
     })
   },
@@ -247,12 +247,15 @@ export default {
   },
 
   setFocus(el) {
-    this.refs.optionsContainer?.querySelector(SELECTORS.FOCUSED_OPTION)?.removeAttribute('data-focus')
-    el.setAttribute('data-focus', 'true')
+    const focusedOption = this.refs.optionsContainer?.querySelector(SELECTORS.FOCUSED_OPTION)
+    if (focusedOption) {
+      this.js().removeAttribute(focusedOption, 'data-focus')
+    }
+    this.js().setAttribute(el, 'data-focus', 'true')
 
     // Update aria-activedescendant to point to the focused option
     if (el.id) {
-      this.refs.searchInput.setAttribute('aria-activedescendant', el.id)
+      this.js().setAttribute(this.refs.searchInput, 'aria-activedescendant', el.id)
     }
 
     el.scrollIntoView({ block: 'nearest', inline: 'nearest' })
@@ -335,9 +338,9 @@ export default {
     for (const option of allOptions) {
       const value = option.getAttribute('data-value')
       if (selectedValues.includes(value)) {
-        option.setAttribute('data-selected', 'true')
+        this.js().setAttribute(option, 'data-selected', 'true')
       } else {
-        option.removeAttribute('data-selected')
+        this.js().removeAttribute(option, 'data-selected')
       }
     }
   },
@@ -350,7 +353,7 @@ export default {
 
     const pill = this.refs.selectionTemplate.content.cloneNode(true)
     const item = pill.querySelector(SELECTORS.SELECTION_ITEM)
-    item.dataset.value = value
+    this.js().setAttribute(item, 'data-value', value)
     item.innerHTML = item.innerHTML.replaceAll('__VALUE__', displayValue)
 
     this.refs.selectionsContainer.appendChild(pill)
@@ -520,12 +523,12 @@ export default {
 
   showOption(option) {
     option.style.display = 'block'
-    option.removeAttribute('data-hidden')
+    this.js().removeAttribute(option, 'data-hidden')
   },
 
   hideOption(option) {
     option.style.display = 'none'
-    option.setAttribute('data-hidden', 'true')
+    this.js().setAttribute(option, 'data-hidden', 'true')
   },
 
   positionOptions() {
@@ -579,7 +582,7 @@ export default {
   },
 
   handleShowStart() {
-    this.refs.searchInput.setAttribute('aria-expanded', 'true')
+    this.js().setAttribute(this.refs.searchInput, 'aria-expanded', 'true')
 
     // Setup autoUpdate to reposition on scroll/resize
     this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsWrapper, () => {
@@ -596,8 +599,8 @@ export default {
     if (!this.refs.optionsContainer) return
 
     this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'));
-    this.refs.searchInput.setAttribute('aria-expanded', 'false')
-    this.refs.searchInput.removeAttribute('aria-activedescendant')
+    this.js().setAttribute(this.refs.searchInput, 'aria-expanded', 'false')
+    this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
 
     this.refs.optionsContainer.addEventListener('phx:hide-end', () => {
       const regularOptions = this.getRegularOptions()
