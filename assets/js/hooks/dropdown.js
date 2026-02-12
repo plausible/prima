@@ -333,6 +333,10 @@ export default {
   },
 
   setupAriaRelationships(button, menu) {
+    const dropdownId = this.el.id
+    const triggerId = button.id || `${dropdownId}-trigger`
+    const menuId = menu.id || `${dropdownId}-menu`
+
     button.setAttribute('aria-controls', menu.id)
     menu.setAttribute('aria-labelledby', button.id)
 
