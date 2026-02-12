@@ -333,9 +333,8 @@ export default {
   },
 
   setupAriaRelationships(button, menu) {
-    const dropdownId = this.el.id
-    const triggerId = button.id || `${dropdownId}-trigger`
-    const menuId = menu.id || `${dropdownId}-menu`
+    button.setAttribute('aria-controls', menu.id)
+    menu.setAttribute('aria-labelledby', button.id)
 
     if (!button.id) this.js().setAttribute(button, 'id', triggerId)
     this.js().setAttribute(button, 'aria-controls', menuId)
@@ -358,10 +357,9 @@ export default {
   },
 
   setupSectionLabels() {
-    const dropdownId = this.el.id
     const sections = this.el.querySelectorAll('[role="group"]')
 
-    sections.forEach((section, sectionIndex) => {
+    sections.forEach((section) => {
       // Check if the first child is a heading (role="presentation")
       const firstChild = section.firstElementChild
       if (firstChild && firstChild.getAttribute('role') === 'presentation') {
