@@ -344,7 +344,7 @@ export default {
     const dropdownId = this.el.id
     const sections = this.el.querySelectorAll('[role="group"]')
 
-    sections.forEach((section) => {
+    sections.forEach((section, sectionIndex) => {
       // Check if the first child is a heading (role="presentation")
       const firstChild = section.firstElementChild
       if (firstChild && firstChild.getAttribute('role') === 'presentation') {

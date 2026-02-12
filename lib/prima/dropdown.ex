@@ -15,7 +15,7 @@ defmodule Prima.Dropdown do
     """
   end
 
-  attr :id, :string, required: true
+  attr :id, :string, default: nil
   attr :class, :string, default: ""
   attr :as, :any, default: nil
   attr :rest, :global
@@ -30,7 +30,6 @@ defmodule Prima.Dropdown do
 
   ## Attributes
 
-    * `id` - Unique identifier for the trigger, required for ARIA relationships
     * `class` - CSS classes for styling the trigger
     * `as` - Custom function component to render instead of the default button element
 
@@ -82,7 +81,6 @@ defmodule Prima.Dropdown do
     render_as(assigns, %{tag_name: "button", type: "button"})
   end
 
-  attr :id, :string, required: true
   attr :transition_enter, :any, default: nil
   attr :transition_leave, :any, default: nil
   attr :class, :string, default: ""
@@ -117,7 +115,6 @@ defmodule Prima.Dropdown do
       data-offset={@offset}
     >
       <div
-        id={@id}
         class={@class}
         style="display: none;"
         js-show={JS.show(transition: @transition_enter)}
@@ -132,7 +129,6 @@ defmodule Prima.Dropdown do
     """
   end
 
-  attr :id, :string, required: true
   attr :class, :string, default: ""
   attr :disabled, :boolean, default: false
   attr :as, :any, default: nil
@@ -152,7 +148,6 @@ defmodule Prima.Dropdown do
 
   ## Attributes
 
-    * `id` - Unique identifier for the menu item, required for ARIA relationships
     * `class` - CSS classes for styling the menu item
     * `disabled` - Boolean to mark the item as disabled (default: false)
     * `as` - Custom function component to render instead of the default div element
@@ -291,7 +286,6 @@ defmodule Prima.Dropdown do
     """
   end
 
-  attr :id, :string, required: true
   attr :class, :string, default: ""
   attr :rest, :global
   slot :inner_block, required: true
@@ -305,7 +299,6 @@ defmodule Prima.Dropdown do
 
   ## Attributes
 
-    * `id` - Unique identifier for the heading, required for ARIA relationships.
     * `class` - CSS classes for styling the heading
 
   ## Examples
@@ -325,7 +318,7 @@ defmodule Prima.Dropdown do
   """
   def dropdown_heading(assigns) do
     ~H"""
-    <div id={@id} role="presentation" class={@class} {@rest}>
+    <div role="presentation" class={@class} {@rest}>
       {render_slot(@inner_block)}
     </div>
     """

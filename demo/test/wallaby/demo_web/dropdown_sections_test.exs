@@ -29,29 +29,58 @@ defmodule DemoWeb.DropdownSectionsTest do
     )
   end
 
-  feature "sections are automatically labeled by headings via JS hook", %{session: session} do
+  feature "generates IDs for section headings and establishes aria-labelledby relationships", %{
+    session: session
+  } do
     session
     |> visit_fixture("/fixtures/dropdown-sections", "#dropdown-sections")
     |> click(@dropdown_button)
-    # Check that both sections have aria-labelledby attributes pointing to their headings
+    # Verify that headings have auto-generated IDs following the pattern: {dropdown-id}-section-{index}-heading
     |> assert_has(
       Query.css(
-        "#dropdown-sections [role=group][aria-labelledby='dropdown-sections-heading-account']",
+        "#dropdown-sections [role=presentation]#dropdown-sections-section-0-heading",
         count: 1
       )
     )
     |> assert_has(
       Query.css(
-        "#dropdown-sections [role=group][aria-labelledby='dropdown-sections-heading-support']",
+        "#dropdown-sections [role=presentation]#dropdown-sections-section-1-heading",
         count: 1
       )
     )
-    # Verify the first section's heading ID matches its aria-labelledby
+    # Verify that sections have aria-labelledby pointing to the auto-generated heading IDs
+    |> assert_has(
+      Query.css(
+        "#dropdown-sections [role=group][aria-labelledby='dropdown-sections-section-0-heading']",
+        count: 1
+      )
+    )
+    |> assert_has(
+      Query.css(
+        "#dropdown-sections [role=group][aria-labelledby='dropdown-sections-section-1-heading']",
+        count: 1
+      )
+    )
+    # Verify the first section's heading ID matches its aria-labelledby and contains correct text
     |> execute_script("""
       const firstSection = document.querySelector('#dropdown-sections [role=group]');
       const labelId = firstSection.getAttribute('aria-labelledby');
       const heading = document.getElementById(labelId);
-      return heading && heading.getAttribute('role') === 'presentation';
+      return heading &&
+             heading.getAttribute('role') === 'presentation' &&
+             labelId === 'dropdown-sections-section-0-heading' &&
+             heading.textContent.trim().includes('Account');
+    """)
+    # Verify the second section's heading ID and text
+    |> execute_script("""
+      const sections = document.querySelectorAll('#dropdown-sections [role=group]');
+      const secondSection = sections[1];
+      const labelId = secondSection.getAttribute('aria-labelledby');
+      const heading = document.getElementById(labelId);
+      return heading &&
+             heading.getAttribute('role') === 'presentation' &&
+             labelId === 'dropdown-sections-section-1-heading' &&
+             heading.textContent.trim().includes('Support');
     """)
   end
 
