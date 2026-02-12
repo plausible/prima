@@ -337,9 +337,6 @@ export default {
     const triggerId = button.id || `${dropdownId}-trigger`
     const menuId = menu.id || `${dropdownId}-menu`
 
-    button.setAttribute('aria-controls', menu.id)
-    menu.setAttribute('aria-labelledby', button.id)
-
     if (!button.id) this.js().setAttribute(button, 'id', triggerId)
     this.js().setAttribute(button, 'aria-controls', menuId)
     if (!menu.id) this.js().setAttribute(menu, 'id', menuId)
