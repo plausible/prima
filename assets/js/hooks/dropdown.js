@@ -42,7 +42,7 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupEventListeners()
-    this.el.setAttribute('data-prima-ready', 'true')
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   setupElements() {
@@ -233,7 +233,7 @@ export default {
   },
 
   handleShowStart() {
-    this.refs.button.setAttribute('aria-expanded', 'true')
+    this.js().setAttribute(this.refs.button, 'aria-expanded', 'true')
 
     // Setup autoUpdate to reposition on scroll/resize
     this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.menuWrapper, () => {
@@ -244,7 +244,7 @@ export default {
   handleHideEnd() {
     this.clearFocus()
     this.refs.menu.removeAttribute('aria-activedescendant')
-    this.refs.button.setAttribute('aria-expanded', 'false')
+    this.js().setAttribute(this.refs.button, 'aria-expanded', 'false')
     this.refs.menuWrapper.style.display = 'none'
     this.cleanupAutoUpdate()
   },
@@ -269,8 +269,8 @@ export default {
   setFocus(el) {
     this.clearFocus()
     if (el && el.getAttribute('aria-disabled') !== 'true') {
-      el.setAttribute('data-focus', '')
-      this.refs.menu.setAttribute('aria-activedescendant', el.id)
+      this.js().setAttribute(el, 'data-focus', '')
+      this.js().setAttribute(this.refs.menu, 'aria-activedescendant', el.id)
     } else {
       this.refs.menu.removeAttribute('aria-activedescendant')
     }
@@ -334,10 +334,10 @@ export default {
     const triggerId = button.id || `${dropdownId}-trigger`
     const menuId = menu.id || `${dropdownId}-menu`
 
-    if (!button.id) button.id = triggerId
-    button.setAttribute('aria-controls', menuId)
-    if (!menu.id) menu.id = menuId
-    menu.setAttribute('aria-labelledby', triggerId)
+    if (!button.id) this.js().setAttribute(button, 'id', triggerId)
+    this.js().setAttribute(button, 'aria-controls', menuId)
+    if (!menu.id) this.js().setAttribute(menu, 'id', menuId)
+    this.js().setAttribute(menu, 'aria-labelledby', triggerId)
 
     this.setupMenuitemIds()
     this.setupSectionLabels()
@@ -349,7 +349,7 @@ export default {
 
     items.forEach((item, index) => {
       if (!item.id) {
-        item.id = `${dropdownId}-item-${index}`
+        this.js().setAttribute(item, 'id', `${dropdownId}-item-${index}`)
       }
     })
   },
@@ -364,10 +364,10 @@ export default {
       if (firstChild && firstChild.getAttribute('role') === 'presentation') {
         // Ensure the heading has an ID
         if (!firstChild.id) {
-          firstChild.id = `${dropdownId}-section-${sectionIndex}-heading`
+          this.js().setAttribute(firstChild, 'id', `${dropdownId}-section-${sectionIndex}-heading`)
         }
         // Link the section to the heading
-        section.setAttribute('aria-labelledby', firstChild.id)
+        this.js().setAttribute(section, 'aria-labelledby', firstChild.id)
       }
     })
   },
