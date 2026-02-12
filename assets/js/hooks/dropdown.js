@@ -358,6 +358,7 @@ export default {
   },
 
   setupSectionLabels() {
+    const dropdownId = this.el.id
     const sections = this.el.querySelectorAll('[role="group"]')
 
     sections.forEach((section) => {
