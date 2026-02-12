@@ -60,11 +60,11 @@ export default {
 
   setupEventListeners() {
     this.listeners = [
-      [this.refs.button, 'click', this.handleToggle.bind(this)],
+      [this.refs.button, 'click', this.toggleMenu.bind(this)],
       [this.refs.menu, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.menu, 'click', this.handleMenuClick.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
-      [this.el, 'prima:close', this.handleClose.bind(this)],
+      [this.el, 'prima:close', this.hideMenu.bind(this)],
       [this.refs.menu, 'phx:show-start', this.handleShowStart.bind(this)],
       [this.refs.menu, 'phx:hide-end', this.handleHideEnd.bind(this)]
     ]
@@ -209,14 +209,6 @@ export default {
     this.setFocus(matchingItems[nextIndex])
   },
 
-  handleClose() {
-    this.hideMenu()
-  },
-
-  handleToggle() {
-    this.toggleMenu()
-  },
-
   handleMouseOver(e) {
     if (e.target.getAttribute('role') === 'menuitem' &&
         e.target.getAttribute('aria-disabled') !== 'true') {
@@ -288,29 +280,26 @@ export default {
     this.refs.menuWrapper.style.display = 'none'
   },
 
+  showMenu() {
+    // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
+    // then position it, then trigger inner menu transition. This prevents the menu from
+    // briefly appearing at wrong position before jumping to correct position.
+    this.refs.menuWrapper.style.display = 'block'
+    this.positionMenu()
+    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
+  },
+
   toggleMenu() {
     if (this.isMenuVisible()) {
-      liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
-      this.refs.menuWrapper.style.display = 'none'
+      this.hideMenu()
     } else {
-      // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
-      // then position it, then trigger inner menu transition. This prevents the menu from
-      // briefly appearing at wrong position before jumping to correct position.
-      this.refs.menuWrapper.style.display = 'block'
-      this.positionMenu()
-      liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
+      this.showMenu()
     }
   },
 
   showMenuAndFocusFirst() {
-    // Show wrapper and position it
-    this.refs.menuWrapper.style.display = 'block'
-    this.positionMenu()
+    this.showMenu()
 
-    // Use show to display the menu
-    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
-
-    // Focus the first enabled item after the menu appears
     const items = this.getEnabledMenuItems()
     if (items.length > 0) {
       this.setFocus(items[0])
@@ -318,14 +307,8 @@ export default {
   },
 
   showMenuAndFocusLast() {
-    // Show wrapper and position it
-    this.refs.menuWrapper.style.display = 'block'
-    this.positionMenu()
+    this.showMenu()
 
-    // Use show to display the menu
-    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
-
-    // Focus the last enabled item after the menu appears
     const items = this.getEnabledMenuItems()
     if (items.length > 0) {
       this.setFocus(items[items.length - 1])
