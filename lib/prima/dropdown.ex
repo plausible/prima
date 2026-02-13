@@ -15,7 +15,6 @@ defmodule Prima.Dropdown do
     """
   end
 
-  attr :id, :string, default: nil
   attr :class, :string, default: ""
   attr :as, :any, default: nil
   attr :rest, :global
@@ -73,7 +72,6 @@ defmodule Prima.Dropdown do
   def dropdown_trigger(assigns) do
     assigns =
       assign(assigns, %{
-        id: assigns.id,
         "aria-haspopup": "menu",
         "aria-expanded": "false"
       })
@@ -203,7 +201,6 @@ defmodule Prima.Dropdown do
   def dropdown_item(assigns) do
     assigns =
       assign(assigns, %{
-        id: assigns.id,
         role: "menuitem",
         tabindex: "-1",
         "aria-disabled": if(assigns.disabled, do: "true", else: nil),
