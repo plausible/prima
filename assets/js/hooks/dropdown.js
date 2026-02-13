@@ -42,7 +42,7 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupEventListeners()
-    this.el.setAttribute('data-prima-ready', 'true')
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   setupElements() {
@@ -60,11 +60,11 @@ export default {
 
   setupEventListeners() {
     this.listeners = [
-      [this.refs.button, 'click', this.handleToggle.bind(this)],
+      [this.refs.button, 'click', this.toggleMenu.bind(this)],
       [this.refs.menu, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.menu, 'click', this.handleMenuClick.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
-      [this.el, 'prima:close', this.handleClose.bind(this)],
+      [this.el, 'prima:close', this.hideMenu.bind(this)],
       [this.refs.menu, 'phx:show-start', this.handleShowStart.bind(this)],
       [this.refs.menu, 'phx:hide-end', this.handleHideEnd.bind(this)]
     ]
@@ -209,14 +209,6 @@ export default {
     this.setFocus(matchingItems[nextIndex])
   },
 
-  handleClose() {
-    this.hideMenu()
-  },
-
-  handleToggle() {
-    this.toggleMenu()
-  },
-
   handleMouseOver(e) {
     if (e.target.getAttribute('role') === 'menuitem' &&
         e.target.getAttribute('aria-disabled') !== 'true') {
@@ -233,7 +225,7 @@ export default {
   },
 
   handleShowStart() {
-    this.refs.button.setAttribute('aria-expanded', 'true')
+    this.js().setAttribute(this.refs.button, 'aria-expanded', 'true')
 
     // Setup autoUpdate to reposition on scroll/resize
     this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.menuWrapper, () => {
@@ -243,8 +235,8 @@ export default {
 
   handleHideEnd() {
     this.clearFocus()
-    this.refs.menu.removeAttribute('aria-activedescendant')
-    this.refs.button.setAttribute('aria-expanded', 'false')
+    this.js().removeAttribute(this.refs.menu, 'aria-activedescendant')
+    this.js().setAttribute(this.refs.button, 'aria-expanded', 'false')
     this.refs.menuWrapper.style.display = 'none'
     this.cleanupAutoUpdate()
   },
@@ -269,15 +261,18 @@ export default {
   setFocus(el) {
     this.clearFocus()
     if (el && el.getAttribute('aria-disabled') !== 'true') {
-      el.setAttribute('data-focus', '')
-      this.refs.menu.setAttribute('aria-activedescendant', el.id)
+      this.js().setAttribute(el, 'data-focus', '')
+      this.js().setAttribute(this.refs.menu, 'aria-activedescendant', el.id)
     } else {
-      this.refs.menu.removeAttribute('aria-activedescendant')
+      this.js().removeAttribute(this.refs.menu, 'aria-activedescendant')
     }
   },
 
   clearFocus() {
-    this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)?.removeAttribute('data-focus')
+    const focusedItem = this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)
+    if (focusedItem) {
+      this.js().removeAttribute(focusedItem, 'data-focus')
+    }
   },
 
   hideMenu() {
@@ -285,29 +280,26 @@ export default {
     this.refs.menuWrapper.style.display = 'none'
   },
 
+  showMenu() {
+    // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
+    // then position it, then trigger inner menu transition. This prevents the menu from
+    // briefly appearing at wrong position before jumping to correct position.
+    this.refs.menuWrapper.style.display = 'block'
+    this.positionMenu()
+    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
+  },
+
   toggleMenu() {
     if (this.isMenuVisible()) {
-      liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
-      this.refs.menuWrapper.style.display = 'none'
+      this.hideMenu()
     } else {
-      // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
-      // then position it, then trigger inner menu transition. This prevents the menu from
-      // briefly appearing at wrong position before jumping to correct position.
-      this.refs.menuWrapper.style.display = 'block'
-      this.positionMenu()
-      liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
+      this.showMenu()
     }
   },
 
   showMenuAndFocusFirst() {
-    // Show wrapper and position it
-    this.refs.menuWrapper.style.display = 'block'
-    this.positionMenu()
+    this.showMenu()
 
-    // Use show to display the menu
-    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
-
-    // Focus the first enabled item after the menu appears
     const items = this.getEnabledMenuItems()
     if (items.length > 0) {
       this.setFocus(items[0])
@@ -315,14 +307,8 @@ export default {
   },
 
   showMenuAndFocusLast() {
-    // Show wrapper and position it
-    this.refs.menuWrapper.style.display = 'block'
-    this.positionMenu()
+    this.showMenu()
 
-    // Use show to display the menu
-    liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
-
-    // Focus the last enabled item after the menu appears
     const items = this.getEnabledMenuItems()
     if (items.length > 0) {
       this.setFocus(items[items.length - 1])
@@ -330,21 +316,44 @@ export default {
   },
 
   setupAriaRelationships(button, menu) {
-    button.setAttribute('aria-controls', menu.id)
-    menu.setAttribute('aria-labelledby', button.id)
+    const dropdownId = this.el.id
+    const triggerId = button.id || `${dropdownId}-trigger`
+    const menuId = menu.id || `${dropdownId}-menu`
 
+    if (!button.id) this.js().setAttribute(button, 'id', triggerId)
+    this.js().setAttribute(button, 'aria-controls', menuId)
+    if (!menu.id) this.js().setAttribute(menu, 'id', menuId)
+    this.js().setAttribute(menu, 'aria-labelledby', triggerId)
+
+    this.setupMenuitemIds()
     this.setupSectionLabels()
   },
 
+  setupMenuitemIds() {
+    const dropdownId = this.el.id
+    const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
+
+    items.forEach((item, index) => {
+      if (!item.id) {
+        this.js().setAttribute(item, 'id', `${dropdownId}-item-${index}`)
+      }
+    })
+  },
+
   setupSectionLabels() {
+    const dropdownId = this.el.id
     const sections = this.el.querySelectorAll('[role="group"]')
 
-    sections.forEach((section) => {
+    sections.forEach((section, sectionIndex) => {
       // Check if the first child is a heading (role="presentation")
       const firstChild = section.firstElementChild
       if (firstChild && firstChild.getAttribute('role') === 'presentation') {
+        // Ensure the heading has an ID
+        if (!firstChild.id) {
+          this.js().setAttribute(firstChild, 'id', `${dropdownId}-section-${sectionIndex}-heading`)
+        }
         // Link the section to the heading
-        section.setAttribute('aria-labelledby', firstChild.id)
+        this.js().setAttribute(section, 'aria-labelledby', firstChild.id)
       }
     })
   },
