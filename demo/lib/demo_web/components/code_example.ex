@@ -23,15 +23,9 @@ defmodule DemoWeb.CodeExample do
                             relative_path = Path.relative_to(file_path, examples_path)
                             content = File.read!(file_path)
 
-                            language =
-                              case Path.extname(file_path) do
-                                ".ex" -> "elixir"
-                                ".heex" -> "heex"
-                              end
-
                             highlighted_html =
-                              Autumn.highlight!(content,
-                                language: language,
+                              Lumis.highlight!(content,
+                                language: file_path,
                                 formatter:
                                   {:html_inline,
                                    theme: @syntax_theme, pre_class: @code_block_classes}
