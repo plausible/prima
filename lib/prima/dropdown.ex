@@ -100,6 +100,7 @@ defmodule Prima.Dropdown do
 
   attr :flip, :boolean, default: true
   attr :offset, :integer, default: 4
+  attr :match_trigger_width, :boolean, default: false
 
   # Two-div structure separates positioning from transitions:
   # - Outer wrapper: Handles Floating UI positioning (must be display:block for measurements)
@@ -115,6 +116,7 @@ defmodule Prima.Dropdown do
       data-placement={@placement}
       data-flip={@flip}
       data-offset={@offset}
+      data-match-trigger-width={@match_trigger_width}
     >
       <div
         id={@id}

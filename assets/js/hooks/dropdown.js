@@ -364,6 +364,11 @@ export default {
       middleware.push(flip())
     }
 
+    const matchTriggerWidth = this.refs.menuWrapper.hasAttribute('data-match-trigger-width')
+    this.refs.menuWrapper.style.minWidth = matchTriggerWidth
+      ? `${this.refs.referenceElement.offsetWidth}px`
+      : ''
+
     computePosition(this.refs.referenceElement, this.refs.menuWrapper, {
       placement: placement,
       middleware: middleware
