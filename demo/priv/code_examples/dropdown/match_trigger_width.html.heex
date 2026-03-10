@@ -21,7 +21,7 @@
     <.dropdown_item
       :for={{option, index} <- Enum.with_index(["Account settings", "Billing", "Documentation"])}
       id={"match-width-dropdown-item-#{index}"}
-      class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block px-4 py-2 text-sm"
+      class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block w-full px-4 py-2 text-sm text-left"
     >
       {option}
     </.dropdown_item>
