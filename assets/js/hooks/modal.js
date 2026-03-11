@@ -21,7 +21,7 @@ export default {
     this.setupDOMEventListeners()
     this.setupPushEventListeners()
     this.checkInitialShow()
-    this.el.setAttribute('data-prima-ready', 'true')
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   setupPushEventListeners() {
@@ -99,7 +99,7 @@ export default {
   handleModalOpen() {
     this.storeFocusedElement()
     this.preventBodyScroll()
-    this.el.removeAttribute('aria-hidden')
+    this.js().removeAttribute(this.el, 'aria-hidden')
     this.maybeExecJS(this.el, "js-show");
     this.maybeExecJS(this.ref("modal-overlay"), "js-show");
     if (this.async) {
@@ -113,7 +113,7 @@ export default {
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     this.maybeExecJS(this.ref("modal-panel"), "js-show");
     this.setupAriaRelationships()
-    this.el.removeAttribute('aria-hidden')
+    this.js().removeAttribute(this.el, 'aria-hidden')
 
     const panelShowEndHandler = this.handlePanelShowEnd.bind(this)
     this.ref("modal-panel").addEventListener("phx:show-end", panelShowEndHandler);
@@ -132,13 +132,13 @@ export default {
     this.maybeExecJS(this.ref("modal-panel"), "js-hide");
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     if (this.async) {
-      this.ref("modal-panel").dataset.primaDirty = true
+      this.js().setAttribute(this.ref("modal-panel"), 'data-prima-dirty', 'true')
     }
   },
 
   handleOverlayHideEnd() {
     this.maybeExecJS(this.el, "js-hide");
-    this.el.setAttribute('aria-hidden', 'true')
+    this.js().setAttribute(this.el, 'aria-hidden', 'true')
     this.restoreFocusedElement()
   },
 
@@ -181,11 +181,11 @@ export default {
     if (titleElement) {
       // Generate ID for the title if it doesn't have one
       if (!titleElement.id) {
-        titleElement.id = `${modalId}-title`
+        this.js().setAttribute(titleElement, 'id', `${modalId}-title`)
       }
 
       // Set aria-labelledby on the modal container
-      this.el.setAttribute('aria-labelledby', titleElement.id)
+      this.js().setAttribute(this.el, 'aria-labelledby', titleElement.id)
     }
   },
 
