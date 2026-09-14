@@ -18,6 +18,7 @@ defmodule DemoWeb.ListboxTest do
     |> assert_has(@listbox |> Query.visible(false))
     |> click(@button)
     |> assert_has(@listbox |> Query.visible(true))
+    |> assert_has(Query.css("#listbox-options:focus"))
     |> assert_has(@options |> Query.count(4))
     |> click(@button)
     |> assert_has(@listbox |> Query.visible(false))
@@ -103,20 +104,34 @@ defmodule DemoWeb.ListboxTest do
     |> assert_missing(Query.css("#listbox-option-durian[data-focus]"))
   end
 
-  feature "aria-activedescendant is managed on the trigger button, not the listbox", %{
+  feature "aria-activedescendant is managed on the focused listbox", %{
     session: session
   } do
     session
     |> visit_fixture("/fixtures/listbox", "#listbox")
     |> click(@button)
-    |> assert_has(Query.css("#listbox [aria-haspopup=listbox]:not([aria-activedescendant])"))
+    |> assert_has(Query.css("#listbox [role=listbox]:focus:not([aria-activedescendant])"))
     |> send_keys([:down_arrow])
     |> assert_has(
-      Query.css("#listbox [aria-haspopup=listbox][aria-activedescendant='listbox-option-apple']")
+      Query.css("#listbox [role=listbox][aria-activedescendant='listbox-option-apple']")
     )
-    |> assert_has(Query.css("#listbox [role=listbox]:not([aria-activedescendant])"))
-    |> send_keys([:escape])
     |> assert_has(Query.css("#listbox [aria-haspopup=listbox]:not([aria-activedescendant])"))
+    |> send_keys([:escape])
+    |> assert_has(Query.css("#listbox-trigger:focus"))
+    |> assert_has(
+      Query.css("#listbox [role=listbox]:not([aria-activedescendant])")
+      |> Query.visible(false)
+    )
+  end
+
+  feature "closes when focus leaves the listbox with Tab", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/listbox", "#listbox")
+    |> click(@button)
+    |> assert_has(Query.css("#listbox-options:focus"))
+    |> send_keys([:tab])
+    |> assert_has(@listbox |> Query.visible(false))
+    |> assert_has(Query.css("#after-listbox:focus"))
   end
 
   feature "Opening and closing listbox with keyboard (Enter, Space, Esc)", %{session: session} do

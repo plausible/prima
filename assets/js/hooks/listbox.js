@@ -80,6 +80,7 @@ export default {
       [this.refs.button, 'click', this.handleToggle.bind(this)],
       [this.refs.listbox, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.listbox, 'click', this.handleListboxClick.bind(this)],
+      [this.refs.listbox, 'focusout', this.handleFocusOut.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
       [this.el, 'prima:close', this.handleClose.bind(this)],
       [this.refs.listbox, 'phx:show-start', this.handleShowStart.bind(this)],
@@ -255,6 +256,12 @@ export default {
     }
   },
 
+  handleFocusOut(e) {
+    if (!this.refs.listbox.contains(e.relatedTarget)) {
+      this.hideListbox()
+    }
+  },
+
   // User-driven selection: updates the form and displayed values
   // instantly, ahead of any server round-trip.
   selectOption(option) {
@@ -319,18 +326,13 @@ export default {
     return Array.prototype.findIndex.call(options, option => option.hasAttribute('data-focus'))
   },
 
-  // The `aria-activedescendant` attribute is deliberately set on the button,
-  // not the listbox, because the button is what stays focused while you're
-  // browsing options - same idea as Combobox. Dropdown puts it on its menu
-  // instead, which is the right choice for a menu of commands, but not for
-  // a value picker like this one.
   setFocus(el) {
     this.clearFocus()
     if (el && el.getAttribute('aria-disabled') !== 'true') {
       el.setAttribute('data-focus', '')
-      this.refs.button.setAttribute('aria-activedescendant', el.id)
+      this.refs.listbox.setAttribute('aria-activedescendant', el.id)
     } else {
-      this.refs.button.removeAttribute('aria-activedescendant')
+      this.refs.listbox.removeAttribute('aria-activedescendant')
     }
   },
 
@@ -380,6 +382,7 @@ export default {
     if (!shouldBeOpen) return
 
     this.refs.button.setAttribute('aria-expanded', 'true')
+    this.refs.listbox.focus({ preventScroll: true })
 
     // Setup autoUpdate to reposition on scroll/resize
     this.cleanupAutoUpdate()
@@ -394,7 +397,7 @@ export default {
     if (shouldBeOpen) return
 
     this.clearFocus()
-    this.refs.button.removeAttribute('aria-activedescendant')
+    this.refs.listbox.removeAttribute('aria-activedescendant')
     this.refs.button.setAttribute('aria-expanded', 'false')
     this.refs.optionsWrapper.style.display = 'none'
     this.cleanupAutoUpdate()

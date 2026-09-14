@@ -51,7 +51,7 @@ defmodule Prima.Listbox do
 
   attr :id, :string, required: true
   attr :name, :string, required: true
-  attr :value, :string, default: nil
+  attr :value, :any, default: nil
   attr :rest, :global
   slot :inner_block, required: true
 
@@ -167,6 +167,7 @@ defmodule Prima.Listbox do
         js-show={JS.show(transition: @transition_enter)}
         js-hide={JS.hide(transition: @transition_leave)}
         role="listbox"
+        tabindex="-1"
         phx-click-away={JS.dispatch("prima:close")}
         {@rest}
       >
@@ -177,7 +178,7 @@ defmodule Prima.Listbox do
   end
 
   attr :id, :string, required: true
-  attr :value, :string, required: true
+  attr :value, :any, required: true
   attr :display, :string, default: nil
   attr :class, :string, default: ""
   attr :disabled, :boolean, default: false
@@ -195,7 +196,7 @@ defmodule Prima.Listbox do
     * `disabled` - Boolean to mark the option as unselectable (default: false)
   """
   def listbox_option(assigns) do
-    assigns = assign(assigns, :display_value, assigns.display || assigns.value)
+    assigns = assign(assigns, :display_value, assigns.display || to_string(assigns.value))
 
     ~H"""
     <div
