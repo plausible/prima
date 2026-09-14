@@ -47,7 +47,6 @@ defmodule Prima.Listbox do
   """
 
   use Phoenix.Component
-  import Prima.Component, only: [render_as: 2]
   alias Phoenix.LiveView.JS
 
   attr :id, :string, required: true
@@ -67,7 +66,6 @@ defmodule Prima.Listbox do
 
   attr :id, :string, required: true
   attr :class, :string, default: ""
-  attr :as, :any, default: nil
   attr :rest, :global
   slot :inner_block, required: true
 
@@ -99,14 +97,18 @@ defmodule Prima.Listbox do
       </.listbox_trigger>
   """
   def listbox_trigger(assigns) do
-    assigns =
-      assign(assigns, %{
-        id: assigns.id,
-        "aria-haspopup": "listbox",
-        "aria-expanded": "false"
-      })
-
-    render_as(assigns, %{tag_name: "button", type: "button"})
+    ~H"""
+    <button
+      id={@id}
+      type="button"
+      class={@class}
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </button>
+    """
   end
 
   attr :class, :string, default: ""
