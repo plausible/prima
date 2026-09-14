@@ -151,11 +151,7 @@ export default {
   },
 
   handleEnterOrSpace(e) {
-    // Only trust a focused item while the menu is actually open - data-focus can linger
-    // on an item after Escape closes the menu, since clearing it happens in the async
-    // phx:hide-end handler, not synchronously in hideMenu(). Without this guard, a fast
-    // Escape followed by Enter/Space can "click" a stale focused item instead of
-    // reopening the menu.
+    // Focus state can remain until the asynchronous hide transition ends.
     const focusedItem = this.isMenuVisible() ? this.el.querySelector(SELECTORS.FOCUSED_MENUITEM) : null
 
     if (focusedItem && focusedItem.getAttribute('aria-disabled') !== 'true') {
@@ -237,16 +233,8 @@ export default {
     }
   },
 
-  // phx:show-start/phx:hide-end are dispatched asynchronously by LiveView's transition
-  // machinery, and the actual display mutation on the inner menu happens as part of that
-  // same internal, multi-step async completion - not synchronously with these events. A
-  // rapid close-then-reopen (or reopen-then-close) can call execJS(show) and execJS(hide)
-  // back-to-back before the previous call's internal steps finish, so their completions
-  // interleave and whichever happens to run last wins, regardless of which was issued
-  // most recently. Both handlers defensively re-assert the inner menu's display against
-  // our own synchronous source of truth (the wrapper, which showMenuAndFocusFirst/Last
-  // and hideMenu/toggleMenu control directly) so a stale completion corrects itself
-  // instead of leaving the inner element in the wrong state.
+  // LiveView transitions can finish out of order. Restore the menu from the wrapper's
+  // synchronous visibility state when each transition event arrives.
   handleShowStart() {
     const shouldBeOpen = this.isMenuVisible()
     this.refs.menu.style.display = shouldBeOpen ? '' : 'none'
