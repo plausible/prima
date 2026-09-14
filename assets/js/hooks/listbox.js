@@ -80,7 +80,6 @@ export default {
       [this.refs.button, 'click', this.handleToggle.bind(this)],
       [this.refs.listbox, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.listbox, 'click', this.handleListboxClick.bind(this)],
-      [this.refs.listbox, 'focusout', this.handleFocusOut.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
       [this.el, 'prima:close', this.handleClose.bind(this)],
       [this.refs.listbox, 'phx:show-start', this.handleShowStart.bind(this)],
@@ -253,12 +252,6 @@ export default {
       this.selectOption(option)
       this.hideListbox()
       this.refs.button.focus()
-    }
-  },
-
-  handleFocusOut(e) {
-    if (!this.refs.listbox.contains(e.relatedTarget)) {
-      this.hideListbox()
     }
   },
 

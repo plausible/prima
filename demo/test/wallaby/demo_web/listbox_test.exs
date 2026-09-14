@@ -124,16 +124,6 @@ defmodule DemoWeb.ListboxTest do
     )
   end
 
-  feature "closes when focus leaves the listbox with Tab", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/listbox", "#listbox")
-    |> click(@button)
-    |> assert_has(Query.css("#listbox-options:focus"))
-    |> send_keys([:tab])
-    |> assert_has(@listbox |> Query.visible(false))
-    |> assert_has(Query.css("#after-listbox:focus"))
-  end
-
   feature "Opening and closing listbox with keyboard (Enter, Space, Esc)", %{session: session} do
     session
     |> visit_fixture("/fixtures/listbox", "#listbox")
