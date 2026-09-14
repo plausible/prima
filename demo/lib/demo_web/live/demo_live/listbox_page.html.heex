@@ -4,19 +4,22 @@
   </div>
 
   <p>
-    A single-select value picker for use as a form input. Unlike <code>Dropdown</code>
-    (an action menu, <code>role="menu"</code>), <code>Listbox</code>
-    is built for picking a value (<code>role="listbox"</code>) — selecting an option updates a hidden form
-    field and displayed value, similar to a native <code>&lt;select&gt;</code>. Features the same
-    <a
+    A single-select value picker with keyboard navigation, intelligent positioning, and Phoenix form integration.
+    Use a listbox when users need to select one value from a predefined set of options.
+  </p>
+
+  <p>
+    Unlike <code>Dropdown</code>, which provides an action menu with <code>role="menu"</code>,
+    <code>Listbox</code>
+    uses <code>role="listbox"</code>
+    and works like a native <code>&lt;select&gt;</code>. It includes smart positioning with <a
       href="https://floating-ui.com/"
       target="_blank"
       rel="noopener noreferrer"
       class="text-indigo-600 hover:text-indigo-800"
     >
       Floating UI
-    </a>
-    positioning as <code>Dropdown</code>, with the menu matching the trigger's width by default.
+    </a>, and its options match the trigger's width by default.
   </p>
 
   <h2>Quick Start</h2>
@@ -24,28 +27,29 @@
     The most basic listbox requires three components: <code>.listbox</code>, <code>.listbox_trigger</code>, and
     <code>.listbox_options</code>
     with <code>.listbox_option</code>
-    elements. This example starts with "Cherry" pre-selected via the <code>value</code>
-    attribute on <code>.listbox</code>
-    — the trigger renders it directly on first paint, so there's no flash of
-    placeholder text. Click a different option and notice the value updates immediately, before any
-    server round-trip.
+    elements.
   </p>
 
   <div class="not-prose">
     <.code_example file="listbox/basic.html.heex" id="basic-listbox-demo" />
   </div>
 
+  <p>
+    This example starts with "Cherry" selected through the <code>value</code>
+    attribute. Selecting another option updates the <code>.listbox_value</code>
+    content immediately.
+  </p>
+
   <h2>Form Integration</h2>
   <p>
     <code>.listbox</code>
     renders a hidden <code>&lt;input&gt;</code>
-    under the given <code>name</code>. Selecting an option updates the input's value and dispatches a bubbling
+    with the given <code>name</code>. Selecting an option updates the input and dispatches an
     <code>input</code>
-    event, so a parent form's <code>phx-change</code>
-    fires exactly like it would for a native form field. Render the current value (or a placeholder) with
-    <code>.listbox_value</code>
-    so the initial page load is always correct — the JS hook only ever rewrites that value after a user
-    interaction, never on mount or on an unrelated re-render.
+    event. This makes a parent form's <code>phx-change</code>
+    event run as it does for a native form field.
+    Use <code>.listbox_value</code>
+    to render the current value or a placeholder in the trigger.
   </p>
 
   <div class="not-prose">
@@ -57,15 +61,15 @@
   </div>
 
   <p>
-    The "Selected fruit" text below the trigger is rendered from server state, confirming the
+    The selected fruit below the trigger comes from server state. It confirms that the
     <code>phx-change</code>
-    round-trip completed — while the displayed value already updated instantly on click.
+    event completed while the trigger value updated immediately.
   </p>
 
   <h2>Disabled Options</h2>
   <p>
-    Listbox options can be disabled using the <code>disabled={true}</code>
-    attribute. Disabled options cannot be focused via keyboard navigation and are ignored on click.
+    Disable a listbox option with the <code>disabled={true}</code>
+    attribute. Disabled options cannot receive focus or be selected.
   </p>
 
   <div class="not-prose">
@@ -74,8 +78,8 @@
 
   <h2>Keyboard Interaction</h2>
   <p>
-    Keyboard support mirrors <code>Dropdown</code>: arrow keys move focus between options, and Enter/Space
-    commits the focused option as the new selection.
+    The listbox provides keyboard navigation that follows standard ARIA patterns.
+    Use the arrow keys to move between options and Enter or Space to select an option.
   </p>
 
   <div class="not-prose my-6">
