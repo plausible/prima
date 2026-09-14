@@ -4,13 +4,13 @@ defmodule Prima.Listbox do
 
   Unlike `Prima.Dropdown` (an action menu, `role="menu"`), `Listbox` is a value
   picker (`role="listbox"`) — selecting an option updates a hidden form field
-  and the trigger's label, similar to a native `<select>`.
+  and the displayed value, similar to a native `<select>`.
 
   ## Quick Start
 
       <.listbox id="fruit-listbox" name="fruit" value={@selected_fruit}>
         <.listbox_trigger id="fruit-listbox-trigger">
-          {@selected_fruit || "Select a fruit..."}
+          <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
         </.listbox_trigger>
 
         <.listbox_options id="fruit-listbox-options">
@@ -35,18 +35,19 @@ defmodule Prima.Listbox do
         {:noreply, assign(socket, selected_fruit: fruit)}
       end
 
-  ## Trigger Label
+  ## Displayed Value
 
-  The trigger's label is rendered by the caller (so the initial page load is
+  The listbox value is rendered by the caller (so the initial page load is
   always correct — no flash of placeholder text), and updated instantly on the
   client when an option is picked, ahead of any server round-trip:
 
       <.listbox_trigger id="fruit-listbox-trigger">
-        {@selected_fruit || "Select a fruit..."}
+        <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
       </.listbox_trigger>
   """
 
   use Phoenix.Component
+  import Prima.Component, only: [render_as: 2]
   alias Phoenix.LiveView.JS
 
   attr :id, :string, required: true
@@ -66,24 +67,21 @@ defmodule Prima.Listbox do
 
   attr :id, :string, required: true
   attr :class, :string, default: ""
+  attr :as, :any, default: nil
   attr :rest, :global
   slot :inner_block, required: true
-  slot :icon
 
   @doc """
   The trigger button for a listbox.
 
-  The `inner_block` slot is the label — render the currently selected value (or
-  a placeholder) there so the initial page load is correct; the JS hook rewrites
-  just this label on selection, leaving the `icon` slot untouched.
+  Render a `listbox_value` within the trigger so the JS hook can update the
+  displayed value without changing other content such as icons.
 
   ## Examples
 
       <.listbox_trigger id="fruit-listbox-trigger">
-        {@selected_fruit || "Select a fruit..."}
-        <:icon>
-          <svg class="h-5 w-5" ...>...</svg>
-        </:icon>
+        <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
+        <svg class="h-5 w-5" ...>...</svg>
       </.listbox_trigger>
 
   ## Accessible Naming
@@ -97,22 +95,33 @@ defmodule Prima.Listbox do
   Fix it by adding an `aria-label` describing the field:
 
       <.listbox_trigger id="role-listbox-trigger" aria-label="Role">
-        {@selected_role}
+        <.listbox_value>{@selected_role}</.listbox_value>
       </.listbox_trigger>
   """
   def listbox_trigger(assigns) do
+    assigns =
+      assign(assigns, %{
+        id: assigns.id,
+        "aria-haspopup": "listbox",
+        "aria-expanded": "false"
+      })
+
+    render_as(assigns, %{tag_name: "button", type: "button"})
+  end
+
+  attr :class, :string, default: ""
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  @doc """
+  The displayed value within a listbox trigger.
+
+  The JS hook updates this content when an option is selected without changing
+  other trigger content.
+  """
+  def listbox_value(assigns) do
     ~H"""
-    <button
-      type="button"
-      id={@id}
-      class={@class}
-      aria-haspopup="listbox"
-      aria-expanded="false"
-      {@rest}
-    >
-      <span data-prima-ref="trigger-label">{render_slot(@inner_block)}</span>
-      {render_slot(@icon)}
-    </button>
+    <span class={@class} data-prima-ref="value" {@rest}>{render_slot(@inner_block)}</span>
     """
   end
 
@@ -180,7 +189,7 @@ defmodule Prima.Listbox do
 
     * `id` (required) - Unique identifier, required for ARIA relationships
     * `value` (required) - The value submitted when this option is selected
-    * `display` - The text used for the trigger label when selected (defaults to `value`)
+    * `display` - The text shown in `listbox_value` when selected (defaults to `value`)
     * `disabled` - Boolean to mark the option as unselectable (default: false)
   """
   def listbox_option(assigns) do

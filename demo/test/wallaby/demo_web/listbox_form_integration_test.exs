@@ -3,7 +3,7 @@ defmodule DemoWeb.ListboxFormIntegrationTest do
 
   @button Query.css("#listbox-form [aria-haspopup=listbox]")
   @listbox Query.css("#listbox-form [role=listbox]")
-  @trigger_label Query.css("#listbox-form [data-prima-ref='trigger-label']")
+  @listbox_value Query.css("#listbox-form [data-prima-ref='value']")
   @selection_display Query.css("#listbox-selection-display")
 
   defp assert_form_change_count(session, expected_count) do
@@ -31,15 +31,15 @@ defmodule DemoWeb.ListboxFormIntegrationTest do
     )
   end
 
-  feature "the trigger label updates instantly, ahead of the phx-change round-trip", %{
+  feature "the displayed value updates instantly, ahead of the phx-change round-trip", %{
     session: session
   } do
     session
     |> visit_fixture("/fixtures/listbox-form", "#listbox-form")
-    |> assert_has(@trigger_label |> Query.text("Select a fruit..."))
+    |> assert_has(@listbox_value |> Query.text("Select a fruit..."))
     |> click(@button)
     |> click(Query.css("#listbox-form-option-mango"))
-    |> assert_has(@trigger_label |> Query.text("Mango"))
+    |> assert_has(@listbox_value |> Query.text("Mango"))
   end
 
   feature "phx-change fires again when the selection changes", %{session: session} do

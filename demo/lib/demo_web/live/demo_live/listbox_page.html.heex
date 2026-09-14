@@ -7,7 +7,7 @@
     A single-select value picker for use as a form input. Unlike <code>Dropdown</code>
     (an action menu, <code>role="menu"</code>), <code>Listbox</code>
     is built for picking a value (<code>role="listbox"</code>) — selecting an option updates a hidden form
-    field and the trigger's label, similar to a native <code>&lt;select&gt;</code>. Features the same
+    field and displayed value, similar to a native <code>&lt;select&gt;</code>. Features the same
     <a
       href="https://floating-ui.com/"
       target="_blank"
@@ -27,7 +27,7 @@
     elements. This example starts with "Cherry" pre-selected via the <code>value</code>
     attribute on <code>.listbox</code>
     — the trigger renders it directly on first paint, so there's no flash of
-    placeholder text. Click a different option and notice the label updates immediately, before any
+    placeholder text. Click a different option and notice the value updates immediately, before any
     server round-trip.
   </p>
 
@@ -42,9 +42,10 @@
     under the given <code>name</code>. Selecting an option updates the input's value and dispatches a bubbling
     <code>input</code>
     event, so a parent form's <code>phx-change</code>
-    fires exactly like it would for a native form field. Render the current value (or a placeholder) in the
-    trigger's slot so the initial page load is always correct — the JS hook only ever rewrites the label after
-    a user interaction, never on mount or on an unrelated re-render.
+    fires exactly like it would for a native form field. Render the current value (or a placeholder) with
+    <code>.listbox_value</code>
+    so the initial page load is always correct — the JS hook only ever rewrites that value after a user
+    interaction, never on mount or on an unrelated re-render.
   </p>
 
   <div class="not-prose">
@@ -58,7 +59,7 @@
   <p>
     The "Selected fruit" text below the trigger is rendered from server state, confirming the
     <code>phx-change</code>
-    round-trip completed — while the trigger label itself already updated instantly on click.
+    round-trip completed — while the displayed value already updated instantly on click.
   </p>
 
   <h2>Disabled Options</h2>
@@ -190,7 +191,7 @@
               </kbd>
             </td>
             <td class="px-6 py-4 text-sm text-gray-700">
-              Selects the focused option, updates the trigger label, and closes the listbox
+              Selects the focused option, updates the displayed value, and closes the listbox
             </td>
           </tr>
           <tr class="hover:bg-gray-50">

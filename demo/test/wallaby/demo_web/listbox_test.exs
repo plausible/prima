@@ -4,7 +4,7 @@ defmodule DemoWeb.ListboxTest do
   @button Query.css("#listbox [aria-haspopup=listbox]")
   @listbox Query.css("#listbox [role=listbox]")
   @options Query.css("#listbox [role=option]")
-  @trigger_label Query.css("#listbox [data-prima-ref='trigger-label']")
+  @listbox_value Query.css("#listbox [data-prima-ref='value']")
 
   feature "default trigger has type='button' and aria-haspopup='listbox'", %{session: session} do
     session
@@ -35,7 +35,7 @@ defmodule DemoWeb.ListboxTest do
   feature "reflects the initial value on mount without opening the listbox", %{session: session} do
     session
     |> visit_fixture("/fixtures/listbox", "#listbox")
-    |> assert_has(@trigger_label |> Query.text("Banana"))
+    |> assert_has(@listbox_value |> Query.text("Banana"))
     |> assert_has(
       Query.css("#listbox-option-banana[aria-selected=true][data-selected]")
       |> Query.visible(false)
@@ -43,14 +43,14 @@ defmodule DemoWeb.ListboxTest do
     |> assert_missing(Query.css("#listbox-option-apple[aria-selected=true]"))
   end
 
-  feature "selecting an option updates the hidden input, ARIA state, and trigger label instantly",
+  feature "selecting an option updates the hidden input, ARIA state, and displayed value instantly",
           %{session: session} do
     session
     |> visit_fixture("/fixtures/listbox", "#listbox")
     |> click(@button)
     |> click(Query.css("#listbox-option-cherry"))
     |> assert_has(@listbox |> Query.visible(false))
-    |> assert_has(@trigger_label |> Query.text("Cherry"))
+    |> assert_has(@listbox_value |> Query.text("Cherry"))
     |> assert_has(
       Query.css("#listbox-option-cherry[aria-selected=true][data-selected]")
       |> Query.visible(false)
@@ -71,14 +71,14 @@ defmodule DemoWeb.ListboxTest do
     end)
   end
 
-  feature "keeps the trailing icon after a selection updates the trigger label", %{
+  feature "keeps the trailing icon after a selection updates the displayed value", %{
     session: session
   } do
     session
     |> visit_fixture("/fixtures/listbox", "#listbox")
     |> click(@button)
     |> click(Query.css("#listbox-option-apple"))
-    |> assert_has(@trigger_label |> Query.text("Apple"))
+    |> assert_has(@listbox_value |> Query.text("Apple"))
     |> assert_has(Query.css("#listbox-trigger-icon"))
   end
 
@@ -88,7 +88,7 @@ defmodule DemoWeb.ListboxTest do
     |> click(@button)
     |> click(Query.css("#listbox-option-durian"))
     |> assert_has(@listbox |> Query.visible(true))
-    |> assert_has(@trigger_label |> Query.text("Banana"))
+    |> assert_has(@listbox_value |> Query.text("Banana"))
   end
 
   feature "keyboard navigation skips disabled options and wraps around", %{session: session} do
@@ -159,10 +159,10 @@ defmodule DemoWeb.ListboxTest do
     |> execute_script("window.liveSocket.connect()")
     # Wait for reconnection by checking for the data attribute that gets set
     |> assert_has(Query.css(".phx-connected[data-phx-main]"))
-    |> assert_has(@trigger_label |> Query.text("Banana"))
+    |> assert_has(@listbox_value |> Query.text("Banana"))
     |> click(@button)
     |> assert_has(@listbox |> Query.visible(true))
     |> click(Query.css("#listbox-option-apple"))
-    |> assert_has(@trigger_label |> Query.text("Apple"))
+    |> assert_has(@listbox_value |> Query.text("Apple"))
   end
 end

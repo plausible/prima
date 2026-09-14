@@ -14,7 +14,7 @@ const KEYS = {
 
 const SELECTORS = {
   BUTTON: '[aria-haspopup="listbox"]',
-  TRIGGER_LABEL: '[data-prima-ref="trigger-label"]',
+  VALUE: '[data-prima-ref="value"]',
   VALUE_INPUT: '[data-prima-ref="value-input"]',
   OPTIONS_WRAPPER: '[data-prima-ref="options-wrapper"]',
   LISTBOX: '[role="listbox"]',
@@ -53,7 +53,7 @@ export default {
 
   setupElements() {
     const button = this.el.querySelector(SELECTORS.BUTTON)
-    const triggerLabel = this.el.querySelector(SELECTORS.TRIGGER_LABEL)
+    const value = this.el.querySelector(SELECTORS.VALUE)
     const valueInput = this.el.querySelector(SELECTORS.VALUE_INPUT)
     const optionsWrapper = this.el.querySelector(SELECTORS.OPTIONS_WRAPPER)
     const listbox = this.el.querySelector(SELECTORS.LISTBOX)
@@ -62,7 +62,7 @@ export default {
     const referenceElement = referenceSelector ? document.querySelector(referenceSelector) : button
 
     this.setupAriaRelationships(button, listbox)
-    this.refs = { button, triggerLabel, valueInput, optionsWrapper, listbox, referenceElement }
+    this.refs = { button, value, valueInput, optionsWrapper, listbox, referenceElement }
   },
 
   setupAriaRelationships(button, listbox) {
@@ -255,7 +255,7 @@ export default {
     }
   },
 
-  // User-driven selection: updates the form value and rewrites the trigger label
+  // User-driven selection: updates the form and displayed values
   // instantly, ahead of any server round-trip.
   selectOption(option) {
     const value = option.getAttribute('data-value')
@@ -266,12 +266,12 @@ export default {
     }
 
     this.syncSelectedState(option)
-    this.refs.triggerLabel.textContent = option.getAttribute('data-display')
+    this.refs.value.textContent = option.getAttribute('data-display')
   },
 
-  // Mount-time sync only: the trigger label is rendered by the caller and is
+  // Mount-time sync only: the displayed value is rendered by the caller and is
   // already correct on first paint, so only the ARIA/visual selection markers
-  // are synced here - the label itself is left untouched.
+  // are synced here - the value itself is left untouched.
   syncSelectedState(option) {
     this.el.querySelector(SELECTORS.SELECTED_OPTION)?.removeAttribute('aria-selected')
     this.el.querySelectorAll('[data-selected]').forEach(el => el.removeAttribute('data-selected'))
