@@ -19,6 +19,7 @@ defmodule DemoWeb.Router do
     live "/modal", DemoLive, :modal
     live "/modal/history", DemoLive, :modal_history
     live "/combobox", DemoLive, :combobox
+    live "/listbox", DemoLive, :listbox
 
     if Mix.env() in [:dev, :test] do
       live "/fixtures/dropdown", FixturesLive, :dropdown
@@ -45,6 +46,8 @@ defmodule DemoWeb.Router do
       live "/fixtures/display-value-combobox", FixturesLive, :display_value_combobox
       live "/fixtures/combobox-change", FixturesLive, :combobox_change
       live "/fixtures/async-combobox-form-change", FixturesLive, :async_combobox_form_change
+      live "/fixtures/listbox", FixturesLive, :listbox
+      live "/fixtures/listbox-form", FixturesLive, :listbox_form
     end
   end
 end

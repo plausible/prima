@@ -11,7 +11,8 @@ defmodule DemoWeb.CodeExample do
   @live_component_modules [
     DemoWeb.DemoLive.AsyncModalDemo,
     DemoWeb.DemoLive.FormModalDemo,
-    DemoWeb.DemoLive.AsyncComboboxDemo
+    DemoWeb.DemoLive.AsyncComboboxDemo,
+    DemoWeb.DemoLive.ListboxFormDemo
   ]
 
   for module <- @live_component_modules, do: Code.ensure_compiled(module)
@@ -160,6 +161,7 @@ defmodule DemoWeb.CodeExample do
         import Prima.Modal
         import Prima.Dropdown
         import Prima.Combobox
+        import Prima.Listbox
         import DemoWeb.CoreComponents
         alias Phoenix.LiveView.JS
 

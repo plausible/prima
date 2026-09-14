@@ -4,10 +4,10 @@
   </.button>
 
   <.modal id="demo-modal">
-    <.modal_overlay />
+    <.modal_overlay class="fixed inset-0 bg-gray-500/75" />
 
-    <div>
-      <div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4">
         <.modal_panel id="demo-modal-panel">
           <div>
             <button

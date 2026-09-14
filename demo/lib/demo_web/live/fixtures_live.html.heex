@@ -93,3 +93,11 @@
 <div :if={@live_action == :async_combobox_form_change}>
   <.async_combobox_form_change_fixture {assigns} />
 </div>
+
+<div :if={@live_action == :listbox}>
+  <.listbox_fixture />
+</div>
+
+<div :if={@live_action == :listbox_form}>
+  <.listbox_form_fixture {assigns} />
+</div>

@@ -151,7 +151,8 @@ export default {
   },
 
   handleEnterOrSpace(e) {
-    const focusedItem = this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)
+    // Focus state can remain until the asynchronous hide transition ends.
+    const focusedItem = this.isMenuVisible() ? this.el.querySelector(SELECTORS.FOCUSED_MENUITEM) : null
 
     if (focusedItem && focusedItem.getAttribute('aria-disabled') !== 'true') {
       // A menu item is focused - click it
@@ -232,16 +233,27 @@ export default {
     }
   },
 
+  // LiveView transitions can finish out of order. Restore the menu from the wrapper's
+  // synchronous visibility state when each transition event arrives.
   handleShowStart() {
+    const shouldBeOpen = this.isMenuVisible()
+    this.refs.menu.style.display = shouldBeOpen ? '' : 'none'
+    if (!shouldBeOpen) return
+
     this.refs.button.setAttribute('aria-expanded', 'true')
 
     // Setup autoUpdate to reposition on scroll/resize
+    this.cleanupAutoUpdate()
     this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.menuWrapper, () => {
       this.positionMenu()
     })
   },
 
   handleHideEnd() {
+    const shouldBeOpen = this.isMenuVisible()
+    this.refs.menu.style.display = shouldBeOpen ? '' : 'none'
+    if (shouldBeOpen) return
+
     this.clearFocus()
     this.refs.menu.removeAttribute('aria-activedescendant')
     this.refs.button.setAttribute('aria-expanded', 'false')

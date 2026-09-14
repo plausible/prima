@@ -18,6 +18,10 @@
       <div :if={@live_action == :combobox}>
         <.combobox_page {assigns} />
       </div>
+
+      <div :if={@live_action == :listbox}>
+        <.listbox_page {assigns} />
+      </div>
     </div>
   </main>
 </div>

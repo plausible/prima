@@ -298,6 +298,12 @@ defmodule DemoWeb.ComboboxTest do
       with: "Orange"
     )
     |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
+    # "Orange" is always present, even in the unfiltered initial list (an empty search
+    # matches everything) - so this alone doesn't prove the debounced async search for
+    # "Orange" actually completed. Wait for the result count to narrow to the single
+    # match "Orange" produces among the fixture's options, so Enter can't land on a
+    # stale, not-yet-filtered option under load (e.g. a slow CI runner).
+    |> assert_has(Query.css("#demo-async-combobox [role=option]") |> Query.count(1))
     |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
     # Select Orange
     |> send_keys([:enter])

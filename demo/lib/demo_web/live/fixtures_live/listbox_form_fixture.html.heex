@@ -1,0 +1,29 @@
+<form phx-change="form_changed">
+  <.listbox id="listbox-form" name="fruit" value={@selected_fruit}>
+    <.listbox_trigger
+      id="listbox-form-trigger"
+      class="w-64 inline-flex justify-between items-center rounded-lg bg-white border border-gray-300 px-3 py-2 text-sm text-gray-700"
+    >
+      <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
+    </.listbox_trigger>
+
+    <.listbox_options
+      id="listbox-form-options"
+      class="py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300"
+    >
+      <.listbox_option id="listbox-form-option-apple" value="Apple">Apple</.listbox_option>
+      <.listbox_option id="listbox-form-option-mango" value="Mango">Mango</.listbox_option>
+      <.listbox_option id="listbox-form-option-pineapple" value="Pineapple">
+        Pineapple
+      </.listbox_option>
+    </.listbox_options>
+  </.listbox>
+
+  <div id="listbox-selection-display" data-testid="selection-display">
+    Selected: {@selected_fruit || "none"}
+  </div>
+
+  <div id="listbox-form-change-count" data-testid="change-count">
+    Form changes: {@form_change_count}
+  </div>
+</form>

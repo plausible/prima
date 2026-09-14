@@ -1,7 +1,7 @@
 defmodule DemoWeb.FixturesLive do
   @moduledoc false
   use DemoWeb, :live_view
-  import Prima.{Dropdown, Modal, Combobox}
+  import Prima.{Dropdown, Modal, Combobox, Listbox}
   embed_templates "fixtures_live/*"
 
   @options [

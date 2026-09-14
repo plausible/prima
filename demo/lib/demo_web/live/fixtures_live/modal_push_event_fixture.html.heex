@@ -9,9 +9,9 @@
   </.button>
 
   <.modal id="frontend-modal">
-    <.modal_overlay />
-    <div>
-      <div>
+    <.modal_overlay class="fixed inset-0 bg-gray-500/75" />
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4">
         <.modal_panel id="frontend-modal-panel">
           <div>
             <button phx-click={Prima.Modal.JS.close()} testing-ref="close-button">
@@ -44,9 +44,9 @@
   </.button>
 
   <.modal id="modal-one">
-    <.modal_overlay />
-    <div>
-      <div>
+    <.modal_overlay class="fixed inset-0 bg-gray-500/75" />
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4">
         <.modal_panel id="modal-one-panel">
           <div>
             <button phx-click={Prima.Modal.JS.close()} testing-ref="modal-one-close">
@@ -70,9 +70,9 @@
   </.modal>
 
   <.modal id="modal-two">
-    <.modal_overlay />
-    <div>
-      <div>
+    <.modal_overlay class="fixed inset-0 bg-gray-500/75" />
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4">
         <.modal_panel id="modal-two-panel">
           <div>
             <button phx-click={Prima.Modal.JS.close()} testing-ref="modal-two-close">

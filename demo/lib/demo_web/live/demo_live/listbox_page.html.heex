@@ -1,0 +1,219 @@
+<div class="prose prose-slate">
+  <div class="border-b border-gray-200 mb-6">
+    <h1>Listbox</h1>
+  </div>
+
+  <p>
+    A single-select value picker with keyboard navigation, intelligent positioning, and Phoenix form integration.
+    Use a listbox when users need to select one value from a predefined set of options.
+  </p>
+
+  <p>
+    Unlike <code>Dropdown</code>, which provides an action menu with <code>role="menu"</code>,
+    <code>Listbox</code>
+    uses <code>role="listbox"</code>
+    and works like a native <code>&lt;select&gt;</code>. It includes smart positioning with <a
+      href="https://floating-ui.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-indigo-600 hover:text-indigo-800"
+    >
+      Floating UI
+    </a>, and its options match the trigger's width by default.
+  </p>
+
+  <h2>Quick Start</h2>
+  <p>
+    The most basic listbox requires three components: <code>.listbox</code>, <code>.listbox_trigger</code>, and
+    <code>.listbox_options</code>
+    with <code>.listbox_option</code>
+    elements.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="listbox/basic.html.heex" id="basic-listbox-demo" />
+  </div>
+
+  <p>
+    This example starts with "Cherry" selected through the <code>value</code>
+    attribute. Selecting another option updates the <code>.listbox_value</code>
+    content immediately.
+  </p>
+
+  <h2>Form Integration</h2>
+  <p>
+    <code>.listbox</code>
+    renders a hidden <code>&lt;input&gt;</code>
+    with the given <code>name</code>. Selecting an option updates the input and dispatches an
+    <code>input</code>
+    event. This makes a parent form's <code>phx-change</code>
+    event run as it does for a native form field.
+    Use <code>.listbox_value</code>
+    to render the current value or a placeholder in the trigger.
+  </p>
+
+  <div class="not-prose">
+    <.code_example
+      file="listbox/listbox_form_demo.ex"
+      module={DemoWeb.DemoLive.ListboxFormDemo}
+      id="listbox-form-demo"
+    />
+  </div>
+
+  <p>
+    The selected fruit below the trigger comes from server state. It confirms that the
+    <code>phx-change</code>
+    event completed while the trigger value updated immediately.
+  </p>
+
+  <h2>Disabled Options</h2>
+  <p>
+    Disable a listbox option with the <code>disabled={true}</code>
+    attribute. Disabled options cannot receive focus or be selected.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="listbox/disabled.html.heex" id="disabled-listbox-demo" />
+  </div>
+
+  <h2>Keyboard Interaction</h2>
+  <p>
+    The listbox provides keyboard navigation that follows standard ARIA patterns.
+    Use the arrow keys to move between options and Enter or Space to select an option.
+  </p>
+
+  <div class="not-prose my-6">
+    <div class="overflow-hidden rounded-lg border border-gray-200">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Key
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Description
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr>
+            <td
+              colspan="2"
+              class="px-6 py-3 text-xs font-semibold text-indigo-900 bg-indigo-50 border-b border-indigo-100"
+            >
+              When the trigger button is focused:
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Enter
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Space
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Opens the listbox and focuses the current selection (or the first option, if none)
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↓
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Opens the listbox and focuses the first non-disabled option
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↑
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Opens the listbox and focuses the last non-disabled option
+            </td>
+          </tr>
+          <tr>
+            <td
+              colspan="2"
+              class="px-6 py-3 text-xs font-semibold text-indigo-900 bg-indigo-50 border-b border-indigo-100"
+            >
+              When the listbox is open:
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Esc
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Closes the listbox without changing the selection, and returns focus to the trigger
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↑
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                ↓
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Focuses the previous/next non-disabled option (wraps around)
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Home
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                End
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Focuses the first/last non-disabled option
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Enter
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                Space
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Selects the focused option, updates the displayed value, and closes the listbox
+            </td>
+          </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                A-Z
+              </kbd>
+              <span class="text-gray-400 mx-1">/</span>
+              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
+                0-9
+              </kbd>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">
+              Focuses the first option that starts with the typed character. Repeated presses cycle through matching options.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
