@@ -27,25 +27,23 @@ const SELECTORS = {
 export default {
   mounted() {
     this.initialize()
-    this.applyInitialSelection()
+    this.syncSelectionFromInput()
   },
 
   updated() {
     this.initialize()
+    this.syncSelectionFromInput()
   },
 
   reconnected() {
     this.initialize()
+    this.syncSelectionFromInput()
   },
 
   destroyed() {
     this.cleanup()
   },
 
-  // Selection state is owned by the client once mounted (same as Combobox) - re-deriving
-  // it from the server on every patch would clobber a just-made selection if an unrelated
-  // LiveView update re-renders this hook's element before the selection's own round-trip
-  // completes.
   initialize() {
     this.cleanup()
     this.setupElements()
@@ -72,7 +70,7 @@ export default {
     listbox.setAttribute('aria-labelledby', button.id)
   },
 
-  applyInitialSelection() {
+  syncSelectionFromInput() {
     const option = this.findOptionByValue(this.refs.valueInput.value)
     this.syncSelectedState(option)
   },

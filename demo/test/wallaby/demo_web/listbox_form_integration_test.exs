@@ -25,6 +25,10 @@ defmodule DemoWeb.ListboxFormIntegrationTest do
     |> assert_has(@listbox |> Query.visible(false))
     |> assert_has(@selection_display |> Query.text("Selected: Apple"))
     |> assert_form_change_count(1)
+    |> assert_has(
+      Query.css("#listbox-form-option-apple[aria-selected=true][data-selected]")
+      |> Query.visible(false)
+    )
   end
 
   feature "the trigger label updates instantly, ahead of the phx-change round-trip", %{
