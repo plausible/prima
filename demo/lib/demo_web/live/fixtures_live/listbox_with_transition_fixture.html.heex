@@ -1,0 +1,29 @@
+<div>
+  <.listbox id="listbox-transition" name="fruit_choice" value="banana">
+    <.listbox_trigger
+      id="listbox-transition-trigger"
+      class="w-64 inline-flex justify-between items-center rounded-lg bg-white border border-gray-300 px-3 py-2 text-sm text-gray-700"
+    >
+      <.listbox_value>Banana</.listbox_value>
+    </.listbox_trigger>
+
+    <.listbox_options
+      id="listbox-transition-options"
+      class="py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300"
+      transition_enter={{"ease-out duration-100", "opacity-0 scale-95", "opacity-100 scale-100"}}
+    >
+      <.listbox_option id="listbox-transition-option-apple" value="apple" display="Apple">
+        Apple
+      </.listbox_option>
+      <.listbox_option id="listbox-transition-option-banana" value="banana" display="Banana">
+        Banana
+      </.listbox_option>
+      <.listbox_option id="listbox-transition-option-cherry" value="cherry" display="Cherry">
+        Cherry
+      </.listbox_option>
+    </.listbox_options>
+  </.listbox>
+  <div id="outside-area" style="height: 50px; width: 100%;">
+    <!-- Invisible area for click-outside testing -->
+  </div>
+</div>

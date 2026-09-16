@@ -125,7 +125,6 @@ defmodule Prima.Dropdown do
         js-show={JS.show(transition: @transition_enter)}
         js-hide={JS.hide(transition: @transition_leave)}
         role="menu"
-        phx-click-away={JS.dispatch("prima:close")}
         {@rest}
       >
         {render_slot(@inner_block)}

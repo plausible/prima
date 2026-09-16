@@ -81,7 +81,6 @@ export default {
       [this.refs.listbox, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.listbox, 'click', this.handleListboxClick.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
-      [this.el, 'prima:close', this.handleClose.bind(this)],
       [this.refs.listbox, 'phx:show-start', this.handleShowStart.bind(this)],
       [this.refs.listbox, 'phx:hide-end', this.handleHideEnd.bind(this)]
     ]
@@ -93,6 +92,7 @@ export default {
 
   cleanup() {
     this.cleanupAutoUpdate()
+    this.cleanupClickOutsideHandler()
 
     if (this.listeners) {
       this.listeners.forEach(([element, event, handler]) => {
@@ -106,6 +106,23 @@ export default {
     if (this.autoUpdateCleanup) {
       this.autoUpdateCleanup()
       this.autoUpdateCleanup = null
+    }
+  },
+
+  setupClickOutsideHandler() {
+    this.cleanupClickOutsideHandler()
+    this.clickOutsideHandler = (event) => {
+      if (!this.refs.button.contains(event.target) && !this.refs.listbox.contains(event.target)) {
+        this.hideListbox()
+      }
+    }
+    document.addEventListener('click', this.clickOutsideHandler)
+  },
+
+  cleanupClickOutsideHandler() {
+    if (this.clickOutsideHandler) {
+      document.removeEventListener('click', this.clickOutsideHandler)
+      this.clickOutsideHandler = null
     }
   },
 
@@ -231,10 +248,6 @@ export default {
     this.setFocus(matchingOptions[nextIndex])
   },
 
-  handleClose() {
-    this.hideListbox()
-  },
-
   handleToggle() {
     this.toggleListbox()
   },
@@ -336,6 +349,7 @@ export default {
   hideListbox() {
     liveSocket.execJS(this.refs.listbox, this.refs.listbox.getAttribute('js-hide'))
     this.refs.optionsWrapper.style.display = 'none'
+    this.cleanupClickOutsideHandler()
   },
 
   toggleListbox() {
@@ -357,6 +371,8 @@ export default {
     if (optionToFocus) {
       this.setFocus(optionToFocus)
     }
+
+    this.setupClickOutsideHandler()
   },
 
   // phx:show-start/phx:hide-end are dispatched asynchronously by LiveView's transition

@@ -168,7 +168,6 @@ defmodule Prima.Listbox do
         js-hide={JS.hide(transition: @transition_leave)}
         role="listbox"
         tabindex="-1"
-        phx-click-away={JS.dispatch("prima:close")}
         {@rest}
       >
         {render_slot(@inner_block)}

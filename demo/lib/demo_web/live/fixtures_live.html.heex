@@ -101,3 +101,11 @@
 <div :if={@live_action == :listbox_form}>
   <.listbox_form_fixture {assigns} />
 </div>
+
+<div :if={@live_action == :listbox_with_transition}>
+  <.listbox_with_transition_fixture />
+</div>
+
+<div :if={@live_action == :dropdown_with_transition}>
+  <.dropdown_with_transition_fixture />
+</div>

@@ -48,6 +48,8 @@ defmodule DemoWeb.Router do
       live "/fixtures/async-combobox-form-change", FixturesLive, :async_combobox_form_change
       live "/fixtures/listbox", FixturesLive, :listbox
       live "/fixtures/listbox-form", FixturesLive, :listbox_form
+      live "/fixtures/listbox-with-transition", FixturesLive, :listbox_with_transition
+      live "/fixtures/dropdown-with-transition", FixturesLive, :dropdown_with_transition
     end
   end
 end

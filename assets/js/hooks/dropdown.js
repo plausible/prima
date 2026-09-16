@@ -64,7 +64,6 @@ export default {
       [this.refs.menu, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.menu, 'click', this.handleMenuClick.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
-      [this.el, 'prima:close', this.handleClose.bind(this)],
       [this.refs.menu, 'phx:show-start', this.handleShowStart.bind(this)],
       [this.refs.menu, 'phx:hide-end', this.handleHideEnd.bind(this)]
     ]
@@ -76,6 +75,7 @@ export default {
 
   cleanup() {
     this.cleanupAutoUpdate()
+    this.cleanupClickOutsideHandler()
 
     if (this.listeners) {
       this.listeners.forEach(([element, event, handler]) => {
@@ -89,6 +89,23 @@ export default {
     if (this.autoUpdateCleanup) {
       this.autoUpdateCleanup()
       this.autoUpdateCleanup = null
+    }
+  },
+
+  setupClickOutsideHandler() {
+    this.cleanupClickOutsideHandler()
+    this.clickOutsideHandler = (event) => {
+      if (!this.refs.button.contains(event.target) && !this.refs.menu.contains(event.target)) {
+        this.hideMenu()
+      }
+    }
+    document.addEventListener('click', this.clickOutsideHandler)
+  },
+
+  cleanupClickOutsideHandler() {
+    if (this.clickOutsideHandler) {
+      document.removeEventListener('click', this.clickOutsideHandler)
+      this.clickOutsideHandler = null
     }
   },
 
@@ -210,10 +227,6 @@ export default {
     this.setFocus(matchingItems[nextIndex])
   },
 
-  handleClose() {
-    this.hideMenu()
-  },
-
   handleToggle() {
     this.toggleMenu()
   },
@@ -295,12 +308,12 @@ export default {
   hideMenu() {
     liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
     this.refs.menuWrapper.style.display = 'none'
+    this.cleanupClickOutsideHandler()
   },
 
   toggleMenu() {
     if (this.isMenuVisible()) {
-      liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
-      this.refs.menuWrapper.style.display = 'none'
+      this.hideMenu()
     } else {
       // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
       // then position it, then trigger inner menu transition. This prevents the menu from
@@ -308,6 +321,7 @@ export default {
       this.refs.menuWrapper.style.display = 'block'
       this.positionMenu()
       liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-show'))
+      this.setupClickOutsideHandler()
     }
   },
 
@@ -324,6 +338,8 @@ export default {
     if (items.length > 0) {
       this.setFocus(items[0])
     }
+
+    this.setupClickOutsideHandler()
   },
 
   showMenuAndFocusLast() {
@@ -339,6 +355,8 @@ export default {
     if (items.length > 0) {
       this.setFocus(items[items.length - 1])
     }
+
+    this.setupClickOutsideHandler()
   },
 
   setupAriaRelationships(button, menu) {

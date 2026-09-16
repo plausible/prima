@@ -1,0 +1,24 @@
+<div>
+  <.dropdown id="dropdown-transition">
+    <.dropdown_trigger id="dropdown-transition-trigger">
+      Open Dropdown
+    </.dropdown_trigger>
+    <.dropdown_menu
+      id="dropdown-transition-menu"
+      transition_enter={{"ease-out duration-100", "opacity-0 scale-95", "opacity-100 scale-100"}}
+    >
+      <.dropdown_item id="dropdown-transition-item-0">
+        Apple
+      </.dropdown_item>
+      <.dropdown_item id="dropdown-transition-item-1">
+        Banana
+      </.dropdown_item>
+      <.dropdown_item id="dropdown-transition-item-2">
+        Cherry
+      </.dropdown_item>
+    </.dropdown_menu>
+  </.dropdown>
+  <div id="outside-area" style="height: 50px; width: 100%;">
+    <!-- Invisible area for click-outside testing -->
+  </div>
+</div>
