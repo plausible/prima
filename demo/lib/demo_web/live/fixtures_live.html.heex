@@ -22,6 +22,10 @@
   <.dropdown_sections_fixture />
 </div>
 
+<div :if={@live_action == :dropdown_multiline_items}>
+  <.dropdown_multiline_items_fixture />
+</div>
+
 <div :if={@live_action == :simple_modal}>
   <.simple_modal_fixture />
 </div>
@@ -96,6 +100,10 @@
 
 <div :if={@live_action == :listbox}>
   <.listbox_fixture />
+</div>
+
+<div :if={@live_action == :listbox_multiline_options}>
+  <.listbox_multiline_options_fixture />
 </div>
 
 <div :if={@live_action == :listbox_form}>
