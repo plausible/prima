@@ -221,15 +221,15 @@ export default {
   },
 
   handleMouseOver(e) {
-    if (e.target.getAttribute('role') === 'menuitem' &&
-        e.target.getAttribute('aria-disabled') !== 'true') {
-      this.setFocus(e.target)
+    const item = e.target.closest(SELECTORS.MENUITEM)
+    if (item && item.getAttribute('aria-disabled') !== 'true') {
+      this.setFocus(item)
     }
   },
 
   handleMenuClick(e) {
-    if (e.target.getAttribute('role') === 'menuitem' &&
-        e.target.getAttribute('aria-disabled') !== 'true') {
+    const item = e.target.closest(SELECTORS.MENUITEM)
+    if (item && item.getAttribute('aria-disabled') !== 'true') {
       this.hideMenu()
       this.refs.button.focus()
     }

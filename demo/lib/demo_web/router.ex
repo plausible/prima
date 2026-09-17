@@ -29,6 +29,7 @@ defmodule DemoWeb.Router do
       live "/fixtures/dropdown-custom-ids", FixturesLive, :dropdown_custom_ids
       live "/fixtures/dropdown-rerender-trigger", FixturesLive, :dropdown_rerender_trigger
       live "/fixtures/dropdown-sections", FixturesLive, :dropdown_sections
+      live "/fixtures/dropdown-multiline-items", FixturesLive, :dropdown_multiline_items
       live "/fixtures/simple-modal", FixturesLive, :simple_modal
       live "/fixtures/async-modal", FixturesLive, :async_modal
       live "/fixtures/modal-rerender-title", FixturesLive, :modal_rerender_title
@@ -48,6 +49,7 @@ defmodule DemoWeb.Router do
       live "/fixtures/combobox-change", FixturesLive, :combobox_change
       live "/fixtures/async-combobox-form-change", FixturesLive, :async_combobox_form_change
       live "/fixtures/listbox", FixturesLive, :listbox
+      live "/fixtures/listbox-multiline-options", FixturesLive, :listbox_multiline_options
       live "/fixtures/listbox-with-transition", FixturesLive, :listbox_with_transition
       live "/fixtures/listbox-form", FixturesLive, :listbox_form
     end

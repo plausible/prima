@@ -25,6 +25,10 @@
   <.dropdown_sections_fixture />
 </div>
 
+<div :if={@live_action == :dropdown_multiline_items}>
+  <.dropdown_multiline_items_fixture />
+</div>
+
 <div :if={@live_action == :simple_modal}>
   <.simple_modal_fixture />
 </div>
@@ -102,6 +106,10 @@
     if @live_action == :listbox_with_transition,
       do: {"ease-out duration-100", "opacity-0 scale-95", "opacity-100 scale-100"}
   } />
+</div>
+
+<div :if={@live_action == :listbox_multiline_options}>
+  <.listbox_multiline_options_fixture />
 </div>
 
 <div :if={@live_action == :listbox_form}>
