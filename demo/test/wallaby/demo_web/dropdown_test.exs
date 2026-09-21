@@ -23,6 +23,14 @@ defmodule DemoWeb.DropdownTest do
     |> assert_has(@dropdown_items |> Query.count(4))
   end
 
+  feature "stays open after the click that starts an enter transition", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/dropdown-with-transition", "#dropdown")
+    |> assert_has(@dropdown_menu |> Query.visible(false))
+    |> click(@dropdown_button)
+    |> assert_has(@dropdown_menu |> Query.visible(true))
+  end
+
   feature "hides dropdown menu when button is clicked again", %{session: session} do
     session
     |> visit_fixture("/fixtures/dropdown", "#dropdown")

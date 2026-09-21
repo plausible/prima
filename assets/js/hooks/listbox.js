@@ -78,10 +78,10 @@ export default {
   setupEventListeners() {
     this.listeners = [
       [this.refs.button, 'click', this.handleToggle.bind(this)],
+      [document, 'click', this.handleClickOutside.bind(this)],
       [this.refs.listbox, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.listbox, 'click', this.handleListboxClick.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
-      [this.el, 'prima:close', this.handleClose.bind(this)],
       [this.refs.listbox, 'phx:show-start', this.handleShowStart.bind(this)],
       [this.refs.listbox, 'phx:hide-end', this.handleHideEnd.bind(this)]
     ]
@@ -231,12 +231,14 @@ export default {
     this.setFocus(matchingOptions[nextIndex])
   },
 
-  handleClose() {
-    this.hideListbox()
-  },
-
   handleToggle() {
     this.toggleListbox()
+  },
+
+  handleClickOutside(e) {
+    if (this.isListboxVisible() && !this.refs.button.contains(e.target) && !this.refs.listbox.contains(e.target)) {
+      this.hideListbox()
+    }
   },
 
   handleMouseOver(e) {
