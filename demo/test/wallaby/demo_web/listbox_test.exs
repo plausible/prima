@@ -24,6 +24,14 @@ defmodule DemoWeb.ListboxTest do
     |> assert_has(@listbox |> Query.visible(false))
   end
 
+  feature "stays open after the click that starts an enter transition", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/listbox-with-transition", "#listbox")
+    |> assert_has(@listbox |> Query.visible(false))
+    |> click(@button)
+    |> assert_has(@listbox |> Query.visible(true))
+  end
+
   feature "closes when clicking outside", %{session: session} do
     session
     |> visit_fixture("/fixtures/listbox", "#listbox")

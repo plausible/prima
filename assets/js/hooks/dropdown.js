@@ -61,10 +61,10 @@ export default {
   setupEventListeners() {
     this.listeners = [
       [this.refs.button, 'click', this.handleToggle.bind(this)],
+      [document, 'click', this.handleClickOutside.bind(this)],
       [this.refs.menu, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.menu, 'click', this.handleMenuClick.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
-      [this.el, 'prima:close', this.handleClose.bind(this)],
       [this.refs.menu, 'phx:show-start', this.handleShowStart.bind(this)],
       [this.refs.menu, 'phx:hide-end', this.handleHideEnd.bind(this)]
     ]
@@ -210,12 +210,14 @@ export default {
     this.setFocus(matchingItems[nextIndex])
   },
 
-  handleClose() {
-    this.hideMenu()
-  },
-
   handleToggle() {
     this.toggleMenu()
+  },
+
+  handleClickOutside(e) {
+    if (this.isMenuVisible() && !this.refs.button.contains(e.target) && !this.refs.menu.contains(e.target)) {
+      this.hideMenu()
+    }
   },
 
   handleMouseOver(e) {
@@ -299,8 +301,7 @@ export default {
 
   toggleMenu() {
     if (this.isMenuVisible()) {
-      liveSocket.execJS(this.refs.menu, this.refs.menu.getAttribute('js-hide'))
-      this.refs.menuWrapper.style.display = 'none'
+      this.hideMenu()
     } else {
       // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
       // then position it, then trigger inner menu transition. This prevents the menu from

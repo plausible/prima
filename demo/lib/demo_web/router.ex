@@ -23,6 +23,7 @@ defmodule DemoWeb.Router do
 
     if Mix.env() in [:dev, :test] do
       live "/fixtures/dropdown", FixturesLive, :dropdown
+      live "/fixtures/dropdown-with-transition", FixturesLive, :dropdown_with_transition
       live "/fixtures/dropdown-with-disabled", FixturesLive, :dropdown_with_disabled
       live "/fixtures/dropdown-custom-components", FixturesLive, :dropdown_custom_components
       live "/fixtures/dropdown-custom-ids", FixturesLive, :dropdown_custom_ids
@@ -47,6 +48,7 @@ defmodule DemoWeb.Router do
       live "/fixtures/combobox-change", FixturesLive, :combobox_change
       live "/fixtures/async-combobox-form-change", FixturesLive, :async_combobox_form_change
       live "/fixtures/listbox", FixturesLive, :listbox
+      live "/fixtures/listbox-with-transition", FixturesLive, :listbox_with_transition
       live "/fixtures/listbox-form", FixturesLive, :listbox_form
     end
   end
