@@ -1,10 +1,8 @@
 <div :if={@live_action in [:dropdown, :dropdown_with_transition]}>
-  <.dropdown_fixture
-    transition_enter={
-      if @live_action == :dropdown_with_transition,
-        do: {"ease-out duration-100", "opacity-0 scale-95", "opacity-100 scale-100"}
-    }
-  />
+  <.dropdown_fixture transition_enter={
+    if @live_action == :dropdown_with_transition,
+      do: {"ease-out duration-100", "opacity-0 scale-95", "opacity-100 scale-100"}
+  } />
 </div>
 
 <div :if={@live_action == :dropdown_with_disabled}>
@@ -100,12 +98,10 @@
 </div>
 
 <div :if={@live_action in [:listbox, :listbox_with_transition]}>
-  <.listbox_fixture
-    transition_enter={
-      if @live_action == :listbox_with_transition,
-        do: {"ease-out duration-100", "opacity-0 scale-95", "opacity-100 scale-100"}
-    }
-  />
+  <.listbox_fixture transition_enter={
+    if @live_action == :listbox_with_transition,
+      do: {"ease-out duration-100", "opacity-0 scale-95", "opacity-100 scale-100"}
+  } />
 </div>
 
 <div :if={@live_action == :listbox_form}>
