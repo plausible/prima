@@ -73,9 +73,9 @@ defmodule DemoWeb.DropdownTest do
     |> assert_has(@dropdown_menu |> Query.visible(true))
     # Initially no item should be active
     |> assert_has(Query.css("#dropdown [role=menuitem][data-focus]", count: 0))
-    # Hovering over first item should activate it
+    # Hovering over child content should activate its item
     |> execute_script(
-      "document.querySelector('#dropdown [role=menuitem]:first-child').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))"
+      "document.querySelector('#dropdown [role=menuitem]:first-child span').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))"
     )
     |> assert_has(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
     # Hovering over second item should activate it and deactivate first
@@ -221,13 +221,14 @@ defmodule DemoWeb.DropdownTest do
     |> assert_has(@dropdown_menu |> Query.visible(false))
   end
 
-  feature "closes dropdown when clicking on a menuitem", %{session: session} do
+  feature "closes dropdown when clicking inside a menuitem", %{session: session} do
     session
     |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
-    |> click(Query.css("#dropdown [role=menuitem]:first-child"))
+    |> click(Query.css("#dropdown [role=menuitem]:first-child span"))
     |> assert_has(@dropdown_menu |> Query.visible(false))
+    |> assert_has(Query.css("#dropdown-trigger:focus"))
   end
 
   feature "opens dropdown and focuses first item when Enter is pressed on button", %{
