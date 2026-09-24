@@ -52,12 +52,16 @@ defmodule DemoWeb.ListboxTest do
     |> assert_missing(Query.css("#listbox-option-apple[aria-selected=true]"))
   end
 
-  feature "selecting an option updates the hidden input, ARIA state, and displayed value instantly",
+  feature "hovering and selecting child content updates the option state and displayed value",
           %{session: session} do
     session
     |> visit_fixture("/fixtures/listbox", "#listbox")
     |> click(@button)
-    |> click(Query.css("#listbox-option-cherry"))
+    |> execute_script(
+      "document.querySelector('#listbox-option-cherry span').dispatchEvent(new MouseEvent('mouseover', {bubbles: true}))"
+    )
+    |> assert_has(Query.css("#listbox-option-cherry[data-focus]"))
+    |> click(Query.css("#listbox-option-cherry span"))
     |> assert_has(@listbox |> Query.visible(false))
     |> assert_has(@listbox_value |> Query.text("Cherry"))
     |> assert_has(

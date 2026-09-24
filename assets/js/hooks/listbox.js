@@ -242,9 +242,9 @@ export default {
   },
 
   handleMouseOver(e) {
-    if (e.target.getAttribute('role') === 'option' &&
-        e.target.getAttribute('aria-disabled') !== 'true') {
-      this.setFocus(e.target)
+    const option = e.target.closest(SELECTORS.OPTION)
+    if (option && option.getAttribute('aria-disabled') !== 'true') {
+      this.setFocus(option)
     }
   },
 
