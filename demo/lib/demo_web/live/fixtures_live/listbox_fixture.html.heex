@@ -38,4 +38,19 @@
   <div id="outside-area" style="height: 50px; width: 100%;">
     <!-- Invisible area for click-outside testing -->
   </div>
+
+  <.listbox id="disabled-listbox" name="disabled_fruit_choice">
+    <.listbox_trigger id="disabled-listbox-trigger" disabled={true}>
+      <.listbox_value>Select a fruit...</.listbox_value>
+    </.listbox_trigger>
+
+    <.listbox_options id="disabled-listbox-options">
+      <.listbox_option id="disabled-listbox-option-apple" value="apple" display="Apple">
+        Apple
+      </.listbox_option>
+      <.listbox_option id="disabled-listbox-option-banana" value="banana" display="Banana">
+        Banana
+      </.listbox_option>
+    </.listbox_options>
+  </.listbox>
 </div>

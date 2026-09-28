@@ -76,6 +76,21 @@
     <.code_example file="listbox/disabled.html.heex" id="disabled-listbox-demo" />
   </div>
 
+  <h2>Disabled Trigger</h2>
+  <p>
+    Disable the entire listbox with <code>disabled={true}</code>
+    on <code>.listbox_trigger</code>. A disabled trigger can't be clicked to open the
+    listbox and is removed from the tab order, the same way a native
+    <code>&lt;select disabled&gt;</code>
+    behaves. Prima only sets the <code>data-disabled</code>
+    attribute — styling the disabled state (e.g. reduced opacity, a <code>not-allowed</code>
+    cursor) is entirely up to you, as shown below.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="listbox/disabled_trigger.html.heex" id="disabled-trigger-listbox-demo" />
+  </div>
+
   <h2>Keyboard Interaction</h2>
   <p>
     The listbox provides keyboard navigation that follows standard ARIA patterns.

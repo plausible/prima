@@ -232,7 +232,12 @@ export default {
   },
 
   handleToggle() {
+    if (this.isButtonDisabled()) return
     this.toggleListbox()
+  },
+
+  isButtonDisabled() {
+    return this.refs.button.getAttribute('aria-disabled') === 'true'
   },
 
   handleClickOutside(e) {

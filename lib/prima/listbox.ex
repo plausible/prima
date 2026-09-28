@@ -66,6 +66,7 @@ defmodule Prima.Listbox do
 
   attr :id, :string, required: true
   attr :class, :string, default: ""
+  attr :disabled, :boolean, default: false
   attr :rest, :global
   slot :inner_block, required: true
 
@@ -95,6 +96,17 @@ defmodule Prima.Listbox do
       <.listbox_trigger id="role-listbox-trigger" aria-label="Role">
         <.listbox_value>{@selected_role}</.listbox_value>
       </.listbox_trigger>
+
+  ## Disabling the Trigger
+
+  Pass `disabled={true}` to prevent the trigger from opening the listbox and
+  remove it from the tab order, the same way a native `<select disabled>`
+  behaves. Styling for the disabled state is left to the consumer — target
+  the `data-disabled` attribute set on the trigger:
+
+      <.listbox_trigger id="fruit-listbox-trigger" disabled={true} class="data-disabled:opacity-50">
+        <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
+      </.listbox_trigger>
   """
   def listbox_trigger(assigns) do
     ~H"""
@@ -104,6 +116,9 @@ defmodule Prima.Listbox do
       class={@class}
       aria-haspopup="listbox"
       aria-expanded="false"
+      aria-disabled={if @disabled, do: "true"}
+      data-disabled={if @disabled, do: "true"}
+      tabindex={if @disabled, do: "-1"}
       {@rest}
     >
       {render_slot(@inner_block)}

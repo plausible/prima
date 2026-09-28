@@ -182,4 +182,28 @@ defmodule DemoWeb.ListboxTest do
     |> click(Query.css("#listbox-option-apple"))
     |> assert_has(@listbox_value |> Query.text("Apple"))
   end
+
+  describe "disabled trigger" do
+    @disabled_trigger Query.css("#disabled-listbox-trigger")
+    @disabled_listbox Query.css("#disabled-listbox [role=listbox]")
+
+    feature "marks the trigger as disabled and removes it from the tab order", %{
+      session: session
+    } do
+      session
+      |> visit_fixture("/fixtures/listbox", "#disabled-listbox")
+      |> assert_has(
+        Query.css(
+          "#disabled-listbox-trigger[aria-disabled=true][data-disabled=true][tabindex='-1']"
+        )
+      )
+    end
+
+    feature "does not open the listbox when clicked", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox", "#disabled-listbox")
+      |> click(@disabled_trigger)
+      |> assert_has(@disabled_listbox |> Query.visible(false))
+    end
+  end
 end
