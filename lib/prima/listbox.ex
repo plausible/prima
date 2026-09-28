@@ -85,15 +85,13 @@ defmodule Prima.Listbox do
 
   ## Accessible Naming
 
-  The listbox is named after this trigger's accessible name (via
-  `aria-labelledby`). If the trigger only ever shows the *current value* (e.g.
-  a role picker whose trigger just says "Viewer", with no "Role" label
-  anywhere), the listbox gets announced by its value instead of its
-  purpose — the same problem as a native `<select>` with no `<label>`.
+  Labelling is up to the caller, as with a native `<select>`. The trigger's
+  content is its accessible name (via `aria-labelledby`). If the trigger only
+  shows the current value, put a visually hidden label next to it so that both
+  the meaning and the value are announced:
 
-  Fix it by adding an `aria-label` describing the field:
-
-      <.listbox_trigger id="role-listbox-trigger" aria-label="Role">
+      <.listbox_trigger id="role-listbox-trigger">
+        <span class="sr-only">Role:</span>
         <.listbox_value>{@selected_role}</.listbox_value>
       </.listbox_trigger>
 
