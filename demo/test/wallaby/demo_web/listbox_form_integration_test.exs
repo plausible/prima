@@ -77,4 +77,35 @@ defmodule DemoWeb.ListboxFormIntegrationTest do
     |> assert_has(@selection_display |> Query.text("Selected: none"))
     |> assert_form_change_count(0)
   end
+
+  describe "prima:set-value event" do
+    defp dispatch_set_value(session, id, detail) do
+      execute_script(
+        session,
+        "document.getElementById(#{inspect(id)}).dispatchEvent(new CustomEvent('prima:set-value', { detail: #{Jason.encode!(detail)} }))"
+      )
+    end
+
+    feature "updates the displayed value without firing phx-change by default", %{
+      session: session
+    } do
+      session
+      |> visit_fixture("/fixtures/listbox-form", "#listbox-form")
+      |> dispatch_set_value("listbox-form", %{value: "Mango"})
+      |> assert_has(@listbox_value |> Query.text("Mango"))
+      |> assert_has(@selection_display |> Query.text("Selected: none"))
+      |> assert_form_change_count(0)
+    end
+
+    feature "fires phx-change when notify is true, exactly like a real selection", %{
+      session: session
+    } do
+      session
+      |> visit_fixture("/fixtures/listbox-form", "#listbox-form")
+      |> dispatch_set_value("listbox-form", %{value: "Mango", notify: true})
+      |> assert_has(@listbox_value |> Query.text("Mango"))
+      |> assert_has(@selection_display |> Query.text("Selected: Mango"))
+      |> assert_form_change_count(1)
+    end
+  end
 end

@@ -83,7 +83,8 @@ export default {
       [this.refs.listbox, 'click', this.handleListboxClick.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
       [this.refs.listbox, 'phx:show-start', this.handleShowStart.bind(this)],
-      [this.refs.listbox, 'phx:hide-end', this.handleHideEnd.bind(this)]
+      [this.refs.listbox, 'phx:hide-end', this.handleHideEnd.bind(this)],
+      [this.el, 'prima:set-value', this.handleSetValue.bind(this)]
     ]
 
     this.listeners.forEach(([element, event, handler]) => {
@@ -265,15 +266,42 @@ export default {
   // User-driven selection: updates the form and displayed values
   // instantly, ahead of any server round-trip.
   selectOption(option) {
-    const value = option.getAttribute('data-value')
+    this.applyValue(option.getAttribute('data-value'), option, { notify: true })
+  },
 
-    if (this.refs.valueInput.value !== value) {
-      this.refs.valueInput.value = value
-      this.refs.valueInput.dispatchEvent(new Event('input', { bubbles: true }))
+  // Public escape hatch for setting the value from other client-side code
+  // without requiring a simulated click or a server round-trip. Mirrors how
+  // a native <select>'s `.value =` setter doesn't dispatch `input`/`change`
+  // on its own - callers opt in with `notify: true` when they do want a
+  // parent form's phx-change to fire, same as a real selection would.
+  //
+  //   el.dispatchEvent(new CustomEvent('prima:set-value', { detail: { value: 'viewer' } }))
+  handleSetValue(e) {
+    const { value, notify = false } = e.detail || {}
+    const option = this.findOptionByValue(value)
+
+    if (option && option.getAttribute('aria-disabled') === 'true') return
+
+    this.applyValue(value, option, { notify })
+  },
+
+  // A value with no matching option is treated as no selection at all -
+  // mirrors a native <select>, where assigning an unknown value leaves
+  // `selectedIndex` at -1 and `.value` reads back as "".
+  applyValue(value, option, { notify = false } = {}) {
+    const normalizedValue = option ? value : ''
+
+    if (this.refs.valueInput.value !== normalizedValue) {
+      this.refs.valueInput.value = normalizedValue
+      if (notify) {
+        this.refs.valueInput.dispatchEvent(new Event('input', { bubbles: true }))
+      }
     }
 
     this.syncSelectedState(option)
-    this.refs.value.textContent = option.getAttribute('data-display')
+    if (option) {
+      this.refs.value.textContent = option.getAttribute('data-display')
+    }
   },
 
   // Mount-time sync only: the displayed value is rendered by the caller and is

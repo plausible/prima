@@ -206,4 +206,71 @@ defmodule DemoWeb.ListboxTest do
       |> assert_has(@disabled_listbox |> Query.visible(false))
     end
   end
+
+  describe "prima:set-value event" do
+    defp dispatch_set_value(session, id, detail) do
+      execute_script(
+        session,
+        "document.getElementById(#{inspect(id)}).dispatchEvent(new CustomEvent('prima:set-value', { detail: #{Jason.encode!(detail)} }))"
+      )
+    end
+
+    feature "sets the value, displayed text, and selection markers", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox", "#listbox")
+      |> dispatch_set_value("listbox", %{value: "apple"})
+      |> assert_has(@listbox_value |> Query.text("Apple"))
+      |> assert_has(
+        Query.css("#listbox-option-apple[aria-selected=true][data-selected]")
+        |> Query.visible(false)
+      )
+      |> assert_missing(Query.css("#listbox-option-banana[aria-selected=true]"))
+      |> then(fn session ->
+        value =
+          session
+          |> find(
+            Query.css("#listbox input[type=hidden][name=fruit_choice]")
+            |> Query.visible(false)
+          )
+          |> Element.value()
+
+        assert value == "apple", "Expected hidden input value to be 'apple' but got '#{value}'"
+
+        session
+      end)
+    end
+
+    feature "is a no-op when the value belongs to a disabled option", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox", "#listbox")
+      |> dispatch_set_value("listbox", %{value: "durian"})
+      |> assert_has(@listbox_value |> Query.text("Banana"))
+      |> assert_has(
+        Query.css("#listbox-option-banana[aria-selected=true][data-selected]")
+        |> Query.visible(false)
+      )
+    end
+
+    feature "clears the selection when the value matches no option, like a native <select>",
+            %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox", "#listbox")
+      |> dispatch_set_value("listbox", %{value: "grape"})
+      |> assert_missing(Query.css("#listbox [role=option][aria-selected=true]"))
+      |> assert_missing(Query.css("#listbox [role=option][data-selected]"))
+      |> then(fn session ->
+        value =
+          session
+          |> find(
+            Query.css("#listbox input[type=hidden][name=fruit_choice]")
+            |> Query.visible(false)
+          )
+          |> Element.value()
+
+        assert value == "", "Expected hidden input value to be cleared but got '#{value}'"
+
+        session
+      end)
+    end
+  end
 end

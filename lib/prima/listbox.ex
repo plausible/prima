@@ -44,6 +44,28 @@ defmodule Prima.Listbox do
       <.listbox_trigger id="fruit-listbox-trigger">
         <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
       </.listbox_trigger>
+
+  ## Setting the Value from Client-Side Code
+
+  Dispatch a `prima:set-value` custom event at the `.listbox` element to set
+  its value from other client-side code, without simulating a click or
+  round-tripping through the server. This mirrors a native `<select>`'s
+  `.value =` setter: it updates the hidden input, the displayed value, and the
+  selection markers, but does *not* dispatch `input` (so a parent form's
+  `phx-change` does not fire) unless you opt in with `notify: true`:
+
+      document.getElementById("fruit-listbox").dispatchEvent(
+        new CustomEvent("prima:set-value", { detail: { value: "apple" } })
+      )
+
+      // Also fires `input`, so `phx-change` runs exactly like a real selection:
+      document.getElementById("fruit-listbox").dispatchEvent(
+        new CustomEvent("prima:set-value", { detail: { value: "apple", notify: true } })
+      )
+
+  Setting a disabled option's value is a no-op. Setting a value with no
+  matching option clears the selection, the same way assigning an unknown
+  value to a native `<select>` leaves it unselected.
   """
 
   use Phoenix.Component
