@@ -3,7 +3,6 @@
     <.combobox_input
       name="fruit"
       on_search="async_combobox_search"
-      search_debounce={@search_debounce}
       placeholder="Type to search..."
     />
 
@@ -26,5 +25,4 @@
   <div id="change-count" data-testid="change-count">
     Form changes: {@form_change_count}
   </div>
-  <output id="search-history" data-queries={Jason.encode!(@search_queries)} hidden />
 </form>

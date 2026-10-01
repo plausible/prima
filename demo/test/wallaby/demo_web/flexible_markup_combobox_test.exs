@@ -27,13 +27,14 @@ defmodule DemoWeb.FlexibleMarkupComboboxTest do
     |> assert_combobox_selection("#flexible-markup-combobox", "priority", "urgent", "urgent")
   end
 
-  feature "selects option by clicking on nested description text", %{session: session} do
+  feature "selects option by clicking on nested text", %{session: session} do
     session
     |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
-    # Click on the high priority option
-    |> click(Query.css("#flexible-markup-combobox [role=option][data-value='high']"))
+    |> click(
+      Query.css("#flexible-markup-combobox [role=option][data-value='high'] div div:first-child")
+    )
     |> assert_combobox_selection("#flexible-markup-combobox", "priority", "high", "high")
   end
 

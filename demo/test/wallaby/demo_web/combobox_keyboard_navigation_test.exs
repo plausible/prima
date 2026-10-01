@@ -72,6 +72,31 @@ defmodule DemoWeb.ComboboxKeyboardNavigationTest do
     |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Mango", "Mango")
   end
 
+  feature "tab key moves focus to next input when options are closed", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/combobox-form-tab", "#demo-combobox")
+    |> assert_has(@search_input)
+    |> assert_has(Query.css("#next-input"))
+    # Click on the combobox input to focus it (but options should be closed)
+    |> execute_script(
+      "document.querySelector('#demo-combobox input[data-prima-ref=search_input]').focus()"
+    )
+    # Verify options are closed
+    |> assert_has(@options_container |> Query.visible(false))
+    # Press Tab - should move focus to next input
+    |> send_keys([:tab])
+    # Verify focus moved to next input (browser default behavior)
+    |> execute_script(
+      "return document.activeElement.id",
+      fn active_id ->
+        assert active_id == "next-input",
+               "Expected focus to move to next-input, but active element is '#{active_id}'"
+      end
+    )
+    # Options should still be closed
+    |> assert_has(@options_container |> Query.visible(false))
+  end
+
   feature "ArrowDown opens combobox when closed and input is focused", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")

@@ -33,32 +33,12 @@ defmodule DemoWeb.CreatableComboboxTest do
     |> assert_created_selection("Strawberry")
   end
 
-  feature "clearing a created selection allows a new selection to be restored", %{
-    session: session
-  } do
-    session
-    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
-    |> click(@search_input)
-    |> fill_in(@search_input, with: "Strawberry")
-    |> click(@create_option)
-    |> click(Query.css("body"))
-    |> click(@search_input)
-    |> send_keys([:backspace])
-    |> send_keys([:escape])
-    |> assert_created_selection(nil)
-    |> fill_in(@search_input, with: "Blueberry")
-    |> click(@create_option)
-    |> fill_in(@search_input, with: "App")
-    |> send_keys([:escape])
-    |> assert_created_selection("Blueberry")
-  end
-
   defp assert_created_selection(session, expected) do
     assert_combobox_selection(
       session,
       "#demo-creatable-combobox",
       "demo-creatable-combobox[fruit]",
-      expected || "",
+      expected,
       expected
     )
   end

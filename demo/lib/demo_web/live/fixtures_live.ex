@@ -21,8 +21,6 @@ defmodule DemoWeb.FixturesLive do
       |> assign(form_change_count: 0)
       |> assign(submission_multiple: params["multiple"] == "true")
       |> assign(submission_change: %{})
-      |> assign(search_queries: [])
-      |> assign(search_debounce: if(params["slow_debounce"] == "true", do: 1000, else: 200))
       |> assign(trigger_label: "Open Dropdown")
       |> assign(modal_title: "Good news")
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
@@ -59,12 +57,7 @@ defmodule DemoWeb.FixturesLive do
         String.contains?(String.downcase(option), String.downcase(input))
       end)
 
-    socket =
-      socket
-      |> update(:search_queries, &(&1 ++ [input]))
-      |> stream(:suggestions, suggestions, reset: true)
-
-    {:noreply, socket}
+    {:noreply, stream(socket, :suggestions, suggestions, reset: true)}
   end
 
   @impl true

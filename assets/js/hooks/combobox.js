@@ -81,7 +81,6 @@ export default {
 
     this.isMultiple = this.el.hasAttribute('data-multiple')
     if (this.refs.submitInput) this.refs.submitInput.multiple = this.isMultiple
-    this.hasCreateOption = !!this.refs.createOption
   },
 
   setupEventListeners() {
@@ -189,10 +188,6 @@ export default {
 
   getSelectedValues() {
     return Array.from(this.refs.submitInput?.selectedOptions || []).map(option => option.value)
-  },
-
-  restoreSelectedDisplayValue() {
-    this.refs.searchInput.value = this.refs.submitInput?.selectedOptions[0]?.textContent ?? ''
   },
 
   addSelection(item) {
@@ -455,9 +450,7 @@ export default {
       this.removeSelection(this.getSelectedValues()[0])
     }
 
-    if (this.hasCreateOption) {
-      this.updateCreateOption(searchValue)
-    }
+    this.updateCreateOption(searchValue)
 
     if (searchValue.length > 0) {
       this.showOptions()
@@ -489,9 +482,7 @@ export default {
       }
     }
 
-    if (this.hasCreateOption) {
-      this.updateCreateOptionVisibility(searchValue)
-    }
+    this.updateCreateOptionVisibility(searchValue)
 
     if (previouslyFocusedOptionIsHidden) {
       this.focusFirstOption()
@@ -600,11 +591,9 @@ export default {
   handleBlur() {
     if (!this.isOpen) return
 
-    if (!this.isMultiple) {
-      this.restoreSelectedDisplayValue()
-    } else {
-      this.refs.searchInput.value = ''
-    }
+    this.refs.searchInput.value = this.isMultiple
+      ? ''
+      : this.refs.submitInput?.selectedOptions[0]?.textContent ?? ''
 
     this.hideOptions()
     this.resetSearch()
