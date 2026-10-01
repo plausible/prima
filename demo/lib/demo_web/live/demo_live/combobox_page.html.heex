@@ -40,7 +40,7 @@
   <h3>Server-side Search</h3>
   <p>
     For large datasets or dynamic content, enable server-side search by adding
-    <code>phx-change</code>
+    <code>on_search</code>
     to the input.
     The component automatically switches to async mode with debounced search queries.
   </p>
@@ -55,13 +55,14 @@
 
   <p>
     The async pattern sends search queries to your LiveView with automatic debouncing. Handle the
-    <code>phx-change</code>
-    event to filter results server-side and update the options dynamically.
+    <code>on_search</code>
+    event with its <code>{"%{\"query\" => query}"}</code>
+    payload to filter results server-side.
     Selecting or dismissing requests default options with an empty query,
     while retaining the selected value. The query is stored separately from the selected
-    label shown in the input. Search handlers stay unchanged. Loading indicators can observe LiveView’s
-    <code>phx-change-loading</code>
-    class on the hidden query input.
+    label shown in the input. Search works without an enclosing form. Loading indicators can observe LiveView’s
+    <code>phx-hook-loading</code>
+    class on the root combobox.
   </p>
 
   <h3>Create Custom Values</h3>

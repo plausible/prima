@@ -51,9 +51,7 @@ defmodule DemoWeb.FixturesLive do
   end
 
   @impl true
-  def handle_event("async_combobox_search", params, socket) do
-    input = get_in(params, params["_target"])
-
+  def handle_event("async_combobox_search", %{"query" => input}, socket) do
     suggestions =
       Enum.filter(@options, fn option ->
         String.contains?(String.downcase(option), String.downcase(input))

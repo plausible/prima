@@ -2,8 +2,8 @@
   <.combobox id="async-form-change-combobox">
     <.combobox_input
       name="fruit"
-      phx-change="async_combobox_search"
-      phx-debounce={@search_debounce}
+      on_search="async_combobox_search"
+      search_debounce={@search_debounce}
       placeholder="Type to search..."
     />
 

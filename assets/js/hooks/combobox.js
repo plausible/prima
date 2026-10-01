@@ -15,7 +15,6 @@ const KEYS = {
 
 const SELECTORS = {
   SEARCH_INPUT: 'input[data-prima-ref=search_input]',
-  QUERY_INPUT: 'input[data-prima-ref=query_input]',
   SUBMIT_CONTAINER: '[data-prima-ref=submit_container]',
   OPTIONS_WRAPPER: '[data-prima-ref="options-wrapper"]',
   OPTIONS: '[data-prima-ref="options"]',
@@ -43,6 +42,10 @@ export default {
     this.initialize()
   },
 
+  disconnected() {
+    clearTimeout(this.searchTimer)
+  },
+
   destroyed() {
     this.cleanup()
   },
@@ -56,9 +59,7 @@ export default {
     this.setupAriaAttributes()
     if (this.isOpen) this.startPositioning()
 
-    if (this.mode === 'async') {
-      this.resetQuery()
-    }
+    this.sendQuery('')
 
     this.el.setAttribute('data-prima-ready', 'true')
   },
@@ -66,7 +67,6 @@ export default {
   setupElements() {
     this.refs = {
       searchInput: this.el.querySelector(SELECTORS.SEARCH_INPUT),
-      queryInput: this.el.querySelector(SELECTORS.QUERY_INPUT),
       submitContainer: this.el.querySelector(SELECTORS.SUBMIT_CONTAINER),
       optionsWrapper: this.el.querySelector(SELECTORS.OPTIONS_WRAPPER),
       optionsContainer: this.el.querySelector(SELECTORS.OPTIONS),
@@ -79,7 +79,6 @@ export default {
     const referenceSelector = this.refs.optionsWrapper?.getAttribute('data-reference')
     this.refs.referenceElement = referenceSelector ? document.querySelector(referenceSelector) : this.refs.searchInput
 
-    this.mode = this.getMode()
     this.isMultiple = this.el.hasAttribute('data-multiple')
     this.hasCreateOption = !!this.refs.createOption
   },
@@ -137,6 +136,7 @@ export default {
   },
 
   cleanup() {
+    clearTimeout(this.searchTimer)
     this.cleanupAutoUpdate()
 
     if (this.listeners) {
@@ -163,22 +163,17 @@ export default {
     if (focusedOption) this.setFocus(focusedOption)
   },
 
-  getMode() {
-    return this.refs.queryInput ? 'async' : 'frontend'
-  },
-
   sendQuery(query) {
-    const input = this.refs.queryInput
-    if (!input) return
+    clearTimeout(this.searchTimer)
+    const input = this.refs.searchInput
+    const event = input.dataset.onSearch
+    if (!event) return
 
-    input.value = query
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-  },
-
-  resetQuery() {
-    this.sendQuery('')
-    // Flush LiveView's pending debounce so dismissal replaces an unsent search.
-    this.refs.queryInput?.dispatchEvent(new Event('blur'))
+    const target = input.getAttribute('phx-target')
+    const request = target
+      ? this.pushEventTo(target, event, { query })
+      : this.pushEvent(event, { query })
+    request.catch(error => console.error('[Prima Combobox] Search failed:', error))
   },
 
   getVisibleOptions() {
@@ -331,7 +326,7 @@ export default {
     }
 
     this.hideOptions()
-    this.resetQuery()
+    this.sendQuery('')
   },
 
   syncSelectedAttributes() {
@@ -477,27 +472,17 @@ export default {
       this.updateCreateOption(searchValue)
     }
 
-    if (this.mode === 'async') {
-      this.handleAsyncMode()
-    } else {
-      this.handleFrontendMode(searchValue)
-    }
-  },
-
-  handleAsyncMode() {
-    this.focusedOptionBeforeUpdate = this.getCurrentFocusedOption()?.dataset.value
-    this.sendQuery(this.refs.searchInput.value)
-    if (this.refs.searchInput.value.length > 0) {
-      this.showOptions()
-    }
-  },
-
-  handleFrontendMode(searchValue) {
     if (searchValue.length > 0) {
       this.showOptions()
     }
 
-    this.filterOptions(searchValue)
+    if (this.refs.searchInput.dataset.onSearch) {
+      this.focusedOptionBeforeUpdate = this.getCurrentFocusedOption()?.dataset.value
+      clearTimeout(this.searchTimer)
+      this.searchTimer = setTimeout(() => this.sendQuery(searchValue), Number(this.refs.searchInput.dataset.searchDebounce))
+    } else {
+      this.filterOptions(searchValue)
+    }
   },
 
   filterOptions(searchValue) {
@@ -630,7 +615,7 @@ export default {
     }
 
     this.hideOptions()
-    this.resetQuery()
+    this.sendQuery('')
   },
 
   initializeCreateOption() {

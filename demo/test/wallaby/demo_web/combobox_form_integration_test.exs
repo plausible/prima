@@ -68,15 +68,13 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
     |> click(Query.css("body"))
     |> assert_has(Query.css("#async-form-change-options", visible: false))
     |> click(@async_input)
-    |> assert_has(
-      Query.css("#{@async_root} [data-prima-ref=query_input].phx-change-loading", visible: :any)
-    )
+    |> assert_has(Query.css("#{@async_root}.phx-hook-loading"))
     |> assert_has(@async_options |> Query.count(5))
     |> assert_async_fields()
     |> assert_form_change_count(@async_root, 1)
   end
 
-  feature "async demo keeps LiveComponent search targeting and nested field names", %{
+  feature "async demo supports LiveComponent search and selection without a form", %{
     session: session
   } do
     session
@@ -87,15 +85,15 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
     |> assert_has(Query.css("#demo-async-combobox .search-spinner"))
     |> assert_has(Query.css("#demo-async-combobox [role=option]", count: 1, text: "Kiwi"))
     |> assert_has(Query.css("#demo-async-combobox .search-spinner", visible: false))
+    |> click(Query.css("#demo-async-combobox [data-value=Kiwi]"))
     |> execute_script(
       """
-      const input = document.querySelector('#demo-async-combobox [data-prima-ref=query_input]');
-      return {name: input.name, target: input.getAttribute('phx-target'), event: input.getAttribute('phx-change')};
+      const root = document.querySelector('#demo-async-combobox');
+      const selection = root.querySelector('[data-prima-ref=submit_container] input');
+      return {name: selection.name, value: selection.value};
       """,
       fn result ->
-        assert result["name"] == "user[favourite_fruit]_search"
-        assert result["event"] == "async_combobox_search"
-        assert result["target"] != nil
+        assert result == %{"name" => "user[favourite_fruit]", "value" => "Kiwi"}
       end
     )
   end
@@ -137,7 +135,7 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
         selection: form.get('fruit'), query: form.get('fruit_search')};
       """,
       fn result ->
-        assert result == %{"display" => "Cherry", "selection" => "Cherry", "query" => ""}
+        assert result == %{"display" => "Cherry", "selection" => "Cherry", "query" => nil}
       end
     )
   end

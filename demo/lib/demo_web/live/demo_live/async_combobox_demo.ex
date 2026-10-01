@@ -24,17 +24,17 @@ defmodule DemoWeb.DemoLive.AsyncComboboxDemo do
   @impl true
   def render(assigns) do
     ~H"""
-    <form phx-submit="save">
-      <.combobox class="w-64" id="demo-async-combobox">
-        <div class="group relative mt-2 rounded-md shadow-sm">
+    <div>
+      <.combobox class="group w-64" id="demo-async-combobox">
+        <div class="relative mt-2 rounded-md shadow-sm">
           <.combobox_input
             name="user[favourite_fruit]"
             class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            phx-change="async_combobox_search"
+            on_search="async_combobox_search"
             phx-target={@myself}
             placeholder="Type to search..."
           />
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 search-spinner invisible group-has-[.phx-change-loading]:visible">
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 search-spinner invisible group-[.phx-hook-loading]:visible">
             <svg
               class="animate-spin -ml-1 h-5 w-5 text-gray-500"
               xmlns="http://www.w3.org/2000/svg"
@@ -69,14 +69,12 @@ defmodule DemoWeb.DemoLive.AsyncComboboxDemo do
           </.combobox_option>
         </.combobox_options>
       </.combobox>
-    </form>
+    </div>
     """
   end
 
   @impl true
-  def handle_event("async_combobox_search", params, socket) do
-    input = get_in(params, params["_target"])
-
+  def handle_event("async_combobox_search", %{"query" => input}, socket) do
     suggestions =
       Enum.filter(@options, fn option ->
         String.contains?(String.downcase(option), String.downcase(input))
