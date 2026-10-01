@@ -7,24 +7,6 @@ defmodule DemoWeb.SelectionTemplateComboboxTest do
   @remove Query.css("#selection-template-combobox .default-remove")
   @custom_remove Query.css("#selection-template-combobox .custom-remove")
 
-  feature "pills show labels but remove and submit the original value", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/selection-template-combobox", "#selection-template-combobox")
-    |> click(@search_input)
-    |> click(Query.css("#country-option"))
-    |> assert_has(@label |> Query.text("United States"))
-    |> assert_has(Query.css(".selection-pill .selection-icon", text: "★"))
-    |> assert_has(Query.css(".selection-pill strong .selection-text", text: "United States"))
-    |> assert_has(
-      Query.css(".default-remove[data-value='US'][aria-label='Remove United States']")
-    )
-    |> assert_has(Query.css(".custom-remove[data-value='US'][aria-label='Remove selection']"))
-    |> assert_submitted_values(["US"])
-    |> click(@remove)
-    |> assert_missing(@pill)
-    |> assert_submitted_values([])
-  end
-
   feature "HTML labels stay literal and values with quotes can be removed", %{session: session} do
     label = ~s(<b data-injected="true">__VALUE__ & "quoted"</b>)
     value = ~S(country["quoted"]\value)
@@ -33,7 +15,9 @@ defmodule DemoWeb.SelectionTemplateComboboxTest do
     |> visit_fixture("/fixtures/selection-template-combobox", "#selection-template-combobox")
     |> click(@search_input)
     |> click(Query.css("#quoted-option"))
-    |> assert_has(@label |> Query.text(label))
+    |> assert_has(Query.css(".selection-pill .selection-icon", text: "★"))
+    |> assert_has(Query.css(".selection-pill strong .selection-text", text: label))
+    |> assert_has(Query.css(".custom-remove[aria-label='Remove selection']"))
     |> assert_literal_selection(value, label)
     |> assert_submitted_values([value])
     |> click(@custom_remove)
