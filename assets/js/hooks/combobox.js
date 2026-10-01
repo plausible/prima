@@ -35,6 +35,7 @@ export default {
   mounted() {
     // Selection labels outlive search results and survive hook reconnection.
     this.selectedItems = new Map()
+    this.isOpen = false
     this.initialize()
   },
 
@@ -53,6 +54,7 @@ export default {
     this.initializeCreateOption()
     this.syncSelectedAttributes()
     this.setupAriaAttributes()
+    if (this.isOpen) this.startPositioning()
 
     if (this.mode === 'async') {
       this.resetQuery()
@@ -86,6 +88,7 @@ export default {
     this.listeners = [
       [this.el, 'keydown', this.handleKeydown.bind(this)],
       [this.el, 'click', this.handleClick.bind(this)],
+      [document, 'click', this.handleClickOutside.bind(this)],
       [this.refs.searchInput, 'focus', this.handleSearchFocus.bind(this)],
       [this.refs.searchInput, 'click', this.handleSearchClick.bind(this)],
       [this.refs.searchInput, 'change', (e) => e.stopPropagation()],
@@ -94,9 +97,9 @@ export default {
 
     if (this.refs.optionsContainer) {
       this.listeners.push(
-        [this.refs.optionsContainer, 'click', this.handleClick.bind(this)],
         [this.refs.optionsContainer, 'mouseover', this.handleHover.bind(this)],
-        [this.refs.optionsContainer, 'phx:show-start', this.handleShowStart.bind(this)],
+        [this.refs.optionsContainer, 'phx:show-start', this.startPositioning.bind(this)],
+        [this.refs.optionsContainer, 'phx:show-end', this.handleShowEnd.bind(this)],
         [this.refs.optionsContainer, 'phx:hide-end', this.handleHideEnd.bind(this)]
       )
     }
@@ -149,7 +152,7 @@ export default {
   updated() {
     this.ensureOptionIds()
     this.positionOptions()
-    if (this.isOptionsVisible()) this.restoreOptionFocus()
+    if (this.isOpen) this.restoreOptionFocus()
     this.syncSelectedAttributes()
     this.el.setAttribute('data-prima-ready', 'true')
   },
@@ -184,11 +187,6 @@ export default {
 
   getRegularOptions() {
     return this.refs.optionsContainer?.querySelectorAll(SELECTORS.REGULAR_OPTION) || []
-  },
-
-  isOptionsVisible() {
-    if (!this.refs.optionsContainer) return false
-    return this.refs.optionsContainer.style.display !== 'none'
   },
 
   getSelectedValues() {
@@ -392,14 +390,14 @@ export default {
     const otherNavigationKeys = [KEYS.HOME, KEYS.END, KEYS.PAGE_UP, KEYS.PAGE_DOWN]
 
     // Arrow keys open options if closed, then navigate
-    if (arrowKeys.includes(e.key) && !this.isOptionsVisible()) {
+    if (arrowKeys.includes(e.key) && !this.isOpen) {
       e.preventDefault()
       this.showOptions()
       return
     }
 
     // Other navigation keys only work when options are visible
-    if (otherNavigationKeys.includes(e.key) && !this.isOptionsVisible()) {
+    if (otherNavigationKeys.includes(e.key) && !this.isOpen) {
       return
     }
 
@@ -428,7 +426,7 @@ export default {
   },
 
   handleEnterOrTab(e) {
-    if (!this.isOptionsVisible()) {
+    if (!this.isOpen) {
       return
     }
     e.preventDefault()
@@ -459,7 +457,7 @@ export default {
   },
 
   handleSearchClick() {
-    if (this.isOptionsVisible()) {
+    if (this.isOpen) {
       this.handleBlur()
     } else {
       this.showOptions()
@@ -574,27 +572,32 @@ export default {
   },
 
   showOptions() {
+    if (!this.refs.optionsContainer || this.isOpen) return
+
+    this.isOpen = true
+    this.refs.searchInput.setAttribute('aria-expanded', 'true')
+    // Reset local filtering for a fresh opening.
+    for (const option of this.getRegularOptions()) {
+      this.showOption(option)
+    }
     // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
     // then position it, then trigger inner options transition. This prevents the options from
     // briefly appearing at wrong position before jumping to correct position.
     this.refs.optionsWrapper.style.display = 'block'
     this.positionOptions()
-    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
-
-    this.refs.optionsContainer.addEventListener('phx:show-end', () => {
-      this.focusFirstOption()
-    }, {once: true})
-
-    this.setupClickOutsideHandler()
+    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'))
   },
 
-  handleShowStart() {
-    this.refs.searchInput.setAttribute('aria-expanded', 'true')
-
+  startPositioning() {
     // Setup autoUpdate to reposition on scroll/resize
+    this.cleanupAutoUpdate()
     this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsWrapper, () => {
       this.positionOptions()
     })
+  },
+
+  handleShowEnd() {
+    if (this.isOpen) this.focusFirstOption()
   },
 
   handleHideEnd() {
@@ -603,32 +606,23 @@ export default {
   },
 
   hideOptions() {
-    if (!this.refs.optionsContainer) return
+    if (!this.refs.optionsContainer || !this.isOpen) return
 
-    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'));
+    this.isOpen = false
     this.refs.searchInput.setAttribute('aria-expanded', 'false')
     this.refs.searchInput.removeAttribute('aria-activedescendant')
-
-    this.refs.optionsContainer.addEventListener('phx:hide-end', () => {
-      const regularOptions = this.getRegularOptions()
-      for (const option of regularOptions) {
-        this.showOption(option)
-      }
-    }, { once: true })
+    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'))
   },
 
-  setupClickOutsideHandler() {
-    const handleClickOutside = (event) => {
-      if (!this.refs.optionsContainer.contains(event.target) && !this.refs.searchInput.contains(event.target)) {
-        this.handleBlur()
-        document.removeEventListener('click', handleClickOutside)
-      }
+  handleClickOutside(event) {
+    if (this.isOpen && !this.refs.optionsContainer.contains(event.target) && !this.refs.searchInput.contains(event.target)) {
+      this.handleBlur()
     }
-
-    document.addEventListener('click', handleClickOutside)
   },
 
   handleBlur() {
+    if (!this.isOpen) return
+
     if (!this.isMultiple) {
       this.restoreSelectedDisplayValue()
     } else {
