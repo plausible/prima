@@ -8,15 +8,20 @@ Thank you for your interest in contributing to Prima! We welcome contributions f
 2. Clone your fork locally
 3. Set up the development environment:
    ```bash
-   mix setup                # Full setup (deps, assets setup, assets build)
+   mise install             # Or: asdf install (versions in .tool-versions)
+   mix setup                # Install and build the library
+   (cd demo && mix setup)   # Install and build the demo
    ```
+
+   Install Google Chrome for the Wallaby browser tests. Its major, minor, and
+   build version should match the ChromeDriver version in `.tool-versions`.
 
 ## Development Workflow
 
 ### Running the Demo
 
 ```bash
-mix phx.server          # Start development server
+mix phx.server            # Start development server from the repository root
 ```
 
 Visit `http://localhost:4000/demo` to see all components in action and test your changes.

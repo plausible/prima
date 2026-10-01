@@ -54,11 +54,26 @@ This repository is structured with the library at the root and a demo applicatio
 
 ### Library Development
 
+Install the versions pinned in `.tool-versions` with `mise install` or `asdf install`.
+For asdf, add the plugins before installing the versions:
+
+```bash
+asdf plugin add erlang
+asdf plugin add elixir
+asdf plugin add nodejs
+asdf plugin add chromedriver https://github.com/mise-plugins/mise-chromedriver.git
+asdf install
+```
+
+Browser tests also need Google Chrome; the pinned ChromeDriver is selected
+automatically by mise or asdf.
+Keep Chrome and ChromeDriver on the same major, minor, and build version when
+updating either one.
+
 ```bash
 # From root directory
-mix deps.get           # Get library dependencies
-mix compile            # Compile library
-mix assets.build       # Build library JavaScript bundle
+mise install            # Or: asdf install
+mix setup               # Install dependencies and build the library assets
 mix hex.build          # Build hex package
 ```
 
@@ -67,7 +82,7 @@ mix hex.build          # Build hex package
 ```bash
 # From demo/ directory
 cd demo
-mix setup              # Full setup (deps, assets setup, assets build)
+mix setup              # Install demo dependencies and build demo assets
 mix phx.server         # Start development server
 ```
 
@@ -76,12 +91,12 @@ Visit `http://localhost:4000` to see all components in action. The demo applicat
 ### Testing
 
 ```bash
-# Library tests (from root)
+# Full demo test suite (from root; delegates to demo/)
 mix test
 
-# Demo/integration tests (from demo/)
+# Equivalent command from demo/
 cd demo
-mix test               # Run all tests (includes ExUnit and Wallaby tests)
+mix test               # Run ExUnit and Wallaby tests
 ```
 
 The test suite includes both unit tests and comprehensive browser-based integration tests using Wallaby to ensure all interactive behaviors work correctly.
