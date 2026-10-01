@@ -170,20 +170,25 @@ defmodule Prima.Combobox do
 
     * `class` - CSS classes for the selections container
     * `selection` - Required slot that defines the markup for each selected item.
-      The slot receives the selected value via `:let` and can be fully customized with CSS.
+      Use `combobox_selection_label` for the display label and `combobox_selection_remove`
+      for a remove button. The surrounding markup can be fully customized.
 
   ## Usage
 
       <.combobox_selections class="flex flex-wrap gap-2">
-        <:selection :let={value} class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 rounded">
-          <span><%= value %></span>
-          <.combobox_selection_remove value={value} class="hover:bg-blue-200 rounded">
+        <:selection class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 rounded">
+          <.combobox_selection_label />
+          <.combobox_selection_remove class="hover:bg-blue-200 rounded">
             ×
           </.combobox_selection_remove>
         </:selection>
       </.combobox_selections>
 
-  JavaScript will clone the template and replace `__VALUE__` with actual selected values.
+  JavaScript clones the template, inserts the display label as plain text, and binds
+  remove buttons to the submitted value. Labels and values are never interpreted as HTML.
+
+  This replaces the previous `:let={value}` placeholder API: replace `{value}` text
+  with `combobox_selection_label` and omit `value` on `combobox_selection_remove`.
   """
   def combobox_selections(assigns) do
     assigns = assign(assigns, :selections_id, "selections-#{System.unique_integer([:positive])}")
@@ -198,7 +203,7 @@ defmodule Prima.Combobox do
       <template data-prima-ref="selection-template">
         <%= for entry <- @selection do %>
           <li data-prima-ref="selection-item" class={Map.get(entry, :class, "")}>
-            {render_slot(entry, "__VALUE__")}
+            {render_slot(entry)}
           </li>
         <% end %>
       </template>
@@ -274,7 +279,21 @@ defmodule Prima.Combobox do
     """
   end
 
-  attr :value, :string, required: true
+  attr :class, :string, default: ""
+  attr(:rest, :global)
+
+  @doc """
+  Display label for a selected item within a `combobox_selections` template.
+
+  JavaScript fills this span with the option's `display` text, falling back to its
+  value. Use surrounding markup for icons or other content that should be preserved.
+  """
+  def combobox_selection_label(assigns) do
+    ~H"""
+    <span data-prima-ref="selection-label" class={@class} {@rest}></span>
+    """
+  end
+
   attr :class, :string, default: ""
   slot :inner_block, required: true
   attr(:rest, :global)
@@ -282,18 +301,18 @@ defmodule Prima.Combobox do
   @doc """
   Remove button for multi-select combobox selections.
 
-  This component renders a button that removes a selected value when clicked.
-  It automatically sets the required data attributes and aria-label for accessibility.
+  Use this button inside a `combobox_selections` template. JavaScript binds it to
+  the selected item's submitted value and sets an aria-label using its display label.
+  A caller-provided `aria-label` is preserved.
 
   ## Attributes
 
-    * `value` (required) - The value to remove when clicked
     * `class` - CSS classes for styling the button
     * `inner_block` (required) - Button content (icon, text, etc.)
 
   ## Example
 
-      <.combobox_selection_remove value={value} class="text-gray-500 hover:text-gray-700">
+      <.combobox_selection_remove class="text-gray-500 hover:text-gray-700">
         ×
       </.combobox_selection_remove>
 
@@ -303,8 +322,6 @@ defmodule Prima.Combobox do
     <button
       type="button"
       data-prima-ref="remove-selection"
-      data-value={@value}
-      aria-label={"Remove #{@value}"}
       class={@class}
       {@rest}
     >

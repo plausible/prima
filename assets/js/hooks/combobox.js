@@ -23,6 +23,7 @@ const SELECTORS = {
   SELECTIONS: '[data-prima-ref=selections]',
   SELECTION_TEMPLATE: '[data-prima-ref=selection-template]',
   SELECTION_ITEM: '[data-prima-ref="selection-item"]',
+  SELECTION_LABEL: '[data-prima-ref="selection-label"]',
   REMOVE_SELECTION: '[data-prima-ref="remove-selection"]',
   VISIBLE_OPTION: '[role=option]:not([data-hidden])',
   FOCUSED_OPTION: '[role=option][data-focus=true]',
@@ -231,13 +232,13 @@ export default {
   removeSelection(value) {
     const inputs = Array.from(this.refs.submitContainer.querySelectorAll('input[type="hidden"]'))
     const input = inputs.find(input => input.value === value)
-
+    if (!input) return
 
     if (this.isMultiple) {
-      const pill = this.refs.selectionsContainer?.querySelector(
-        `${SELECTORS.SELECTION_ITEM}[data-value="${value}"]`
-      )
-      pill?.remove()
+      const pills = this.refs.selectionsContainer?.querySelectorAll(SELECTORS.SELECTION_ITEM) || []
+      for (const pill of pills) {
+        if (pill.dataset.value === value) pill.remove()
+      }
     }
 
     input.value = ''
@@ -349,9 +350,18 @@ export default {
     const displayValue = option ? option.getAttribute('data-display') : value
 
     const pill = this.refs.selectionTemplate.content.cloneNode(true)
-    const item = pill.querySelector(SELECTORS.SELECTION_ITEM)
-    item.dataset.value = value
-    item.innerHTML = item.innerHTML.replaceAll('__VALUE__', displayValue)
+    for (const item of pill.querySelectorAll(SELECTORS.SELECTION_ITEM)) {
+      item.dataset.value = value
+    }
+    for (const label of pill.querySelectorAll(SELECTORS.SELECTION_LABEL)) {
+      label.textContent = displayValue
+    }
+    for (const button of pill.querySelectorAll(SELECTORS.REMOVE_SELECTION)) {
+      button.setAttribute('data-value', value)
+      if (!button.hasAttribute('aria-label')) {
+        button.setAttribute('aria-label', `Remove ${displayValue}`)
+      }
+    }
 
     this.refs.selectionsContainer.appendChild(pill)
   },

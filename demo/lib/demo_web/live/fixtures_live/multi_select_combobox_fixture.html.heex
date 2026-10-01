@@ -2,9 +2,9 @@
   <.combobox id="demo-multi-select-combobox" multiple={true}>
     <div id="demo-multi-select-combobox-field">
       <.combobox_selections>
-        <:selection :let={value}>
-          <span>{value}</span>
-          <.combobox_selection_remove value={value}>
+        <:selection>
+          <.combobox_selection_label />
+          <.combobox_selection_remove>
             ×
           </.combobox_selection_remove>
         </:selection>

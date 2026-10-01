@@ -91,7 +91,11 @@
     The <code>.combobox_selections</code>
     component uses a template-based approach for rendering pills. Customize the appearance using the
     <code>:selection</code>
-    slot - it supports any markup including icons, badges, and remove buttons. The dropdown stays open after each selection for quick multi-select workflows, and selected items are visually highlighted with <code>data-selected="true"</code>.
+    slot - it supports surrounding markup including icons and badges. Use
+    <code>.combobox_selection_label</code>
+    to display the label and <code>.combobox_selection_remove</code>
+    for a button bound to the selected value.
+    Selected items are visually highlighted with <code>data-selected="true"</code>.
   </p>
 
   <p>
