@@ -26,15 +26,15 @@ defmodule PrimaWeb.DemoLive.AsyncComboboxDemo do
     ~H"""
     <form phx-submit="save">
       <.combobox class="w-64" id="demo-async-combobox">
-        <div class="relative mt-2 rounded-md shadow-sm">
+        <div class="group relative mt-2 rounded-md shadow-sm">
           <.combobox_input
             name="user[favourite_fruit]"
-            class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 peer"
+            class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             phx-change="async_combobox_search"
             phx-target={@myself}
             placeholder="Type to search..."
           />
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 invisible peer-[.phx-change-loading]:visible">
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 search-spinner invisible group-has-[.phx-change-loading]:visible">
             <svg
               class="animate-spin -ml-1 h-5 w-5 text-gray-500"
               xmlns="http://www.w3.org/2000/svg"

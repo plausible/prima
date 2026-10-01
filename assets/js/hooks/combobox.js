@@ -15,6 +15,7 @@ const KEYS = {
 
 const SELECTORS = {
   SEARCH_INPUT: 'input[data-prima-ref=search_input]',
+  QUERY_INPUT: 'input[data-prima-ref=query_input]',
   SUBMIT_CONTAINER: '[data-prima-ref=submit_container]',
   OPTIONS_WRAPPER: '[data-prima-ref="options-wrapper"]',
   OPTIONS: '[data-prima-ref="options"]',
@@ -54,7 +55,7 @@ export default {
     this.setupAriaAttributes()
 
     if (this.mode === 'async') {
-      this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
+      this.resetQuery()
     }
 
     this.el.setAttribute('data-prima-ready', 'true')
@@ -63,6 +64,7 @@ export default {
   setupElements() {
     this.refs = {
       searchInput: this.el.querySelector(SELECTORS.SEARCH_INPUT),
+      queryInput: this.el.querySelector(SELECTORS.QUERY_INPUT),
       submitContainer: this.el.querySelector(SELECTORS.SUBMIT_CONTAINER),
       optionsWrapper: this.el.querySelector(SELECTORS.OPTIONS_WRAPPER),
       optionsContainer: this.el.querySelector(SELECTORS.OPTIONS),
@@ -147,17 +149,33 @@ export default {
   updated() {
     this.ensureOptionIds()
     this.positionOptions()
-    const focusedDomNode = this.refs.optionsContainer?.querySelector(`${SELECTORS.OPTION}[data-value="${this.focusedOptionBeforeUpdate}"]`)
-    if (this.focusedOptionBeforeUpdate && focusedDomNode) {
-      this.setFocus(focusedDomNode)
-    } else {
-      this.focusFirstOption()
-    }
+    if (this.isOptionsVisible()) this.restoreOptionFocus()
     this.syncSelectedAttributes()
+    this.el.setAttribute('data-prima-ready', 'true')
+  },
+
+  restoreOptionFocus() {
+    const options = this.getVisibleOptions()
+    const focusedOption = options.find(option => option.dataset.value === this.focusedOptionBeforeUpdate) || options[0]
+    if (focusedOption) this.setFocus(focusedOption)
   },
 
   getMode() {
-    return this.refs.searchInput.hasAttribute('phx-change') ? 'async' : 'frontend'
+    return this.refs.queryInput ? 'async' : 'frontend'
+  },
+
+  sendQuery(query) {
+    const input = this.refs.queryInput
+    if (!input) return
+
+    input.value = query
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  },
+
+  resetQuery() {
+    this.sendQuery('')
+    // Flush LiveView's pending debounce so dismissal replaces an unsent search.
+    this.refs.queryInput?.dispatchEvent(new Event('blur'))
   },
 
   getVisibleOptions() {
@@ -315,6 +333,7 @@ export default {
     }
 
     this.hideOptions()
+    this.resetQuery()
   },
 
   syncSelectedAttributes() {
@@ -405,14 +424,7 @@ export default {
 
   handleEscape(e) {
     e.preventDefault()
-
-    if (!this.isMultiple) {
-      this.restoreSelectedDisplayValue()
-    } else {
-      this.refs.searchInput.value = ''
-    }
-
-    this.hideOptions()
+    this.handleBlur()
   },
 
   handleEnterOrTab(e) {
@@ -448,13 +460,14 @@ export default {
 
   handleSearchClick() {
     if (this.isOptionsVisible()) {
-      this.hideOptions()
+      this.handleBlur()
     } else {
       this.showOptions()
     }
   },
 
   handleInput(e) {
+    e.stopPropagation()
     const searchValue = e.target.value
 
     // Clear selection when search input becomes empty
@@ -469,16 +482,16 @@ export default {
     if (this.mode === 'async') {
       this.handleAsyncMode()
     } else {
-      e.stopPropagation()
       this.handleFrontendMode(searchValue)
     }
   },
 
   handleAsyncMode() {
+    this.focusedOptionBeforeUpdate = this.getCurrentFocusedOption()?.dataset.value
+    this.sendQuery(this.refs.searchInput.value)
     if (this.refs.searchInput.value.length > 0) {
       this.showOptions()
     }
-    this.focusedOptionBeforeUpdate = this.getCurrentFocusedOption()?.dataset.value
   },
 
   handleFrontendMode(searchValue) {
@@ -616,18 +629,14 @@ export default {
   },
 
   handleBlur() {
-    const hasSelection = this.getSelectedValues().length > 0
-    const hasSearchText = this.refs.searchInput.value.length > 0
-
-    if (hasSelection && hasSearchText) {
+    if (!this.isMultiple) {
       this.restoreSelectedDisplayValue()
-    } else if (hasSearchText) {
+    } else {
       this.refs.searchInput.value = ''
-      this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
-      this.refs.submitContainer.innerHTML = ''
     }
 
     this.hideOptions()
+    this.resetQuery()
   },
 
   initializeCreateOption() {

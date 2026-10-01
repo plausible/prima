@@ -5,20 +5,147 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
   @search_input Query.css("#change-combobox input[data-prima-ref=search_input]")
   @options_container Query.css("#change-options")
   @selection_display Query.css("#selection-display")
+  @async_root "#async-form-change-combobox"
+  @async_input Query.css("#{@async_root} [data-prima-ref=search_input]")
+  @async_options Query.css("#{@async_root} [role=option]")
+
+  feature "async demo opens with default options before typing", %{session: session} do
+    session
+    |> visit_fixture("/combobox", "#demo-async-combobox")
+    |> click(Query.css("#demo-async-combobox [data-prima-ref=search_input]"))
+    |> assert_has(Query.css("#demo-async-combobox [role=option]", count: 5))
+  end
+
+  feature "async dismissal restores default results after clicking outside", %{session: session} do
+    assert_async_reopens(session, :outside)
+  end
+
+  feature "async dismissal restores default results after Escape", %{session: session} do
+    assert_async_reopens(session, :escape)
+  end
+
+  feature "dismissing a pending debounce sends the empty query without changing selection", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/async-combobox-form-change?slow_debounce=true", @async_root)
+    |> click(@async_input)
+    |> assert_has(@async_options |> Query.count(5))
+    |> click(Query.css("#{@async_root} [data-value=Cherry]"))
+    |> assert_form_change_count(@async_root, 1)
+    |> execute_script("""
+    const root = document.querySelector('#async-form-change-combobox');
+    const input = root.querySelector('[data-prima-ref=search_input]');
+    input.value = 'Ki';
+    input.dispatchEvent(new Event('input', {bubbles: true}));
+    document.body.click();
+    input.click();
+    """)
+    |> assert_has(@async_options |> Query.count(5))
+    |> assert_async_fields()
+    |> assert_form_change_count(@async_root, 1)
+    |> execute_script(
+      "return JSON.parse(document.querySelector('#search-history').dataset.queries)",
+      fn queries ->
+        refute "Ki" in queries
+        assert List.last(queries) == ""
+      end
+    )
+  end
+
+  feature "reopening receives default results after a delayed reply", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/async-combobox-form-change", @async_root)
+    |> click(@async_input)
+    |> assert_has(@async_options |> Query.count(5))
+    |> click(Query.css("#{@async_root} [data-value=Cherry]"))
+    |> fill_in(@async_input, with: "Ki")
+    |> assert_has(Query.css("#{@async_root} [data-value=Kiwi]"))
+    |> assert_has(@async_options |> Query.count(1))
+    |> execute_script("window.liveSocket.enableLatencySim(200)")
+    |> click(Query.css("body"))
+    |> assert_has(Query.css("#async-form-change-options", visible: false))
+    |> click(@async_input)
+    |> assert_has(
+      Query.css("#{@async_root} [data-prima-ref=query_input].phx-change-loading", visible: :any)
+    )
+    |> assert_has(@async_options |> Query.count(5))
+    |> assert_async_fields()
+    |> assert_form_change_count(@async_root, 1)
+  end
+
+  feature "async demo keeps LiveComponent search targeting and nested field names", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/combobox", "#demo-async-combobox")
+    |> click(Query.css("#demo-async-combobox [data-prima-ref=search_input]"))
+    |> execute_script("window.liveSocket.enableLatencySim(200)")
+    |> fill_in(Query.css("#demo-async-combobox [data-prima-ref=search_input]"), with: "Ki")
+    |> assert_has(Query.css("#demo-async-combobox .search-spinner"))
+    |> assert_has(Query.css("#demo-async-combobox [role=option]", count: 1, text: "Kiwi"))
+    |> assert_has(Query.css("#demo-async-combobox .search-spinner", visible: false))
+    |> execute_script(
+      """
+      const input = document.querySelector('#demo-async-combobox [data-prima-ref=query_input]');
+      return {name: input.name, target: input.getAttribute('phx-target'), event: input.getAttribute('phx-change')};
+      """,
+      fn result ->
+        assert result["name"] == "user[favourite_fruit]_search"
+        assert result["event"] == "async_combobox_search"
+        assert result["target"] != nil
+      end
+    )
+  end
+
+  defp assert_async_reopens(session, dismissal) do
+    session =
+      session
+      |> visit_fixture("/fixtures/async-combobox-form-change", @async_root)
+      |> click(@async_input)
+      |> assert_has(@async_options |> Query.count(5))
+      |> click(Query.css("#{@async_root} [data-value=Cherry]"))
+      |> click(@async_input)
+      |> assert_has(@async_options |> Query.count(5))
+      |> fill_in(@async_input, with: "Ki")
+      |> assert_has(Query.css("#{@async_root} [data-value=Kiwi]"))
+      |> assert_has(@async_options |> Query.count(1))
+
+    session =
+      case dismissal do
+        :outside -> click(session, Query.css("body"))
+        :escape -> send_keys(session, [:escape])
+      end
+
+    session
+    |> assert_has(Query.css("#async-form-change-options", visible: false))
+    |> click(@async_input)
+    |> assert_has(@async_options |> Query.count(5))
+    |> assert_async_fields()
+    |> assert_form_change_count(@async_root, 1)
+  end
+
+  defp assert_async_fields(session) do
+    execute_script(
+      session,
+      """
+      const root = document.querySelector('#async-form-change-combobox');
+      const form = new FormData(root.closest('form'));
+      return {display: root.querySelector('[data-prima-ref=search_input]').value,
+        selection: form.get('fruit'), query: form.get('fruit_search')};
+      """,
+      fn result ->
+        assert result == %{"display" => "Cherry", "selection" => "Cherry", "query" => ""}
+      end
+    )
+  end
 
   defp assert_form_change_count(session, combobox_id, expected_count) do
     session
-    |> assert_has(
-      Query.css("#{combobox_id} input[data-prima-ref=search_input]:not(.phx-change-loading)")
-    )
-    |> then(fn session ->
-      actual_text = text(session, Query.css("#change-count"))
-
-      assert actual_text == "Form changes: #{expected_count}",
-             "Expected form change count to be #{expected_count} but got '#{actual_text}'"
-
-      session
-    end)
+    |> assert_missing(Query.css("#{combobox_id} .phx-change-loading", visible: :any))
+    |> assert_has(Query.css("#change-count", text: "Form changes: #{expected_count}"))
   end
 
   feature "phx-change on combobox fires when user selects an option", %{session: session} do

@@ -81,11 +81,13 @@ defmodule Prima.Combobox do
 
   ## Form Integration
 
-  The combobox creates two input fields:
-  * Search input: `name_search` for the user's typed query
+  The combobox separates the displayed text from the submitted fields:
+  * Search query: `name_search` for the user's typed query (hidden in async mode)
   * Submit input: `name` for the selected value (hidden)
 
   This allows seamless form submission while maintaining search functionality.
+  In async mode, selecting or dismissing the dropdown resets the search
+  query to an empty string to request default options without changing the selection.
 
   ### Form Change Events
 
@@ -218,10 +220,9 @@ defmodule Prima.Combobox do
   @doc """
   The searchable input field for the combobox.
 
-  This component renders the main input where users type to search/filter options.
-  It automatically creates both a visible search input and a hidden submit input
-  for form integration. Adding `phx-change` to the input switches the component to async mode
-  for server-side filtering.
+  Filters options locally by default. Add `phx-change` and place the component
+  inside a form to search on the server instead. The search handler receives the
+  query under `name_search` and should return default options when the query is empty.
 
   ## Attributes
 
@@ -230,6 +231,7 @@ defmodule Prima.Combobox do
     * `placeholder` - Placeholder text for the input
     * `phx-change` - Event name for async search (enables async mode)
     * `phx-target` - Target for the phx-change event
+    * `phx-debounce` - LiveView search debounce (default: 200 ms)
 
   ## Examples
 
@@ -253,6 +255,15 @@ defmodule Prima.Combobox do
 
   """
   def combobox_input(assigns) do
+    {search_attrs, input_attrs} =
+      Map.split(assigns.rest, [:"phx-change", :"phx-target", :"phx-debounce", :"phx-throttle"])
+
+    assigns =
+      assigns
+      |> assign(:async?, Map.has_key?(search_attrs, :"phx-change"))
+      |> assign(:search_attrs, Map.put_new(search_attrs, :"phx-debounce", 200))
+      |> assign(:input_attrs, input_attrs)
+
     ~H"""
     <input
       data-prima-ref="search_input"
@@ -263,11 +274,10 @@ defmodule Prima.Combobox do
       aria-haspopup="listbox"
       autocomplete="off"
       class={@class}
-      name={@name <> "_search"}
+      name={!@async? && @name <> "_search"}
       tabindex="0"
-      phx-debounce={200}
       phx-update="ignore"
-      {@rest}
+      {@input_attrs}
     />
     <div
       id={@name <> "_submit_container"}
@@ -275,6 +285,15 @@ defmodule Prima.Combobox do
       data-prima-ref="submit_container"
       data-input-name={@name}
     >
+    </div>
+    <div :if={@async?} id={@name <> "_query_container"} phx-update="ignore">
+      <input
+        type="hidden"
+        data-prima-ref="query_input"
+        name={@name <> "_search"}
+        value=""
+        {@search_attrs}
+      />
     </div>
     """
   end

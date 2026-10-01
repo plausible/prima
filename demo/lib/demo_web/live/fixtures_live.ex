@@ -13,12 +13,14 @@ defmodule DemoWeb.FixturesLive do
   ]
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     socket =
       socket
       |> assign(async_modal_open?: false)
       |> assign(selected_fruit: nil)
       |> assign(form_change_count: 0)
+      |> assign(search_queries: [])
+      |> assign(search_debounce: if(params["slow_debounce"] == "true", do: 1000, else: 200))
       |> assign(trigger_label: "Open Dropdown")
       |> assign(modal_title: "Good news")
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
@@ -57,7 +59,12 @@ defmodule DemoWeb.FixturesLive do
         String.contains?(String.downcase(option), String.downcase(input))
       end)
 
-    {:noreply, stream(socket, :suggestions, suggestions, reset: true)}
+    socket =
+      socket
+      |> update(:search_queries, &(&1 ++ [input]))
+      |> stream(:suggestions, suggestions, reset: true)
+
+    {:noreply, socket}
   end
 
   @impl true
