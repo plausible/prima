@@ -9,13 +9,6 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
   @async_input Query.css("#{@async_root} [data-prima-ref=search_input]")
   @async_options Query.css("#{@async_root} [role=option]")
 
-  feature "async demo opens with default options before typing", %{session: session} do
-    session
-    |> visit_fixture("/combobox", "#demo-async-combobox")
-    |> click(Query.css("#demo-async-combobox [data-prima-ref=search_input]"))
-    |> assert_has(Query.css("#demo-async-combobox [role=option]", count: 5))
-  end
-
   feature "async dismissal restores default results after clicking outside", %{session: session} do
     assert_async_reopens(session, :outside)
   end
@@ -53,33 +46,13 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
     )
   end
 
-  feature "reopening receives default results after a delayed reply", %{
-    session: session
-  } do
-    session
-    |> visit_fixture("/fixtures/async-combobox-form-change", @async_root)
-    |> click(@async_input)
-    |> assert_has(@async_options |> Query.count(5))
-    |> click(Query.css("#{@async_root} [data-value=Cherry]"))
-    |> fill_in(@async_input, with: "Ki")
-    |> assert_has(Query.css("#{@async_root} [data-value=Kiwi]"))
-    |> assert_has(@async_options |> Query.count(1))
-    |> execute_script("window.liveSocket.enableLatencySim(200)")
-    |> click(Query.css("body"))
-    |> assert_has(Query.css("#async-form-change-options", visible: false))
-    |> click(@async_input)
-    |> assert_has(Query.css("#{@async_root}.phx-hook-loading"))
-    |> assert_has(@async_options |> Query.count(5))
-    |> assert_async_fields()
-    |> assert_form_change_count(@async_root, 1)
-  end
-
   feature "async demo supports LiveComponent search and selection without a form", %{
     session: session
   } do
     session
     |> visit_fixture("/combobox", "#demo-async-combobox")
     |> click(Query.css("#demo-async-combobox [data-prima-ref=search_input]"))
+    |> assert_has(Query.css("#demo-async-combobox [role=option]", count: 5))
     |> execute_script("window.liveSocket.enableLatencySim(200)")
     |> fill_in(Query.css("#demo-async-combobox [data-prima-ref=search_input]"), with: "Ki")
     |> assert_has(Query.css("#demo-async-combobox .search-spinner"))
@@ -110,6 +83,8 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
       |> fill_in(@async_input, with: "Ki")
       |> assert_has(Query.css("#{@async_root} [data-value=Kiwi]"))
       |> assert_has(@async_options |> Query.count(1))
+      |> assert_missing(Query.css("#{@async_root} [data-value=Cherry]", visible: :any))
+      |> execute_script("window.liveSocket.enableLatencySim(200)")
 
     session =
       case dismissal do
@@ -119,7 +94,9 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
 
     session
     |> assert_has(Query.css("#async-form-change-options", visible: false))
+    |> assert_async_fields()
     |> click(@async_input)
+    |> assert_has(Query.css("#{@async_root}.phx-hook-loading"))
     |> assert_has(@async_options |> Query.count(5))
     |> assert_async_fields()
     |> assert_form_change_count(@async_root, 1)
