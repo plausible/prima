@@ -1,0 +1,65 @@
+<div>
+  <.listbox id="value-setter-listbox" name="role" value="editor">
+    <.listbox_trigger
+      id="value-setter-listbox-trigger"
+      class="w-56 inline-flex justify-between items-center rounded-lg bg-white border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+    >
+      <.listbox_value>Editor</.listbox_value>
+      <svg
+        class="h-5 w-5 text-gray-400"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </.listbox_trigger>
+
+    <.listbox_options
+      id="value-setter-listbox-options"
+      class="py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none"
+    >
+      <.listbox_option
+        id="value-setter-option-viewer"
+        value="viewer"
+        display="Viewer"
+        class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block w-full px-4 py-2 text-sm text-left"
+      >
+        Viewer
+      </.listbox_option>
+      <.listbox_option
+        id="value-setter-option-editor"
+        value="editor"
+        display="Editor"
+        class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block w-full px-4 py-2 text-sm text-left"
+      >
+        Editor
+      </.listbox_option>
+      <.listbox_option
+        id="value-setter-option-admin"
+        value="admin"
+        display="Admin"
+        class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block w-full px-4 py-2 text-sm text-left"
+      >
+        Admin
+      </.listbox_option>
+    </.listbox_options>
+  </.listbox>
+
+  <button
+    type="button"
+    phx-click={
+      JS.dispatch("prima:set-value",
+        to: "#value-setter-listbox",
+        detail: %{value: "viewer", notify: false}
+      )
+    }
+    class="mt-3 inline-flex items-center rounded-lg bg-white border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+  >
+    Reset to Viewer
+  </button>
+</div>

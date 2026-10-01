@@ -44,6 +44,28 @@ defmodule Prima.Listbox do
       <.listbox_trigger id="fruit-listbox-trigger">
         <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
       </.listbox_trigger>
+
+  ## Setting the Value from Client-Side Code
+
+  Dispatch a `prima:set-value` custom event at the `.listbox` element to set
+  its value from other client-side code, without simulating a click or
+  round-tripping through the server. This mirrors a native `<select>`'s
+  `.value =` setter: it updates the hidden input, the displayed value, and the
+  selection markers, but does *not* dispatch `input` (so a parent form's
+  `phx-change` does not fire) unless you opt in with `notify: true`:
+
+      document.getElementById("fruit-listbox").dispatchEvent(
+        new CustomEvent("prima:set-value", { detail: { value: "apple" } })
+      )
+
+      // Also fires `input`, so `phx-change` runs exactly like a real selection:
+      document.getElementById("fruit-listbox").dispatchEvent(
+        new CustomEvent("prima:set-value", { detail: { value: "apple", notify: true } })
+      )
+
+  Setting a disabled option's value is a no-op. Setting a value with no
+  matching option clears the selection, the same way assigning an unknown
+  value to a native `<select>` leaves it unselected.
   """
 
   use Phoenix.Component
@@ -66,6 +88,7 @@ defmodule Prima.Listbox do
 
   attr :id, :string, required: true
   attr :class, :string, default: ""
+  attr :disabled, :boolean, default: false
   attr :rest, :global
   slot :inner_block, required: true
 
@@ -84,16 +107,25 @@ defmodule Prima.Listbox do
 
   ## Accessible Naming
 
-  The listbox is named after this trigger's accessible name (via
-  `aria-labelledby`). If the trigger only ever shows the *current value* (e.g.
-  a role picker whose trigger just says "Viewer", with no "Role" label
-  anywhere), the listbox gets announced by its value instead of its
-  purpose — the same problem as a native `<select>` with no `<label>`.
+  Labelling is up to the caller, as with a native `<select>`. The trigger's
+  content is its accessible name (via `aria-labelledby`). If the trigger only
+  shows the current value, put a visually hidden label next to it so that both
+  the meaning and the value are announced:
 
-  Fix it by adding an `aria-label` describing the field:
-
-      <.listbox_trigger id="role-listbox-trigger" aria-label="Role">
+      <.listbox_trigger id="role-listbox-trigger">
+        <span class="sr-only">Role:</span>
         <.listbox_value>{@selected_role}</.listbox_value>
+      </.listbox_trigger>
+
+  ## Disabling the Trigger
+
+  Pass `disabled={true}` to prevent the trigger from opening the listbox and
+  remove it from the tab order, the same way a native `<select disabled>`
+  behaves. Styling for the disabled state is left to the consumer — target
+  the `data-disabled` attribute set on the trigger:
+
+      <.listbox_trigger id="fruit-listbox-trigger" disabled={true} class="data-disabled:opacity-50">
+        <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
       </.listbox_trigger>
   """
   def listbox_trigger(assigns) do
@@ -104,6 +136,9 @@ defmodule Prima.Listbox do
       class={@class}
       aria-haspopup="listbox"
       aria-expanded="false"
+      aria-disabled={if @disabled, do: "true"}
+      data-disabled={if @disabled, do: "true"}
+      tabindex={if @disabled, do: "-1"}
       {@rest}
     >
       {render_slot(@inner_block)}

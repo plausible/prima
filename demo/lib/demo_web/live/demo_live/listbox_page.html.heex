@@ -76,6 +76,39 @@
     <.code_example file="listbox/disabled.html.heex" id="disabled-listbox-demo" />
   </div>
 
+  <h2>Disabled Trigger</h2>
+  <p>
+    Disable the entire listbox with <code>disabled={true}</code>
+    on <code>.listbox_trigger</code>. A disabled trigger can't be clicked to open the
+    listbox and is removed from the tab order, the same way a native
+    <code>&lt;select disabled&gt;</code>
+    behaves. Prima only sets the <code>data-disabled</code>
+    attribute — styling the disabled state (e.g. reduced opacity, a <code>not-allowed</code>
+    cursor) is entirely up to you, as shown below.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="listbox/disabled_trigger.html.heex" id="disabled-trigger-listbox-demo" />
+  </div>
+
+  <h2>Setting the Value from Client-Side Code</h2>
+  <p>
+    Dispatch a <code>prima:set-value</code>
+    custom event at the <code>.listbox</code>
+    element to set its value from other client-side code — no simulated click, no server
+    round-trip required. Like a native <code>&lt;select&gt;</code>'s <code>.value =</code>
+    setter, this updates the hidden input, the displayed value, and the selection markers, but
+    doesn't dispatch <code>input</code>
+    (so <code>phx-change</code>
+    won't fire) unless the event's <code>detail</code>
+    includes <code>notify: true</code>. This is useful for resetting a listbox that a
+    client-side hook shows or hides without a server round-trip.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="listbox/value_setter.html.heex" id="value-setter-listbox-demo" />
+  </div>
+
   <h2>Keyboard Interaction</h2>
   <p>
     The listbox provides keyboard navigation that follows standard ARIA patterns.
