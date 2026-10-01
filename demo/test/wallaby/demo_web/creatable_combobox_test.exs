@@ -45,7 +45,7 @@ defmodule DemoWeb.CreatableComboboxTest do
     |> click(@search_input)
     |> send_keys([:backspace])
     |> send_keys([:escape])
-    |> assert_created_selection("")
+    |> assert_created_selection(nil)
     |> fill_in(@search_input, with: "Blueberry")
     |> click(@create_option)
     |> fill_in(@search_input, with: "App")
@@ -54,16 +54,12 @@ defmodule DemoWeb.CreatableComboboxTest do
   end
 
   defp assert_created_selection(session, expected) do
-    execute_script(
+    assert_combobox_selection(
       session,
-      """
-      const root = document.querySelector('#demo-creatable-combobox');
-      return {
-        label: root.querySelector('[data-prima-ref=search_input]').value,
-        value: root.querySelector('input[type=hidden]')?.value || ''
-      };
-      """,
-      fn result -> assert result == %{"label" => expected, "value" => expected} end
+      "#demo-creatable-combobox",
+      "demo-creatable-combobox[fruit]",
+      expected || "",
+      expected
     )
   end
 
@@ -148,7 +144,7 @@ defmodule DemoWeb.CreatableComboboxTest do
     |> assert_has(@create_option |> Query.text("Create \"Grapefruit\""))
   end
 
-  feature "selecting create option sets both search and submit inputs", %{session: session} do
+  feature "selecting create option updates the display and submitted value", %{session: session} do
     session
     |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
@@ -159,16 +155,11 @@ defmodule DemoWeb.CreatableComboboxTest do
     |> click(@create_option)
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the created value
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-creatable-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Strawberry",
-               "Expected search input value to be 'Strawberry', got '#{values["search"]}'"
-
-        assert values["submit"] == "Strawberry",
-               "Expected submit input value to be 'Strawberry', got '#{values["submit"]}'"
-      end
+    |> assert_combobox_selection(
+      "#demo-creatable-combobox",
+      "demo-creatable-combobox[fruit]",
+      "Strawberry",
+      "Strawberry"
     )
   end
 
@@ -182,16 +173,11 @@ defmodule DemoWeb.CreatableComboboxTest do
     |> click(@create_option)
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the created value
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-creatable-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Watermelon",
-               "Expected search input value to be 'Watermelon', got '#{values["search"]}'"
-
-        assert values["submit"] == "Watermelon",
-               "Expected submit input value to be 'Watermelon', got '#{values["submit"]}'"
-      end
+    |> assert_combobox_selection(
+      "#demo-creatable-combobox",
+      "demo-creatable-combobox[fruit]",
+      "Watermelon",
+      "Watermelon"
     )
   end
 

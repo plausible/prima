@@ -11,27 +11,14 @@ defmodule DemoWeb.FlexibleMarkupReliabilityTest do
     |> assert_has(@options_container |> Query.visible(true))
     # Try clicking directly on the option element - this should work
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='urgent']"))
-    |> execute_script(
-      "const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return hiddenInput ? hiddenInput.value : ''",
-      fn value ->
-        assert value == "urgent", "Direct click on option should work, got: '#{value}'"
-      end
-    )
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "urgent", "urgent")
     # Reset for next test
     |> click(@search_input)
-    |> fill_in(@search_input, with: "")
-    |> execute_script(
-      "const container = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container]'); if (container) container.innerHTML = ''"
-    )
+    |> send_keys([:backspace])
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "", nil)
     # Now try clicking on the SVG icon - this should now work with the fix
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='medium'] svg"))
-    |> execute_script(
-      "const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return hiddenInput ? hiddenInput.value : ''",
-      fn value ->
-        # This should now work with event delegation fix
-        assert value == "medium", "Clicking on SVG should select option, but got: '#{value}'"
-      end
-    )
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "medium", "medium")
   end
 
   feature "tests various nested element clicks work with event delegation", %{session: session} do
@@ -43,24 +30,12 @@ defmodule DemoWeb.FlexibleMarkupReliabilityTest do
     |> click(
       Query.css("#flexible-markup-combobox [role=option][data-value='high'] div div:first-child")
     )
-    |> execute_script(
-      "const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return hiddenInput ? hiddenInput.value : ''",
-      fn value ->
-        assert value == "high", "Clicking nested text should work, got: '#{value}'"
-      end
-    )
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "high", "high")
     # Reset and test clicking on the low option directly
     |> click(@search_input)
-    |> fill_in(@search_input, with: "")
-    |> execute_script(
-      "const container = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container]'); if (container) container.innerHTML = ''"
-    )
+    |> send_keys([:backspace])
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "", nil)
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='low']"))
-    |> execute_script(
-      "const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return hiddenInput ? hiddenInput.value : ''",
-      fn value ->
-        assert value == "low", "Clicking low option should work, got: '#{value}'"
-      end
-    )
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "low", "low")
   end
 end

@@ -54,17 +54,7 @@ defmodule DemoWeb.ComboboxKeyboardNavigationTest do
     |> send_keys([:enter])
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the selected value
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Pear",
-               "Expected search input value to be 'Pear', got '#{values["search"]}'"
-
-        assert values["submit"] == "Pear",
-               "Expected submit input value to be 'Pear', got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Pear", "Pear")
   end
 
   feature "selects focused option with Tab key", %{session: session} do
@@ -79,17 +69,7 @@ defmodule DemoWeb.ComboboxKeyboardNavigationTest do
     |> send_keys([:tab])
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the selected value
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Mango",
-               "Expected search input value to be 'Mango', got '#{values["search"]}'"
-
-        assert values["submit"] == "Mango",
-               "Expected submit input value to be 'Mango', got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Mango", "Mango")
   end
 
   feature "ArrowDown opens combobox when closed and input is focused", %{session: session} do
@@ -365,15 +345,11 @@ defmodule DemoWeb.ComboboxKeyboardNavigationTest do
     |> send_keys([:enter])
     |> assert_has(@options_container |> Query.visible(false))
     # Verify selection
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Pineapple",
-               "Expected search input value to be 'Pineapple', got '#{values["search"]}'"
-
-        assert values["submit"] == "Pineapple",
-               "Expected submit input value to be 'Pineapple', got '#{values["submit"]}'"
-      end
+    |> assert_combobox_selection(
+      "#demo-combobox",
+      "demo-combobox[fruit]",
+      "Pineapple",
+      "Pineapple"
     )
   end
 

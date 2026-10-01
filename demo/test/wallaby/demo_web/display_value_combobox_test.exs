@@ -27,7 +27,7 @@ defmodule DemoWeb.DisplayValueComboboxTest do
     |> click(@search_input)
     |> send_keys([:backspace])
     |> send_keys([:escape])
-    |> assert_country_selection("", "")
+    |> assert_country_selection("", nil)
     |> click(@search_input)
     |> click(country)
     |> fill_in(@search_input, with: "Germany")
@@ -36,16 +36,12 @@ defmodule DemoWeb.DisplayValueComboboxTest do
   end
 
   defp assert_country_selection(session, label, value) do
-    execute_script(
+    assert_combobox_selection(
       session,
-      """
-      const root = document.querySelector('#country-combobox');
-      return {
-        label: root.querySelector('[data-prima-ref=search_input]').value,
-        value: root.querySelector('input[type=hidden]')?.value || ''
-      };
-      """,
-      fn result -> assert result == %{"label" => label, "value" => value} end
+      "#country-combobox",
+      "country-combobox[country]",
+      label,
+      value
     )
   end
 
@@ -62,15 +58,11 @@ defmodule DemoWeb.DisplayValueComboboxTest do
     |> click(Query.css("#country-combobox [role=option][data-value='US']"))
     |> assert_has(@options_container |> Query.visible(false))
     # Verify the search input shows the display name "United States" not the code "US"
-    |> execute_script(
-      "const searchVal = document.querySelector('#country-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#country-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "United States",
-               "Expected search input to show display value 'United States', got '#{values["search"]}'"
-
-        assert values["submit"] == "US",
-               "Expected submit input to have code value 'US', got '#{values["submit"]}'"
-      end
+    |> assert_combobox_selection(
+      "#country-combobox",
+      "country-combobox[country]",
+      "United States",
+      "US"
     )
   end
 
@@ -83,15 +75,11 @@ defmodule DemoWeb.DisplayValueComboboxTest do
     |> click(Query.css("#country-combobox [role=option][data-value='DE']"))
     |> assert_has(@options_container |> Query.visible(false))
     # Verify the search input shows "Germany" not "DE"
-    |> execute_script(
-      "const searchVal = document.querySelector('#country-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#country-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Germany",
-               "Expected search input to show display value 'Germany', got '#{values["search"]}'"
-
-        assert values["submit"] == "DE",
-               "Expected submit input to have code value 'DE', got '#{values["submit"]}'"
-      end
+    |> assert_combobox_selection(
+      "#country-combobox",
+      "country-combobox[country]",
+      "Germany",
+      "DE"
     )
   end
 
@@ -127,15 +115,11 @@ defmodule DemoWeb.DisplayValueComboboxTest do
     |> click(Query.css("#country-combobox [role=option][data-value='GB']"))
     |> assert_has(@options_container |> Query.visible(false))
     # Verify correct values
-    |> execute_script(
-      "const searchVal = document.querySelector('#country-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#country-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "United Kingdom",
-               "Expected search input to show 'United Kingdom', got '#{values["search"]}'"
-
-        assert values["submit"] == "GB",
-               "Expected submit input to have 'GB', got '#{values["submit"]}'"
-      end
+    |> assert_combobox_selection(
+      "#country-combobox",
+      "country-combobox[country]",
+      "United Kingdom",
+      "GB"
     )
   end
 

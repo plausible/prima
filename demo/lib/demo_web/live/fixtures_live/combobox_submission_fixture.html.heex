@@ -1,0 +1,16 @@
+<form id="submission-form" phx-change="submission_changed">
+  <.combobox id="submission-combobox" multiple={@multiple}>
+    <.combobox_selections :if={@multiple}>
+      <:selection>
+        <.combobox_selection_label />
+        <.combobox_selection_remove>Remove</.combobox_selection_remove>
+      </:selection>
+    </.combobox_selections>
+    <.combobox_input name={if @multiple, do: "fruits[]", else: "fruit"} />
+    <.combobox_options id="submission-options">
+      <.combobox_option value="a" display="Apple">Apple</.combobox_option>
+      <.combobox_option value="b" display="Banana">Banana</.combobox_option>
+      <.combobox_option value="" display="Empty value">Empty value</.combobox_option>
+    </.combobox_options>
+  </.combobox>
+</form>

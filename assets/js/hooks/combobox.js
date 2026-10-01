@@ -15,7 +15,7 @@ const KEYS = {
 
 const SELECTORS = {
   SEARCH_INPUT: 'input[data-prima-ref=search_input]',
-  SUBMIT_CONTAINER: '[data-prima-ref=submit_container]',
+  SUBMIT_INPUT: 'select[data-prima-ref=submit_input]',
   OPTIONS_WRAPPER: '[data-prima-ref="options-wrapper"]',
   OPTIONS: '[data-prima-ref="options"]',
   OPTION: '[role=option]',
@@ -32,8 +32,6 @@ const SELECTORS = {
 
 export default {
   mounted() {
-    // Selection labels outlive search results and survive hook reconnection.
-    this.selectedItems = new Map()
     this.isOpen = false
     this.initialize()
   },
@@ -69,7 +67,7 @@ export default {
   setupElements() {
     this.refs = {
       searchInput: this.el.querySelector(SELECTORS.SEARCH_INPUT),
-      submitContainer: this.el.querySelector(SELECTORS.SUBMIT_CONTAINER),
+      submitInput: this.el.querySelector(SELECTORS.SUBMIT_INPUT),
       optionsWrapper: this.el.querySelector(SELECTORS.OPTIONS_WRAPPER),
       optionsContainer: this.el.querySelector(SELECTORS.OPTIONS),
       selectionsContainer: this.el.querySelector(SELECTORS.SELECTIONS)
@@ -82,6 +80,7 @@ export default {
     this.refs.referenceElement = referenceSelector ? document.querySelector(referenceSelector) : this.refs.searchInput
 
     this.isMultiple = this.el.hasAttribute('data-multiple')
+    if (this.refs.submitInput) this.refs.submitInput.multiple = this.isMultiple
     this.hasCreateOption = !!this.refs.createOption
   },
 
@@ -189,53 +188,39 @@ export default {
   },
 
   getSelectedValues() {
-    const inputs = this.refs.submitContainer?.querySelectorAll('input[type="hidden"]') || []
-    return Array.from(inputs).map(input => input.value)
+    return Array.from(this.refs.submitInput?.selectedOptions || []).map(option => option.value)
   },
 
   restoreSelectedDisplayValue() {
-    const value = this.getSelectedValues()[0]
-    this.refs.searchInput.value = this.selectedItems.get(value)?.label ?? ''
-  },
-
-  getInputName() {
-    if (!this.refs.submitContainer) return ''
-    return this.refs.submitContainer.getAttribute('data-input-name')
+    this.refs.searchInput.value = this.refs.submitInput?.selectedOptions[0]?.textContent ?? ''
   },
 
   addSelection(item) {
-    if (!this.refs.submitContainer) return
+    if (!this.refs.submitInput) return false
 
     const { value } = item
     const selectedValues = this.getSelectedValues()
 
-    if (selectedValues.includes(value)) return
+    if (selectedValues.includes(value)) return false
 
     if (!this.isMultiple) {
-      this.refs.submitContainer.innerHTML = ''
-      this.selectedItems.clear()
+      this.refs.submitInput.replaceChildren()
     }
 
-    this.selectedItems.set(value, item)
-
-    const input = document.createElement('input')
-    input.type = 'hidden'
-    input.name = this.getInputName()
-    input.value = value
-    this.refs.submitContainer.appendChild(input)
+    // Keep selected labels and values independently of the current search results.
+    this.refs.submitInput.add(new Option(item.label, value, true, true))
 
     if (this.isMultiple) {
       this.appendSelectionPill(item)
     }
 
     this.syncSelectedAttributes()
-    this.notifyFormChange(input)
+    return true
   },
 
   removeSelection(value) {
-    const inputs = Array.from(this.refs.submitContainer.querySelectorAll('input[type="hidden"]'))
-    const input = inputs.find(input => input.value === value)
-    if (!input) return
+    const option = Array.from(this.refs.submitInput?.options || []).find(option => option.value === value)
+    if (!option) return
 
     if (this.isMultiple) {
       const pills = this.refs.selectionsContainer?.querySelectorAll(SELECTORS.SELECTION_ITEM) || []
@@ -244,11 +229,9 @@ export default {
       }
     }
 
-    this.selectedItems.delete(value)
-    input.value = ''
-    this.notifyFormChange(input)
-    input.remove()
+    option.remove()
     this.syncSelectedAttributes()
+    this.notifyFormChange()
   },
 
   setFocus(el) {
@@ -319,7 +302,7 @@ export default {
       displayValue = value
     }
 
-    this.addSelection({ value, label: displayValue })
+    const changed = this.addSelection({ value, label: displayValue })
 
     if (this.isMultiple) {
       this.refs.searchInput.value = ''
@@ -330,6 +313,7 @@ export default {
 
     this.hideOptions()
     this.resetSearch()
+    if (changed) this.notifyFormChange()
   },
 
   syncSelectedAttributes() {
@@ -667,7 +651,9 @@ export default {
     return hasStaticMatch || hasSelectedMatch
   },
 
-  notifyFormChange(input) {
+  notifyFormChange() {
+    const input = this.refs.submitInput
     input.dispatchEvent(new Event('input', { bubbles: true }))
+    input.dispatchEvent(new Event('change', { bubbles: true }))
   }
 }

@@ -97,6 +97,16 @@
   <.combobox_change_fixture {assigns} />
 </div>
 
+<div :if={@live_action == :combobox_submission}>
+  <.combobox_submission_fixture multiple={@submission_multiple} />
+  <div
+    id="submission-state"
+    data-change-count={@form_change_count}
+    data-change={Jason.encode!(@submission_change)}
+  >
+  </div>
+</div>
+
 <div :if={@live_action == :async_combobox_form_change}>
   <.async_combobox_form_change_fixture {assigns} />
 </div>

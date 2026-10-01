@@ -296,14 +296,14 @@ defmodule DemoWeb.MultiSelectComboboxTest do
       )
       |> Query.count(1)
     )
-    # Should only have one hidden input for Apple
+    # Should only submit Apple once
     |> execute_script(
       """
-      const inputs = Array.from(document.querySelectorAll('#demo-multi-select-combobox input[type=hidden][value="Apple"]'));
-      return inputs.length;
+      const form = document.querySelector('#demo-multi-select-combobox').closest('form');
+      return new FormData(form).getAll('demo-multi-select-combobox[fruits][]').length;
       """,
       fn count ->
-        assert count == 1, "Expected only 1 hidden input for Apple, got #{count}"
+        assert count == 1, "Expected only 1 submitted value for Apple, got #{count}"
       end
     )
   end
@@ -330,7 +330,7 @@ defmodule DemoWeb.MultiSelectComboboxTest do
     )
   end
 
-  feature "hidden inputs update when selection is removed", %{session: session} do
+  feature "submitted values update when selection is removed", %{session: session} do
     session
     |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
     |> click(@search_input)
@@ -343,15 +343,15 @@ defmodule DemoWeb.MultiSelectComboboxTest do
         "#demo-multi-select-combobox [data-prima-ref='selection-item'][data-value='Banana'] [data-prima-ref='remove-selection']"
       )
     )
-    # Verify only Apple hidden input remains
+    # Verify only Apple is submitted
     |> execute_script(
       """
-      const inputs = Array.from(document.querySelectorAll('#demo-multi-select-combobox input[type=hidden][name="demo-multi-select-combobox[fruits][]"]'));
-      return inputs.map(i => i.value);
+      const form = document.querySelector('#demo-multi-select-combobox').closest('form');
+      return new FormData(form).getAll('demo-multi-select-combobox[fruits][]');
       """,
       fn values ->
         assert values == ["Apple"],
-               "Expected hidden inputs to have values ['Apple'], got #{inspect(values)}"
+               "Expected submitted values ['Apple'], got #{inspect(values)}"
       end
     )
   end

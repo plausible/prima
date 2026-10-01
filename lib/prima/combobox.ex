@@ -81,44 +81,18 @@ defmodule Prima.Combobox do
 
   ## Form Integration
 
-  Only selected values are submitted through hidden inputs named `name`.
-  The name is used verbatim in both single and multiple modes, just like a native
-  select. For Phoenix list parameters, explicitly include `[]` in the name
-  (for example, `name="user[roles][]"`). Multiple selections submit repeated entries
-  under that exact name.
-  The visible search input has no name and is never included in form data.
-  In async mode, queries are sent separately through `on_search` events with
-  `%{"query" => query}`.
+  Comboboxes are backed by a native `<select>` and follow its form-submission behavior.
+  Only selected option values are submitted, never the search text.
 
-  This allows seamless form submission while maintaining search functionality.
-  In async mode, selecting or dismissing the dropdown cancels pending searches
-  without sending a request. Opening the dropdown requests default options with
-  an empty query unless those options are already current.
+  The `name` is used exactly as supplied. For Phoenix forms, use `name="fruit"` for a
+  single value and `name="fruits[]"` for a list of values in multiple mode.
 
-  ### Form Change Events
+  When nothing is selected, the field is omitted from form data. Selecting an option
+  with `value=""` submits an empty string. Multiple mode does not submit an empty list
+  automatically.
 
-  When a combobox is nested in a form with `phx-change`, the form event will trigger
-  whenever the selection changes (e.g., when a user selects an option, clears the selection,
-  or removes a selection via keyboard). The search input typing does NOT trigger the form's
-  `phx-change` - only actual selection changes do.
-
-      <form phx-change="form_changed">
-        <.combobox id="fruit-selector">
-          <.combobox_input name="fruit" placeholder="Select a fruit..." />
-
-          <.combobox_options id="fruit-options">
-            <.combobox_option value="apple">Apple</.combobox_option>
-            <.combobox_option value="banana">Banana</.combobox_option>
-          </.combobox_options>
-        </.combobox>
-      </form>
-
-  In your LiveView, handle the event to react to selection changes:
-
-      def handle_event("form_changed", %{"fruit" => fruit}, socket) do
-        # React to the selected fruit changing
-        {:noreply, assign(socket, selected_fruit: fruit)}
-      end
+  A parent form's `phx-change` fires when selections are added or removed. Typing only
+  filters options or sends an `on_search` event with `%{"query" => query}`.
   """
   use Phoenix.Component
   alias Phoenix.LiveView.JS
@@ -288,13 +262,14 @@ defmodule Prima.Combobox do
       phx-update="ignore"
       {@rest}
     />
-    <div
-      id={@name <> "_submit_container"}
+    <select
+      id={@name <> "_submit"}
+      name={@name}
       phx-update="ignore"
-      data-prima-ref="submit_container"
-      data-input-name={@name}
+      data-prima-ref="submit_input"
+      hidden
     >
-    </div>
+    </select>
     """
   end
 

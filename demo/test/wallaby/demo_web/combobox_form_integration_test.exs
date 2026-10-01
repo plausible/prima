@@ -89,7 +89,7 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
     |> execute_script(
       """
       const root = document.querySelector('#demo-async-combobox');
-      const selection = root.querySelector('[data-prima-ref=submit_container] input');
+      const selection = root.querySelector('[data-prima-ref=submit_input]');
       return {name: selection.name, value: selection.value};
       """,
       fn result ->

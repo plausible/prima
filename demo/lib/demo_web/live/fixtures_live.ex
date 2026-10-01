@@ -19,6 +19,8 @@ defmodule DemoWeb.FixturesLive do
       |> assign(async_modal_open?: false)
       |> assign(selected_fruit: nil)
       |> assign(form_change_count: 0)
+      |> assign(submission_multiple: params["multiple"] == "true")
+      |> assign(submission_change: %{})
       |> assign(search_queries: [])
       |> assign(search_debounce: if(params["slow_debounce"] == "true", do: 1000, else: 200))
       |> assign(trigger_label: "Open Dropdown")
@@ -66,7 +68,8 @@ defmodule DemoWeb.FixturesLive do
   end
 
   @impl true
-  def handle_event("form_changed", %{"fruit" => fruit}, socket) do
+  def handle_event("form_changed", params, socket) do
+    fruit = params["fruit"]
     # Treat empty string as nil for display purposes
     selected_fruit = if fruit == "", do: nil, else: fruit
 
@@ -76,6 +79,14 @@ defmodule DemoWeb.FixturesLive do
       |> assign(selected_fruit: selected_fruit)
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("submission_changed", params, socket) do
+    {:noreply,
+     socket
+     |> assign(submission_change: params)
+     |> update(:form_change_count, &(&1 + 1))}
   end
 
   @impl true
