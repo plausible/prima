@@ -5,6 +5,50 @@ defmodule DemoWeb.DisplayValueComboboxTest do
   @search_input Query.css("#country-combobox input[data-prima-ref=search_input]")
   @options_container Query.css("#country-combobox [data-prima-ref=options]")
 
+  feature "selected label stays unchanged until the item is removed and selected again", %{
+    session: session
+  } do
+    country = Query.css("#country-combobox [role=option][data-value='US']")
+
+    session
+    |> visit_fixture("/fixtures/display-value-combobox", "#country-combobox")
+    |> click(@search_input)
+    |> click(country)
+    # Simulate refreshed option metadata without changing the committed selection.
+    |> execute_script("""
+    const option = document.querySelector('#country-combobox [data-value="US"]');
+    option.dataset.display = 'USA';
+    option.textContent = 'USA';
+    """)
+    |> fill_in(@search_input, with: "Germany")
+    |> send_keys([:escape])
+    |> assert_country_selection("United States", "US")
+    |> click(Query.css("body"))
+    |> click(@search_input)
+    |> send_keys([:backspace])
+    |> send_keys([:escape])
+    |> assert_country_selection("", "")
+    |> click(@search_input)
+    |> click(country)
+    |> fill_in(@search_input, with: "Germany")
+    |> send_keys([:escape])
+    |> assert_country_selection("USA", "US")
+  end
+
+  defp assert_country_selection(session, label, value) do
+    execute_script(
+      session,
+      """
+      const root = document.querySelector('#country-combobox');
+      return {
+        label: root.querySelector('[data-prima-ref=search_input]').value,
+        value: root.querySelector('input[type=hidden]')?.value || ''
+      };
+      """,
+      fn result -> assert result == %{"label" => label, "value" => value} end
+    )
+  end
+
   feature "displays country name in search input after selecting country code", %{
     session: session
   } do

@@ -6,6 +6,43 @@ defmodule DemoWeb.ComboboxTest do
   @options_container Query.css("#demo-combobox [data-prima-ref=options]")
   @all_options Query.css("#demo-combobox [role=option]")
 
+  feature "restores selected label after async results replace the selected option", %{
+    session: session
+  } do
+    input = Query.css("#demo-async-combobox input[data-prima-ref=search_input]")
+    orange = Query.css("#demo-async-combobox [role=option][data-value='Orange']", visible: :any)
+
+    session
+    |> visit_fixture("/fixtures/async-combobox", "#demo-async-combobox")
+    |> click(input)
+    |> fill_in(input, with: "Orange")
+    |> click(orange)
+    |> fill_in(input, with: "Banana")
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Banana']"))
+    |> assert_missing(orange)
+    |> send_keys([:escape])
+    |> assert_async_selection("Orange")
+    |> fill_in(input, with: "Kiwi")
+    |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Kiwi']"))
+    |> assert_missing(orange)
+    |> click(Query.css("body"))
+    |> assert_async_selection("Orange")
+  end
+
+  defp assert_async_selection(session, expected) do
+    execute_script(
+      session,
+      """
+      const root = document.querySelector('#demo-async-combobox');
+      return {
+        label: root.querySelector('[data-prima-ref=search_input]').value,
+        value: root.querySelector('input[type=hidden]').value
+      };
+      """,
+      fn result -> assert result == %{"label" => expected, "value" => expected} end
+    )
+  end
+
   feature "shows combobox options when input is focused", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")

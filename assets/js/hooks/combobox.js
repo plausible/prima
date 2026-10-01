@@ -32,6 +32,8 @@ const SELECTORS = {
 
 export default {
   mounted() {
+    // Selection labels outlive search results and survive hook reconnection.
+    this.selectedItems = new Map()
     this.initialize()
   },
 
@@ -176,26 +178,9 @@ export default {
     return Array.from(inputs).map(input => input.value)
   },
 
-  findOptionByValue(value) {
-    if (!value) return null
-    const allOptions = this.getRegularOptions()
-    return Array.from(allOptions).find(option =>
-      option.getAttribute('data-value') === value
-    )
-  },
-
-  getSelectedOption() {
-    const selectedValues = this.getSelectedValues()
-    return this.findOptionByValue(selectedValues[0])
-  },
-
   restoreSelectedDisplayValue() {
-    const selectedOption = this.getSelectedOption()
-    if (selectedOption) {
-      this.refs.searchInput.value = selectedOption.getAttribute('data-display')
-    } else {
-      this.refs.searchInput.value = ''
-    }
+    const value = this.getSelectedValues()[0]
+    this.refs.searchInput.value = this.selectedItems.get(value)?.label ?? ''
   },
 
   getInputName() {
@@ -204,16 +189,20 @@ export default {
     return this.isMultiple ? baseName + '[]' : baseName
   },
 
-  addSelection(value) {
+  addSelection(item) {
     if (!this.refs.submitContainer) return
 
+    const { value } = item
     const selectedValues = this.getSelectedValues()
 
     if (selectedValues.includes(value)) return
 
     if (!this.isMultiple) {
       this.refs.submitContainer.innerHTML = ''
+      this.selectedItems.clear()
     }
+
+    this.selectedItems.set(value, item)
 
     const input = document.createElement('input')
     input.type = 'hidden'
@@ -222,7 +211,7 @@ export default {
     this.refs.submitContainer.appendChild(input)
 
     if (this.isMultiple) {
-      this.appendSelectionPill(value)
+      this.appendSelectionPill(item)
     }
 
     this.syncSelectedAttributes()
@@ -241,6 +230,7 @@ export default {
       }
     }
 
+    this.selectedItems.delete(value)
     input.value = ''
     this.notifyFormChange(input)
     input.remove()
@@ -315,7 +305,7 @@ export default {
       displayValue = value
     }
 
-    this.addSelection(value)
+    this.addSelection({ value, label: displayValue })
 
     if (this.isMultiple) {
       this.refs.searchInput.value = ''
@@ -343,23 +333,20 @@ export default {
     }
   },
 
-  appendSelectionPill(value) {
+  appendSelectionPill({ value, label }) {
     if (!this.refs.selectionsContainer || !this.refs.selectionTemplate) return
-
-    const option = this.findOptionByValue(value)
-    const displayValue = option ? option.getAttribute('data-display') : value
 
     const pill = this.refs.selectionTemplate.content.cloneNode(true)
     for (const item of pill.querySelectorAll(SELECTORS.SELECTION_ITEM)) {
       item.dataset.value = value
     }
-    for (const label of pill.querySelectorAll(SELECTORS.SELECTION_LABEL)) {
-      label.textContent = displayValue
+    for (const labelElement of pill.querySelectorAll(SELECTORS.SELECTION_LABEL)) {
+      labelElement.textContent = label
     }
     for (const button of pill.querySelectorAll(SELECTORS.REMOVE_SELECTION)) {
       button.setAttribute('data-value', value)
       if (!button.hasAttribute('aria-label')) {
-        button.setAttribute('aria-label', `Remove ${displayValue}`)
+        button.setAttribute('aria-label', `Remove ${label}`)
       }
     }
 

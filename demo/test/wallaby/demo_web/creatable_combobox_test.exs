@@ -9,6 +9,64 @@ defmodule DemoWeb.CreatableComboboxTest do
                      "#demo-creatable-combobox [role=option]:not([data-prima-ref=create-option])"
                    )
 
+  feature "created selection survives Escape, outside clicks, and reconnection", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
+    |> click(@search_input)
+    |> fill_in(@search_input, with: "Strawberry")
+    |> click(@create_option)
+    |> fill_in(@search_input, with: "App")
+    |> send_keys([:escape])
+    |> assert_created_selection("Strawberry")
+    |> fill_in(@search_input, with: "Pear")
+    |> click(Query.css("body"))
+    |> assert_created_selection("Strawberry")
+    |> execute_script("""
+    document.querySelector('#demo-creatable-combobox').removeAttribute('data-prima-ready');
+    window.liveSocket.disconnect(() => window.liveSocket.connect());
+    """)
+    |> assert_has(Query.css("#demo-creatable-combobox[data-prima-ready=true]"))
+    |> fill_in(@search_input, with: "Mango")
+    |> send_keys([:escape])
+    |> assert_created_selection("Strawberry")
+  end
+
+  feature "clearing a created selection allows a new selection to be restored", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
+    |> click(@search_input)
+    |> fill_in(@search_input, with: "Strawberry")
+    |> click(@create_option)
+    |> click(Query.css("body"))
+    |> click(@search_input)
+    |> send_keys([:backspace])
+    |> send_keys([:escape])
+    |> assert_created_selection("")
+    |> fill_in(@search_input, with: "Blueberry")
+    |> click(@create_option)
+    |> fill_in(@search_input, with: "App")
+    |> send_keys([:escape])
+    |> assert_created_selection("Blueberry")
+  end
+
+  defp assert_created_selection(session, expected) do
+    execute_script(
+      session,
+      """
+      const root = document.querySelector('#demo-creatable-combobox');
+      return {
+        label: root.querySelector('[data-prima-ref=search_input]').value,
+        value: root.querySelector('input[type=hidden]')?.value || ''
+      };
+      """,
+      fn result -> assert result == %{"label" => expected, "value" => expected} end
+    )
+  end
+
   feature "create option is hidden initially when combobox opens", %{session: session} do
     session
     |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
