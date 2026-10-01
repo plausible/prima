@@ -106,9 +106,7 @@ defmodule Prima.Combobox do
   @doc """
   The main combobox container component.
 
-  This component serves as the root container for all combobox functionality,
-  managing JavaScript hook initialization and coordinating between the input
-  field and options dropdown.
+  Wrap the input, options, and optional selections in this component.
 
   ## Attributes
 
@@ -165,12 +163,6 @@ defmodule Prima.Combobox do
           </.combobox_selection_remove>
         </:selection>
       </.combobox_selections>
-
-  JavaScript clones the template, inserts the display label as plain text, and binds
-  remove buttons to the submitted value. Labels and values are never interpreted as HTML.
-
-  This replaces the previous `:let={value}` placeholder API: replace `{value}` text
-  with `combobox_selection_label` and omit `value` on `combobox_selection_remove`.
   """
   def combobox_selections(assigns) do
     assigns = assign(assigns, :selections_id, "selections-#{System.unique_integer([:positive])}")
@@ -205,14 +197,6 @@ defmodule Prima.Combobox do
   Filters options locally by default. Set `on_search` to an event name to search
   on the server instead; no enclosing form is required. The handler receives
   `%{"query" => query}` and should return default options when the query is empty.
-  Typing is debounced, and consecutive identical queries are not sent again.
-  Initialization and reconnection request default options with an empty query.
-  Clicking the input or opening with arrow keys requests default options with an
-  empty query when needed. Typing opens the dropdown with the typed query instead.
-  Selection and dismissal cancel pending searches without sending a request.
-  Loading indicators can observe `phx-hook-loading` on the root combobox
-  and the input's `aria-expanded` attribute to show loading only while open.
-  Background search tasks must discard their own outdated results.
 
   ## Attributes
 
