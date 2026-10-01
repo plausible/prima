@@ -1,7 +1,6 @@
-<.listbox id="disabled-trigger-demo-listbox" name="plan">
+<.listbox id="disabled-listbox-example" name="plan" disabled={true}>
   <.listbox_trigger
-    id="disabled-trigger-demo-listbox-trigger"
-    disabled={true}
+    id="disabled-listbox-example-trigger"
     class="w-56 inline-flex justify-between items-center rounded-lg bg-white border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 data-disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:hover:bg-white"
   >
     <.listbox_value>Select a plan...</.listbox_value>
@@ -20,18 +19,18 @@
   </.listbox_trigger>
 
   <.listbox_options
-    id="disabled-trigger-demo-listbox-options"
+    id="disabled-listbox-example-options"
     class="py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none"
   >
     <.listbox_option
-      id="disabled-trigger-demo-option-basic"
+      id="disabled-listbox-example-option-basic"
       value="Basic"
       class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block w-full px-4 py-2 text-sm text-left"
     >
       Basic
     </.listbox_option>
     <.listbox_option
-      id="disabled-trigger-demo-option-pro"
+      id="disabled-listbox-example-option-pro"
       value="Pro"
       class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block w-full px-4 py-2 text-sm text-left"
     >

@@ -44,6 +44,26 @@ defmodule Prima.Listbox do
       <.listbox_trigger id="fruit-listbox-trigger">
         <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
       </.listbox_trigger>
+
+  ## Disabling the Listbox
+
+  Pass `disabled={true}` to `listbox` to disable the entire field. Its hidden
+  input is disabled in the server-rendered HTML, excluding the value from form
+  submission while preserving it for when the field is enabled again.
+
+  On mount and LiveView updates, the JS hook applies native `disabled` to the
+  trigger button, preventing interaction and removing it from the tab order.
+  Disabling an open listbox closes it. The trigger also receives `data-disabled`
+  for consumer-defined styling:
+
+      <.listbox id="fruit-listbox" name="fruit" value={@selected_fruit} disabled={@locked?}>
+        <.listbox_trigger id="fruit-listbox-trigger" class="data-disabled:opacity-50">
+          <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
+        </.listbox_trigger>
+        <.listbox_options id="fruit-listbox-options">
+          <.listbox_option id="fruit-option-apple" value="apple">Apple</.listbox_option>
+        </.listbox_options>
+      </.listbox>
   """
 
   use Phoenix.Component
@@ -52,13 +72,20 @@ defmodule Prima.Listbox do
   attr :id, :string, required: true
   attr :name, :string, required: true
   attr :value, :any, default: nil
+  attr :disabled, :boolean, default: false
   attr :rest, :global
   slot :inner_block, required: true
 
   def listbox(assigns) do
     ~H"""
-    <div id={@id} phx-hook="Listbox" {@rest}>
-      <input type="hidden" name={@name} value={@value} data-prima-ref="value-input" />
+    <div id={@id} phx-hook="Listbox" data-disabled={if @disabled, do: "true"} {@rest}>
+      <input
+        type="hidden"
+        name={@name}
+        value={@value}
+        disabled={@disabled}
+        data-prima-ref="value-input"
+      />
       {render_slot(@inner_block)}
     </div>
     """
@@ -66,7 +93,6 @@ defmodule Prima.Listbox do
 
   attr :id, :string, required: true
   attr :class, :string, default: ""
-  attr :disabled, :boolean, default: false
   attr :rest, :global
   slot :inner_block, required: true
 
@@ -95,16 +121,9 @@ defmodule Prima.Listbox do
         <.listbox_value>{@selected_role}</.listbox_value>
       </.listbox_trigger>
 
-  ## Disabling the Trigger
-
-  Pass `disabled={true}` to prevent the trigger from opening the listbox and
-  remove it from the tab order, the same way a native `<select disabled>`
-  behaves. Styling for the disabled state is left to the consumer — target
-  the `data-disabled` attribute set on the trigger:
-
-      <.listbox_trigger id="fruit-listbox-trigger" disabled={true} class="data-disabled:opacity-50">
-        <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
-      </.listbox_trigger>
+  To disable the field, pass `disabled={true}` to the parent `listbox`.
+  Its JS hook synchronizes this button's native `disabled` and `data-disabled`
+  attributes.
   """
   def listbox_trigger(assigns) do
     ~H"""
@@ -114,9 +133,6 @@ defmodule Prima.Listbox do
       class={@class}
       aria-haspopup="listbox"
       aria-expanded="false"
-      aria-disabled={if @disabled, do: "true"}
-      data-disabled={if @disabled, do: "true"}
-      tabindex={if @disabled, do: "-1"}
       {@rest}
     >
       {render_slot(@inner_block)}

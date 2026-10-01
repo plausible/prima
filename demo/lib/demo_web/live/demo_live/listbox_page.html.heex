@@ -76,19 +76,20 @@
     <.code_example file="listbox/disabled.html.heex" id="disabled-listbox-demo" />
   </div>
 
-  <h2>Disabled Trigger</h2>
+  <h2>Disabled Listbox</h2>
   <p>
     Disable the entire listbox with <code>disabled={true}</code>
-    on <code>.listbox_trigger</code>. A disabled trigger can't be clicked to open the
-    listbox and is removed from the tab order, the same way a native
-    <code>&lt;select disabled&gt;</code>
-    behaves. Prima only sets the <code>data-disabled</code>
-    attribute — styling the disabled state (e.g. reduced opacity, a <code>not-allowed</code>
-    cursor) is entirely up to you, as shown below.
+    on <code>.listbox</code>. The hidden input is disabled in the initial HTML,
+    excluding its value from form submission. When the JavaScript hook mounts, it
+    disables the trigger button, preventing interaction and removing it from the tab
+    order. LiveView updates keep the state synchronized and close an open listbox
+    when it becomes disabled. Re-enabling the field preserves its selected value.
+    Style the trigger's <code>data-disabled</code>
+    attribute to indicate the disabled state, as shown below.
   </p>
 
   <div class="not-prose">
-    <.code_example file="listbox/disabled_trigger.html.heex" id="disabled-trigger-listbox-demo" />
+    <.code_example file="listbox/disabled_listbox.html.heex" id="disabled-listbox-code-example" />
   </div>
 
   <h2>Keyboard Interaction</h2>

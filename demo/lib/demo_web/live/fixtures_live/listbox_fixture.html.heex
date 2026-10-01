@@ -39,8 +39,9 @@
     <!-- Invisible area for click-outside testing -->
   </div>
 
-  <.listbox id="disabled-listbox" name="disabled_fruit_choice">
-    <.listbox_trigger id="disabled-listbox-trigger" disabled={true}>
+  <button id="before-disabled-listbox" type="button">Before disabled listbox</button>
+  <.listbox id="disabled-listbox" name="disabled_fruit_choice" disabled={true}>
+    <.listbox_trigger id="disabled-listbox-trigger">
       <.listbox_value>Select a fruit...</.listbox_value>
     </.listbox_trigger>
 
@@ -53,4 +54,5 @@
       </.listbox_option>
     </.listbox_options>
   </.listbox>
+  <button id="after-disabled-listbox" type="button">After disabled listbox</button>
 </div>

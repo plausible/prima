@@ -183,25 +183,52 @@ defmodule DemoWeb.ListboxTest do
     |> assert_has(@listbox_value |> Query.text("Apple"))
   end
 
-  describe "disabled trigger" do
+  describe "disabled listbox" do
     @disabled_trigger Query.css("#disabled-listbox-trigger")
     @disabled_listbox Query.css("#disabled-listbox [role=listbox]")
 
-    feature "marks the trigger as disabled and removes it from the tab order", %{
+    feature "disables the button and hidden input and skips the trigger in the tab order", %{
       session: session
     } do
       session
       |> visit_fixture("/fixtures/listbox", "#disabled-listbox")
-      |> assert_has(
-        Query.css(
-          "#disabled-listbox-trigger[aria-disabled=true][data-disabled=true][tabindex='-1']"
-        )
-      )
+      |> assert_has(Query.css("#disabled-listbox-trigger:disabled[data-disabled=true]"))
+      |> assert_has(Query.css("#disabled-listbox input:disabled", visible: false))
+      |> click(Query.css("#before-disabled-listbox"))
+      |> send_keys([:tab])
+      |> assert_has(Query.css("#after-disabled-listbox:focus"))
     end
 
     feature "does not open the listbox when clicked", %{session: session} do
       session
       |> visit_fixture("/fixtures/listbox", "#disabled-listbox")
+      |> click(@disabled_trigger)
+      |> assert_has(@disabled_listbox |> Query.visible(false))
+    end
+
+    feature "ignores keyboard events and cannot receive focus", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox", "#disabled-listbox")
+      |> execute_script("""
+      const button = document.querySelector('#disabled-listbox-trigger');
+      button.focus();
+      for (const key of ['Enter', ' ', 'ArrowDown', 'ArrowUp']) {
+        button.dispatchEvent(new KeyboardEvent('keydown', {key, bubbles: true}));
+      }
+      """)
+      |> assert_missing(Query.css("#disabled-listbox-trigger:focus"))
+      |> assert_has(@disabled_listbox |> Query.visible(false))
+      |> assert_missing(Query.css("#disabled-listbox [data-focus]", visible: :any))
+    end
+
+    feature "remains disabled after LiveView reconnection", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox", "#disabled-listbox")
+      |> execute_script("window.liveSocket.disconnect()")
+      |> assert_missing(Query.css(".phx-connected[data-phx-main]"))
+      |> execute_script("window.liveSocket.connect()")
+      |> assert_has(Query.css(".phx-connected[data-phx-main]"))
+      |> assert_has(Query.css("#disabled-listbox-trigger:disabled[data-disabled=true]"))
       |> click(@disabled_trigger)
       |> assert_has(@disabled_listbox |> Query.visible(false))
     end
