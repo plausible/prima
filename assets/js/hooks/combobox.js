@@ -200,8 +200,7 @@ export default {
 
   getInputName() {
     if (!this.refs.submitContainer) return ''
-    const baseName = this.refs.submitContainer.getAttribute('data-input-name')
-    return this.isMultiple ? baseName + '[]' : baseName
+    return this.refs.submitContainer.getAttribute('data-input-name')
   },
 
   addSelection(item) {

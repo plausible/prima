@@ -189,22 +189,23 @@ defmodule DemoWeb.MultiSelectComboboxTest do
     )
   end
 
-  feature "hidden input array updates correctly", %{session: session} do
+  feature "submits repeated values under the exact bracketed name", %{session: session} do
     session
     |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
     |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Apple']"))
     |> click(@search_input)
     |> click(Query.css("#demo-multi-select-combobox [role=option][data-value='Banana']"))
-    # Verify hidden inputs are created
     |> execute_script(
       """
-      const inputs = Array.from(document.querySelectorAll('#demo-multi-select-combobox input[type=hidden][name="demo-multi-select-combobox[fruits][]"]'));
-      return inputs.map(i => i.value);
+      const form = document.querySelector('#demo-multi-select-combobox').closest('form');
+      return Array.from(new FormData(form).entries());
       """,
-      fn values ->
-        assert Enum.sort(values) == ["Apple", "Banana"],
-               "Expected hidden inputs to have values ['Apple', 'Banana'], got #{inspect(values)}"
+      fn entries ->
+        assert entries == [
+                 ["demo-multi-select-combobox[fruits][]", "Apple"],
+                 ["demo-multi-select-combobox[fruits][]", "Banana"]
+               ]
       end
     )
   end

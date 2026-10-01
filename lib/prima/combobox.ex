@@ -82,6 +82,10 @@ defmodule Prima.Combobox do
   ## Form Integration
 
   Only selected values are submitted through hidden inputs named `name`.
+  The name is used verbatim in both single and multiple modes, just like a native
+  select. For Phoenix list parameters, explicitly include `[]` in the name
+  (for example, `name="user[roles][]"`). Multiple selections submit repeated entries
+  under that exact name.
   The visible search input has no name and is never included in form data.
   In async mode, queries are sent separately through `on_search` events with
   `%{"query" => query}`.
@@ -238,7 +242,8 @@ defmodule Prima.Combobox do
 
   ## Attributes
 
-    * `name` (required) - Submitted selection field name
+    * `name` (required) - Submitted selection field name, used verbatim. Include `[]`
+      for Phoenix list parameters in multiple mode (for example, `name="roles[]"`).
     * `class` - CSS classes for the visible input field
     * `placeholder` - Placeholder text for the input
     * `on_search` - Event name for async search (enables async mode)

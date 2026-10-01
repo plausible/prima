@@ -63,7 +63,7 @@ defmodule DemoWeb.SelectionTemplateComboboxTest do
   defp assert_submitted_values(session, expected) do
     execute_script(
       session,
-      "return new FormData(document.querySelector('#selection-template-form')).getAll('selections[]')",
+      "return new FormData(document.querySelector('#selection-template-form')).getAll('selections')",
       fn values -> assert values == expected end
     )
   end
