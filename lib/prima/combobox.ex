@@ -87,8 +87,9 @@ defmodule Prima.Combobox do
   `%{"query" => query}`.
 
   This allows seamless form submission while maintaining search functionality.
-  In async mode, selecting or dismissing the dropdown resets the search
-  query to an empty string to request default options without changing the selection.
+  In async mode, selecting or dismissing the dropdown cancels pending searches
+  without sending a request. Opening the dropdown requests default options with
+  an empty query unless those options are already current.
 
   ### Form Change Events
 
@@ -226,10 +227,14 @@ defmodule Prima.Combobox do
   Filters options locally by default. Set `on_search` to an event name to search
   on the server instead; no enclosing form is required. The handler receives
   `%{"query" => query}` and should return default options when the query is empty.
-  Typing is debounced; initialization, selection, and dismissal send an empty query
-  immediately and cancel any pending search. Loading indicators can observe
-  `phx-hook-loading` on the root combobox. Background search tasks must discard
-  their own outdated results.
+  Typing is debounced, and consecutive identical queries are not sent again.
+  Initialization and reconnection request default options with an empty query.
+  Clicking the input or opening with arrow keys requests default options with an
+  empty query when needed. Typing opens the dropdown with the typed query instead.
+  Selection and dismissal cancel pending searches without sending a request.
+  Loading indicators can observe `phx-hook-loading` on the root combobox
+  and the input's `aria-expanded` attribute to show loading only while open.
+  Background search tasks must discard their own outdated results.
 
   ## Attributes
 
@@ -458,7 +463,6 @@ defmodule Prima.Combobox do
         style="display: none;"
         js-show={JS.show(transition: @transition_enter)}
         js-hide={JS.hide(transition: @transition_leave)}
-        phx-click-away={JS.dispatch("prima:combobox:reset")}
         data-prima-ref="options"
         {@rest}
       >

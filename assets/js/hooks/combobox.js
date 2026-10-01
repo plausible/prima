@@ -54,11 +54,13 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupEventListeners()
-    this.initializeCreateOption()
     this.syncSelectedAttributes()
     this.setupAriaAttributes()
     if (this.isOpen) this.startPositioning()
 
+    // Refresh defaults on mount and reconnection.
+    this.lastSentQuery = undefined
+    this.resetSearch()
     this.sendQuery('')
 
     this.el.setAttribute('data-prima-ready', 'true')
@@ -168,11 +170,13 @@ export default {
     const input = this.refs.searchInput
     const event = input.dataset.onSearch
     if (!event) return
+    if (query === this.lastSentQuery) return
 
     const target = input.getAttribute('phx-target')
     const request = target
       ? this.pushEventTo(target, event, { query })
       : this.pushEvent(event, { query })
+    this.lastSentQuery = query
     request.catch(error => console.error('[Prima Combobox] Search failed:', error))
   },
 
@@ -326,7 +330,7 @@ export default {
     }
 
     this.hideOptions()
-    this.sendQuery('')
+    this.resetSearch()
   },
 
   syncSelectedAttributes() {
@@ -387,7 +391,7 @@ export default {
     // Arrow keys open options if closed, then navigate
     if (arrowKeys.includes(e.key) && !this.isOpen) {
       e.preventDefault()
-      this.showOptions()
+      this.openOptions()
       return
     }
 
@@ -455,7 +459,7 @@ export default {
     if (this.isOpen) {
       this.handleBlur()
     } else {
-      this.showOptions()
+      this.openOptions()
     }
   },
 
@@ -556,6 +560,11 @@ export default {
     }
   },
 
+  openOptions() {
+    this.showOptions()
+    this.sendQuery('')
+  },
+
   showOptions() {
     if (!this.refs.optionsContainer || this.isOpen) return
 
@@ -615,12 +624,16 @@ export default {
     }
 
     this.hideOptions()
-    this.sendQuery('')
+    this.resetSearch()
   },
 
-  initializeCreateOption() {
-    if (!this.hasCreateOption) return
-    this.hideOption(this.refs.createOption)
+  resetSearch() {
+    clearTimeout(this.searchTimer)
+    if (this.refs.createOption) {
+      this.hideOption(this.refs.createOption)
+      this.refs.createOption.textContent = ''
+      this.refs.createOption.removeAttribute('data-focus')
+    }
   },
 
   updateCreateOption(searchValue) {

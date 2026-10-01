@@ -34,7 +34,7 @@ defmodule PrimaWeb.DemoLive.AsyncComboboxDemo do
             phx-target={@myself}
             placeholder="Type to search..."
           />
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 search-spinner invisible group-[.phx-hook-loading]:visible">
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 search-spinner invisible group-[.phx-hook-loading:has(input[aria-expanded=true])]:visible">
             <svg
               class="animate-spin -ml-1 h-5 w-5 text-gray-500"
               xmlns="http://www.w3.org/2000/svg"
