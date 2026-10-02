@@ -187,6 +187,7 @@ defmodule Prima.Combobox do
 
   attr :class, :string, default: ""
   attr :name, :string, required: true
+  attr :selection, :any, default: nil
   attr :on_search, :string, default: nil
   attr :search_debounce, :integer, default: 200
   attr(:rest, :global, include: ~w(placeholder phx-target))
@@ -202,6 +203,8 @@ defmodule Prima.Combobox do
 
     * `name` (required) - Submitted selection field name, used verbatim. Include `[]`
       for Phoenix list parameters in multiple mode (for example, `name="roles[]"`).
+    * `selection` - A map with a required `:value` and optional `:display`, or a list
+      of these maps in multiple mode.
     * `class` - CSS classes for the visible input field
     * `placeholder` - Placeholder text for the input
     * `on_search` - Event name for async search (enables async mode)
@@ -209,6 +212,27 @@ defmodule Prima.Combobox do
     * `search_debounce` - Typing delay in milliseconds (default: 200; use 0 for no delay)
 
   ## Examples
+
+  ### Initial selection:
+
+      <.combobox_input
+        name="user_id"
+        selection={%{value: @user.id, display: @user.name}}
+      />
+
+      <.combobox_input
+        name="user_ids[]"
+        selection={Enum.map(@users, &%{value: &1.id, display: &1.name})}
+      />
+
+  Use the list form inside a combobox with `multiple={true}`. Server patches apply
+  `selection` while the search input is unfocused. While it is focused,
+  the current selection and search text are preserved, like a native text input.
+  Blurring does not apply a skipped update; a subsequent patch can apply it.
+
+  Build `selection` from your form state and update it in your `phx-change` handler so
+  later patches retain the user's selection. Applying server values does not
+  fire a form change event.
 
   ### Frontend filtering mode:
 
@@ -230,6 +254,13 @@ defmodule Prima.Combobox do
 
   """
   def combobox_input(assigns) do
+    selection =
+      for item <- List.wrap(assigns.selection) do
+        [to_string(item.value), item[:display]]
+      end
+
+    assigns = assign(assigns, :selection, selection)
+
     ~H"""
     <input
       data-prima-ref="search_input"
@@ -250,9 +281,13 @@ defmodule Prima.Combobox do
       id={@name <> "_submit"}
       name={@name}
       phx-update="ignore"
+      data-selection={Phoenix.json_library().encode!(@selection)}
       data-prima-ref="submit_input"
       hidden
     >
+      <option :for={[value, label] <- @selection} value={value} selected>
+        {label || value}
+      </option>
     </select>
     """
   end

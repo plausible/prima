@@ -6,7 +6,10 @@
         <.combobox_selection_remove>Remove</.combobox_selection_remove>
       </:selection>
     </.combobox_selections>
-    <.combobox_input name={if @multiple, do: "fruits[]", else: "fruit"} />
+    <.combobox_input
+      name={if @multiple, do: "fruits[]", else: "fruit"}
+      selection={@selection}
+    />
     <.combobox_options id="submission-options">
       <.combobox_option value="a" display="Apple">Apple</.combobox_option>
       <.combobox_option value="b" display="Banana">Banana</.combobox_option>

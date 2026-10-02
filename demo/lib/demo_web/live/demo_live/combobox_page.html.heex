@@ -37,6 +37,21 @@
 
   <h2>Advanced Usage</h2>
 
+  <h3>Selection</h3>
+  <p>
+    Set <code>selection</code> on the input to supply a selected item.
+    Use a map with <code>value</code> and an optional <code>display</code> label.
+    Choose another country, then click Reset to restore the initial selection from the server.
+  </p>
+
+  <div class="not-prose">
+    <.code_example
+      file="combobox/selection_combobox_demo.ex"
+      module={DemoWeb.DemoLive.SelectionComboboxDemo}
+      id="selection-combobox-demo"
+    />
+  </div>
+
   <h3>Server-side Search</h3>
   <p>
     Set <code>on_search</code> on the input to enable debounced server-side search.

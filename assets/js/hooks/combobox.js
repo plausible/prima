@@ -34,6 +34,7 @@ export default {
   mounted() {
     this.isOpen = false
     this.initialize()
+    this.syncSelection()
   },
 
   reconnected() {
@@ -150,6 +151,8 @@ export default {
   },
 
   updated() {
+    this.setupElements()
+    this.syncSelection(document.activeElement === this.refs.searchInput)
     this.ensureOptionIds()
     this.positionOptions()
     if (this.isOpen) this.restoreOptionFocus()
@@ -188,6 +191,30 @@ export default {
 
   getSelectedValues() {
     return Array.from(this.refs.submitInput?.selectedOptions || []).map(option => option.value)
+  },
+
+  syncSelection(preserveSearch = false) {
+    const input = this.refs.submitInput
+    if (!input) return
+
+    // Like a native text input, focused edits win; a later unfocused patch can
+    // apply the latest server value, even when that value has not changed again.
+    const selection = preserveSearch
+      ? Array.from(input.options, option => [option.value, option.textContent])
+      : JSON.parse(input.dataset.selection)
+    const options = Array.from(this.getRegularOptions())
+    input.replaceChildren()
+    this.refs.selectionsContainer?.querySelectorAll(SELECTORS.SELECTION_ITEM).forEach(pill => pill.remove())
+
+    for (const [value, display] of selection) {
+      const option = options.find(option => option.dataset.value === value)
+      const label = display ?? option?.dataset.display ?? value
+      this.addSelection({ value, label })
+    }
+
+    if (!preserveSearch) {
+      this.refs.searchInput.value = this.isMultiple ? '' : input.selectedOptions[0]?.textContent ?? ''
+    }
   },
 
   addSelection(item) {

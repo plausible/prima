@@ -20,6 +20,10 @@ defmodule DemoWeb.FixturesLive do
       |> assign(selected_fruit: nil)
       |> assign(form_change_count: 0)
       |> assign(submission_multiple: params["multiple"] == "true")
+      |> assign(
+        submission_selection:
+          if(params["selection"], do: Jason.decode!(params["selection"], keys: :atoms!))
+      )
       |> assign(submission_change: %{})
       |> assign(trigger_label: "Open Dropdown")
       |> assign(modal_title: "Good news")
@@ -76,9 +80,18 @@ defmodule DemoWeb.FixturesLive do
 
   @impl true
   def handle_event("submission_changed", params, socket) do
+    selection =
+      for value <- List.wrap(params["fruits"] || params["fruit"]) do
+        Enum.find(List.wrap(socket.assigns.submission_selection), &(to_string(&1.value) == value)) ||
+          %{value: value}
+      end
+
+    selection = if socket.assigns.submission_multiple, do: selection, else: List.first(selection)
+
     {:noreply,
      socket
      |> assign(submission_change: params)
+     |> assign(submission_selection: selection)
      |> update(:form_change_count, &(&1 + 1))}
   end
 

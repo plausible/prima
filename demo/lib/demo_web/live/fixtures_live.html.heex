@@ -98,7 +98,10 @@
 </div>
 
 <div :if={@live_action == :combobox_submission}>
-  <.combobox_submission_fixture multiple={@submission_multiple} />
+  <.combobox_submission_fixture
+    multiple={@submission_multiple}
+    selection={@submission_selection}
+  />
   <div
     id="submission-state"
     data-change-count={@form_change_count}
