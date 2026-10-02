@@ -38,7 +38,7 @@ export default {
     this.syncSelectedAttributes()
     this.setupAriaAttributes()
     this.syncSelection()
-    this.resetSearch()
+    this.close()
     this.sendQuery('')
     this.el.setAttribute('data-prima-ready', 'true')
   },
@@ -330,8 +330,7 @@ export default {
       this.refs.searchInput.value = displayValue
     }
 
-    this.hideOptions()
-    this.resetSearch()
+    this.close()
     if (changed) this.notifyFormChange()
   },
 
@@ -597,12 +596,19 @@ export default {
     this.cleanupAutoUpdate()
   },
 
-  hideOptions() {
+  close() {
+    clearTimeout(this.searchTimer)
+    this.refs.searchInput.removeAttribute('aria-activedescendant')
+    if (this.refs.createOption) {
+      this.hideOption(this.refs.createOption)
+      this.refs.createOption.textContent = ''
+      this.refs.createOption.removeAttribute('data-focus')
+    }
+
     if (!this.refs.optionsContainer || !this.isOpen) return
 
     this.isOpen = false
     this.refs.searchInput.setAttribute('aria-expanded', 'false')
-    this.refs.searchInput.removeAttribute('aria-activedescendant')
     this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'))
   },
 
@@ -619,17 +625,7 @@ export default {
       ? ''
       : this.refs.submitInput?.selectedOptions[0]?.textContent ?? ''
 
-    this.hideOptions()
-    this.resetSearch()
-  },
-
-  resetSearch() {
-    clearTimeout(this.searchTimer)
-    if (this.refs.createOption) {
-      this.hideOption(this.refs.createOption)
-      this.refs.createOption.textContent = ''
-      this.refs.createOption.removeAttribute('data-focus')
-    }
+    this.close()
   },
 
   updateCreateOption(searchValue) {
