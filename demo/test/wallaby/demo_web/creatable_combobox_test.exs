@@ -9,7 +9,7 @@ defmodule DemoWeb.CreatableComboboxTest do
                      "#demo-creatable-combobox [role=option]:not([data-prima-ref=create-option])"
                    )
 
-  feature "created selection survives dismissal and resets to the server value on reconnection",
+  feature "created selection without server binding survives dismissal and reconnection",
           %{
             session: session
           } do
@@ -31,13 +31,7 @@ defmodule DemoWeb.CreatableComboboxTest do
     |> assert_has(Query.css("#demo-creatable-combobox[data-prima-ready=true]"))
     |> fill_in(@search_input, with: "Mango")
     |> send_keys([:escape])
-    # This fixture has no server binding; an unfocused reconnect restores no selection.
-    |> assert_combobox_selection(
-      "#demo-creatable-combobox",
-      "demo-creatable-combobox[fruit]",
-      "",
-      nil
-    )
+    |> assert_created_selection("Strawberry")
   end
 
   defp assert_created_selection(session, expected) do

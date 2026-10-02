@@ -199,7 +199,8 @@ export default {
 
     // Like a native text input, focused edits win; a later unfocused patch can
     // apply the latest server value, even when that value has not changed again.
-    const selection = preserveSearch
+    // Without a server binding, patches retain the current client selection.
+    const selection = preserveSearch || !input.hasAttribute('data-selection')
       ? Array.from(input.options, option => [option.value, option.textContent])
       : JSON.parse(input.dataset.selection)
     const options = Array.from(this.getRegularOptions())

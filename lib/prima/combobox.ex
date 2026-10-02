@@ -98,7 +98,7 @@ defmodule Prima.Combobox do
 
   attr :id, :string, required: true
   attr :name, :string, required: true
-  attr :selections, :any, default: nil
+  attr :selections, :any
   slot :inner_block, required: true
   attr :class, :string, default: ""
   attr :multiple, :boolean, default: false
@@ -132,8 +132,10 @@ defmodule Prima.Combobox do
 
   """
   def combobox(assigns) do
+    assigns = assign(assigns, :has_selections, Map.has_key?(assigns, :selections))
+
     selections =
-      for item <- List.wrap(assigns.selections) do
+      for item <- List.wrap(assigns[:selections]) do
         [to_string(item.value), item[:display]]
       end
 
@@ -152,7 +154,7 @@ defmodule Prima.Combobox do
         name={@name}
         multiple={@multiple}
         phx-update="ignore"
-        data-selection={Phoenix.json_library().encode!(@selections)}
+        data-selection={@has_selections && Phoenix.json_library().encode!(@selections)}
         data-prima-ref="submit_input"
         hidden
       >
@@ -256,6 +258,7 @@ defmodule Prima.Combobox do
       </.combobox>
 
   Without initial selections, omit both `:let` and the input's `value`.
+  Omitting `selections` preserves the current selection across server patches.
 
   Use the list form inside a combobox with `multiple={true}`. Server patches apply
   `selections` while the search input is unfocused. While it is focused,

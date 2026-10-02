@@ -19,6 +19,36 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
     assert_async_reopens(session, :escape)
   end
 
+  feature "async response after dismissal preserves a selection without server binding", %{
+    session: session
+  } do
+    root = "#demo-async-combobox"
+    input = Query.css("#{root} [data-prima-ref=search_input]")
+
+    session
+    |> visit_fixture("/combobox", root)
+    |> click(input)
+    |> click(Query.css("#{root} [data-value=Cherry]"))
+    |> execute_script("window.liveSocket.enableLatencySim(500)")
+    |> click(input)
+    |> send_keys(["asdasdas"])
+    |> assert_has(Query.css("#{root}.phx-hook-loading"))
+    |> click(Query.css("body"))
+    |> assert_has(Query.css("#demo-async-combobox-options", visible: false))
+    |> assert_has(Query.css("#{root}:not(.phx-hook-loading)"))
+    |> assert_has(Query.css("#{root} [role=option]", count: 0, visible: :any))
+    |> execute_script(
+      """
+      const root = document.querySelector('#demo-async-combobox');
+      return {
+        display: root.querySelector('[data-prima-ref=search_input]').value,
+        value: root.querySelector('[data-prima-ref=submit_input]').value
+      };
+      """,
+      fn result -> assert result == %{"display" => "Cherry", "value" => "Cherry"} end
+    )
+  end
+
   feature "async demo supports LiveComponent search and selection without a form", %{
     session: session
   } do
