@@ -1,8 +1,12 @@
 <form phx-change="form_changed">
-  <.combobox id="async-form-change-combobox">
+  <.combobox
+    :let={input_value}
+    id="async-form-change-combobox"
+    name="fruit"
+    selections={@selected_fruit && %{value: @selected_fruit}}
+  >
     <.combobox_input
-      name="fruit"
-      selection={@selected_fruit && %{value: @selected_fruit}}
+      value={input_value}
       on_search="async_combobox_search"
       placeholder="Type to search..."
     />

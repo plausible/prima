@@ -1,5 +1,9 @@
 <form>
-  <.combobox id="demo-multi-select-combobox" multiple={true}>
+  <.combobox
+    id="demo-multi-select-combobox"
+    multiple={true}
+    name="demo-multi-select-combobox[fruits][]"
+  >
     <div id="demo-multi-select-combobox-field">
       <.combobox_selections>
         <:selection>
@@ -10,10 +14,7 @@
         </:selection>
       </.combobox_selections>
 
-      <.combobox_input
-        name="demo-multi-select-combobox[fruits][]"
-        placeholder="Select fruits..."
-      />
+      <.combobox_input placeholder="Select fruits..." />
     </div>
 
     <.combobox_options

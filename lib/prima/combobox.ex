@@ -20,8 +20,8 @@ defmodule Prima.Combobox do
 
   Basic combobox with predefined options and frontend filtering:
 
-      <.combobox id="my-combobox">
-        <.combobox_input name="selection" placeholder="Search options..." />
+      <.combobox id="my-combobox" name="selection">
+        <.combobox_input placeholder="Search options..." />
 
         <.combobox_options id="my-combobox-options">
           <.combobox_option value="apple">Apple</.combobox_option>
@@ -37,9 +37,8 @@ defmodule Prima.Combobox do
   For large datasets or server-side filtering, add `on_search` to the search input.
   The component automatically switches to async mode when this attribute is present:
 
-      <.combobox id="users-combobox">
+      <.combobox id="users-combobox" name="user_id">
         <.combobox_input
-          name="user_id"
           placeholder="Search users..."
           on_search="search-users"
         />
@@ -68,8 +67,8 @@ defmodule Prima.Combobox do
 
   Allow users to create new items that don't exist in the options list:
 
-      <.combobox id="tags-combobox">
-        <.combobox_input name="tag" placeholder="Search or create tag..." />
+      <.combobox id="tags-combobox" name="tag">
+        <.combobox_input placeholder="Search or create tag..." />
 
         <.combobox_options id="tag-options">
           <%= for tag <- @tags do %>
@@ -98,6 +97,8 @@ defmodule Prima.Combobox do
   alias Phoenix.LiveView.JS
 
   attr :id, :string, required: true
+  attr :name, :string, required: true
+  attr :selections, :any, default: nil
   slot :inner_block, required: true
   attr :class, :string, default: ""
   attr :multiple, :boolean, default: false
@@ -111,14 +112,19 @@ defmodule Prima.Combobox do
   ## Attributes
 
     * `id` (required) - Unique identifier for the combobox
+    * `name` (required) - Submitted field name, used verbatim. Include `[]` for
+      Phoenix list parameters in multiple mode (for example, `name="roles[]"`).
+    * `selections` - A map with a required `:value` and optional `:display`, or a list
+      of these maps in multiple mode.
     * `class` - Additional CSS classes to apply to the container
     * `multiple` - Enable multi-select mode (default: `false`)
-    * `inner_block` - Slot containing the input and options components
+    * `inner_block` - Slot containing the input and options components. Use `:let`
+      to receive the initial input text for server rendering.
 
   ## Example
 
-      <.combobox id="my-combobox" class="w-full" phx-change="selection_changed">
-        <.combobox_input name="selection" />
+      <.combobox id="my-combobox" class="w-full" phx-change="selection_changed" name="selection">
+        <.combobox_input />
         <.combobox_options id="options">
           <!-- Options content -->
         </.combobox_options>
@@ -126,9 +132,35 @@ defmodule Prima.Combobox do
 
   """
   def combobox(assigns) do
+    selections =
+      for item <- List.wrap(assigns.selections) do
+        [to_string(item.value), item[:display]]
+      end
+
+    input_value =
+      case {assigns.multiple, selections} do
+        {false, [[value, display] | _]} -> display || value
+        _ -> ""
+      end
+
+    assigns = assign(assigns, selections: selections, input_value: input_value)
+
     ~H"""
     <div id={@id} class={@class} phx-hook="Combobox" data-multiple={@multiple && true} {@rest}>
-      {render_slot(@inner_block)}
+      <select
+        id={@id <> "_submit"}
+        name={@name}
+        multiple={@multiple}
+        phx-update="ignore"
+        data-selection={Phoenix.json_library().encode!(@selections)}
+        data-prima-ref="submit_input"
+        hidden
+      >
+        <option :for={[value, label] <- @selections} value={value} selected>
+          {label || value}
+        </option>
+      </select>
+      {render_slot(@inner_block, @input_value)}
     </div>
     """
   end
@@ -186,8 +218,7 @@ defmodule Prima.Combobox do
   end
 
   attr :class, :string, default: ""
-  attr :name, :string, required: true
-  attr :selection, :any, default: nil
+  attr :value, :string, default: ""
   attr :on_search, :string, default: nil
   attr :search_debounce, :integer, default: 200
   attr(:rest, :global, include: ~w(placeholder phx-target))
@@ -201,10 +232,7 @@ defmodule Prima.Combobox do
 
   ## Attributes
 
-    * `name` (required) - Submitted selection field name, used verbatim. Include `[]`
-      for Phoenix list parameters in multiple mode (for example, `name="roles[]"`).
-    * `selection` - A map with a required `:value` and optional `:display`, or a list
-      of these maps in multiple mode.
+    * `value` - Initial input text, supplied by the root's `:let` when using `selections`.
     * `class` - CSS classes for the visible input field
     * `placeholder` - Placeholder text for the input
     * `on_search` - Event name for async search (enables async mode)
@@ -215,29 +243,32 @@ defmodule Prima.Combobox do
 
   ### Initial selection:
 
-      <.combobox_input
+      <.combobox
+        id="user-combobox"
         name="user_id"
-        selection={%{value: @user.id, display: @user.name}}
-      />
+        selections={%{value: @user.id, display: @user.name}}
+        :let={input_value}
+      >
+        <.combobox_input value={input_value} />
+        <.combobox_options id="user-options">
+          <!-- Options content -->
+        </.combobox_options>
+      </.combobox>
 
-      <.combobox_input
-        name="user_ids[]"
-        selection={Enum.map(@users, &%{value: &1.id, display: &1.name})}
-      />
+  Without initial selections, omit both `:let` and the input's `value`.
 
   Use the list form inside a combobox with `multiple={true}`. Server patches apply
-  `selection` while the search input is unfocused. While it is focused,
+  `selections` while the search input is unfocused. While it is focused,
   the current selection and search text are preserved, like a native text input.
   Blurring does not apply a skipped update; a subsequent patch can apply it.
 
-  Build `selection` from your form state and update it in your `phx-change` handler so
+  Build `selections` from your form state and update it in your `phx-change` handler so
   later patches retain the user's selection. Applying server values does not
   fire a form change event.
 
   ### Frontend filtering mode:
 
       <.combobox_input
-        name="category"
         placeholder="Select category..."
         class="w-full border rounded-md px-3 py-2"
       />
@@ -245,7 +276,6 @@ defmodule Prima.Combobox do
   ### Async search mode:
 
       <.combobox_input
-        name="user_id"
         placeholder="Search users..."
         on_search="search-users"
         phx-target={@myself}
@@ -254,19 +284,13 @@ defmodule Prima.Combobox do
 
   """
   def combobox_input(assigns) do
-    selection =
-      for item <- List.wrap(assigns.selection) do
-        [to_string(item.value), item[:display]]
-      end
-
-    assigns = assign(assigns, :selection, selection)
-
     ~H"""
     <input
       data-prima-ref="search_input"
       data-on-search={@on_search}
       data-search-debounce={@search_debounce}
       type="text"
+      value={@value}
       role="combobox"
       aria-expanded="false"
       aria-autocomplete="list"
@@ -277,18 +301,6 @@ defmodule Prima.Combobox do
       phx-update="ignore"
       {@rest}
     />
-    <select
-      id={@name <> "_submit"}
-      name={@name}
-      phx-update="ignore"
-      data-selection={Phoenix.json_library().encode!(@selection)}
-      data-prima-ref="submit_input"
-      hidden
-    >
-      <option :for={[value, label] <- @selection} value={value} selected>
-        {label || value}
-      </option>
-    </select>
     """
   end
 
@@ -558,8 +570,8 @@ defmodule Prima.Combobox do
 
   ## Example
 
-      <.combobox id="tags-input">
-        <.combobox_input name="new_tag" placeholder="Search or create tag..." />
+      <.combobox id="tags-input" name="new_tag">
+        <.combobox_input placeholder="Search or create tag..." />
 
         <.combobox_options id="tag-options">
           <%= for tag <- @existing_tags do %>

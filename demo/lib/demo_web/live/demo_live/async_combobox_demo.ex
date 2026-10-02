@@ -25,10 +25,9 @@ defmodule DemoWeb.DemoLive.AsyncComboboxDemo do
   def render(assigns) do
     ~H"""
     <div>
-      <.combobox class="group w-64" id="demo-async-combobox">
+      <.combobox class="group w-64" id="demo-async-combobox" name="user[favourite_fruit]">
         <div class="relative mt-2 rounded-md shadow-sm">
           <.combobox_input
-            name="user[favourite_fruit]"
             class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             on_search="async_combobox_search"
             phx-target={@myself}

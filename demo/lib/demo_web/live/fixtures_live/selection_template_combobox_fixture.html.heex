@@ -1,5 +1,5 @@
 <form id="selection-template-form">
-  <.combobox id="selection-template-combobox" multiple={true}>
+  <.combobox id="selection-template-combobox" multiple={true} name="selections">
     <.combobox_selections>
       <:selection class="selection-pill">
         <span class="selection-icon" aria-hidden="true">★</span>
@@ -13,7 +13,7 @@
       </:selection>
     </.combobox_selections>
 
-    <.combobox_input name="selections" placeholder="Select or create..." />
+    <.combobox_input placeholder="Select or create..." />
 
     <.combobox_options id="selection-template-options">
       <.combobox_option

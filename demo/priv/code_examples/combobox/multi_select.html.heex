@@ -1,6 +1,6 @@
 <div class="max-w-sm">
   <label class="block text-sm font-medium text-gray-700 mb-2">Select Skills</label>
-  <.combobox class="w-72" id="multi-select-demo" multiple={true}>
+  <.combobox class="w-72" id="multi-select-demo" multiple={true} name="skills[]">
     <div
       id="multi-select-demo-field"
       class="flex flex-wrap gap-1.5 items-center min-h-[42px] w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600"
@@ -21,7 +21,6 @@
       </.combobox_selections>
 
       <.combobox_input
-        name="skills[]"
         class="flex-1 min-w-[100px] border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 bg-transparent outline-none"
         placeholder="Search skills..."
       />
