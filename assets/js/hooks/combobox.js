@@ -33,12 +33,20 @@ const SELECTORS = {
 export default {
   mounted() {
     this.isOpen = false
-    this.initialize()
+    this.setupElements()
+    this.setupEventListeners()
+    this.syncSelectedAttributes()
+    this.setupAriaAttributes()
     this.syncSelection()
+    this.resetSearch()
+    this.sendQuery('')
+    this.el.setAttribute('data-prima-ready', 'true')
   },
 
   reconnected() {
-    this.initialize()
+    this.handleBlur()
+    this.lastSentQuery = undefined
+    this.sendQuery('')
   },
 
   disconnected() {
@@ -47,22 +55,6 @@ export default {
 
   destroyed() {
     this.cleanup()
-  },
-
-  initialize() {
-    this.cleanup()
-    this.setupElements()
-    this.setupEventListeners()
-    this.syncSelectedAttributes()
-    this.setupAriaAttributes()
-    if (this.isOpen) this.startPositioning()
-
-    // Refresh defaults on mount and reconnection.
-    this.lastSentQuery = undefined
-    this.resetSearch()
-    this.sendQuery('')
-
-    this.el.setAttribute('data-prima-ready', 'true')
   },
 
   setupElements() {
@@ -85,14 +77,18 @@ export default {
   },
 
   setupEventListeners() {
+    const onSearchInput = handler => event => {
+      if (event.target === this.refs.searchInput) handler(event)
+    }
+
     this.listeners = [
       [this.el, 'keydown', this.handleKeydown.bind(this)],
       [this.el, 'click', this.handleClick.bind(this)],
       [document, 'click', this.handleClickOutside.bind(this)],
-      [this.refs.searchInput, 'focus', this.handleSearchFocus.bind(this)],
-      [this.refs.searchInput, 'click', this.handleSearchClick.bind(this)],
-      [this.refs.searchInput, 'change', (e) => e.stopPropagation()],
-      [this.refs.searchInput, 'input', this.handleInput.bind(this)]
+      [this.el, 'focusin', onSearchInput(this.handleSearchFocus.bind(this))],
+      [this.el, 'click', onSearchInput(this.handleSearchClick.bind(this))],
+      [this.el, 'change', onSearchInput(e => e.stopPropagation())],
+      [this.el, 'input', onSearchInput(this.handleInput.bind(this))]
     ]
 
     if (this.refs.optionsContainer) {
@@ -153,7 +149,7 @@ export default {
   updated() {
     this.setupElements()
     this.syncSelection(document.activeElement === this.refs.searchInput)
-    this.ensureOptionIds()
+    this.setupAriaAttributes()
     this.positionOptions()
     if (this.isOpen) this.restoreOptionFocus()
     this.syncSelectedAttributes()

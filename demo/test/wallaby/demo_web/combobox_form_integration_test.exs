@@ -71,6 +71,48 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
     )
   end
 
+  feature "async reconnection closes the search and preserves the selected value", %{
+    session: session
+  } do
+    root = "#demo-async-combobox"
+    input = Query.css("#{root} [data-prima-ref=search_input]")
+
+    session
+    |> visit_fixture("/fixtures/async-combobox", root)
+    |> click(input)
+    |> click(Query.css("#{root} [data-value=Cherry]"))
+    |> click(input)
+    |> fill_in(input, with: "Ki")
+    |> assert_has(Query.css("#{root} [role=option]", count: 1, text: "Kiwi"))
+    |> execute_script("window.liveSocket.disconnect(() => window.liveSocket.connect())")
+    |> assert_has(Query.css("#{root} [role=option]", count: 5, visible: :any))
+    |> assert_has(Query.css("#demo-async-combobox-options", visible: false))
+    |> execute_script(
+      """
+      const root = document.querySelector('#demo-async-combobox');
+      const input = root.querySelector('[data-prima-ref=search_input]');
+      return {
+        display: input.value,
+        value: root.querySelector('[data-prima-ref=submit_input]').value,
+        expanded: input.getAttribute('aria-expanded'),
+        activeOption: input.getAttribute('aria-activedescendant')
+      };
+      """,
+      fn result ->
+        assert result == %{
+                 "display" => "Cherry",
+                 "value" => "Cherry",
+                 "expanded" => "false",
+                 "activeOption" => nil
+               }
+      end
+    )
+    |> click(input)
+    |> assert_has(Query.css("#{root} [role=option]", count: 5))
+    |> click(Query.css("#{root} [data-value=Kiwi]"))
+    |> assert_has(Query.css("#demo-async-combobox-options", visible: false))
+  end
+
   defp assert_async_reopens(session, dismissal) do
     session =
       session
