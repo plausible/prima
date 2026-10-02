@@ -53,11 +53,16 @@ defmodule Prima.Listbox do
 
   On mount and LiveView updates, the JS hook applies native `disabled` to the
   trigger button, preventing interaction and removing it from the tab order.
-  Disabling an open listbox closes it. The trigger also receives `data-disabled`
-  for consumer-defined styling:
+  Disabling an open listbox closes it.
+
+  For styling, the listbox wrapper receives `data-disabled` in the
+  server-rendered HTML. Style the trigger through that ancestor, e.g. with
+  Tailwind's `in-data-disabled:` variant. Avoid styling the trigger with
+  `disabled:` - the native attribute is only applied once the hook mounts, so
+  the disabled styling would flicker in after the initial page load.
 
       <.listbox id="fruit-listbox" name="fruit" value={@selected_fruit} disabled={@locked?}>
-        <.listbox_trigger id="fruit-listbox-trigger" class="data-disabled:opacity-50">
+        <.listbox_trigger id="fruit-listbox-trigger" class="in-data-disabled:opacity-50">
           <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
         </.listbox_trigger>
         <.listbox_options id="fruit-listbox-options">
@@ -122,8 +127,8 @@ defmodule Prima.Listbox do
       </.listbox_trigger>
 
   To disable the field, pass `disabled={true}` to the parent `listbox`.
-  Its JS hook synchronizes this button's native `disabled` and `data-disabled`
-  attributes.
+  Its JS hook synchronizes this button's native `disabled` attribute. Style the
+  disabled state of this button via an `in-data-disabled:` Tailwind variant.
   """
   def listbox_trigger(assigns) do
     ~H"""

@@ -192,7 +192,10 @@ defmodule DemoWeb.ListboxTest do
     } do
       session
       |> visit_fixture("/fixtures/listbox", "#disabled-listbox")
-      |> assert_has(Query.css("#disabled-listbox-trigger:disabled[data-disabled=true]"))
+      |> assert_has(
+        Query.css("#disabled-listbox[data-disabled=true] #disabled-listbox-trigger:disabled")
+      )
+      |> assert_missing(Query.css("#disabled-listbox-trigger[data-disabled]"))
       |> assert_has(Query.css("#disabled-listbox input:disabled", visible: false))
       |> click(Query.css("#before-disabled-listbox"))
       |> send_keys([:tab])
@@ -228,7 +231,9 @@ defmodule DemoWeb.ListboxTest do
       |> assert_missing(Query.css(".phx-connected[data-phx-main]"))
       |> execute_script("window.liveSocket.connect()")
       |> assert_has(Query.css(".phx-connected[data-phx-main]"))
-      |> assert_has(Query.css("#disabled-listbox-trigger:disabled[data-disabled=true]"))
+      |> assert_has(
+        Query.css("#disabled-listbox[data-disabled=true] #disabled-listbox-trigger:disabled")
+      )
       |> click(@disabled_trigger)
       |> assert_has(@disabled_listbox |> Query.visible(false))
     end
