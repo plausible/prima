@@ -77,12 +77,7 @@ export default {
   syncDisabledState() {
     const disabled = this.el.getAttribute('data-disabled') === 'true'
     this.refs.button.disabled = disabled
-    if (disabled) {
-      this.refs.button.setAttribute('data-disabled', 'true')
-      if (this.isListboxVisible()) this.hideListbox()
-    } else {
-      this.refs.button.removeAttribute('data-disabled')
-    }
+    if (disabled && this.isListboxVisible()) this.hideListbox()
   },
 
   setupEventListeners() {
