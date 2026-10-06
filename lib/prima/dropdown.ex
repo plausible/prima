@@ -111,6 +111,7 @@ defmodule Prima.Dropdown do
     ~H"""
     <div
       style="display: none; position: absolute; top: 0; left: 0;"
+      phx-mounted={JS.ignore_attributes("style")}
       data-prima-ref="menu-wrapper"
       data-reference={@reference}
       data-placement={@placement}
