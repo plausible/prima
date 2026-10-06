@@ -165,11 +165,7 @@ export default {
     }
 
     const focusedOption = options.find(option => option.dataset.value === this.focusedOptionBeforeUpdate) || options[0]
-    if (focusedOption) {
-      this.setFocus(focusedOption)
-    } else {
-      this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
-    }
+    this.setFocus(focusedOption)
   },
 
   sendQuery(query) {
@@ -263,12 +259,18 @@ export default {
     this.notifyFormChange()
   },
 
-  setFocus(el) {
+  clearFocus() {
     const focused = this.getCurrentFocusedOption()
     if (focused) this.js().removeAttribute(focused, 'data-focus')
+    this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
+  },
+
+  setFocus(el) {
+    this.clearFocus()
+    if (!el) return
+
     this.js().setAttribute(el, 'data-focus', 'true')
 
-    // Update aria-activedescendant to point to the focused option
     if (el.id) {
       this.js().setAttribute(this.refs.searchInput, 'aria-activedescendant', el.id)
     }
@@ -278,11 +280,7 @@ export default {
 
   focusFirstOption() {
     const firstOption = this.refs.optionsContainer?.querySelector(SELECTORS.VISIBLE_OPTION)
-    if (firstOption) {
-      this.setFocus(firstOption)
-    } else {
-      this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
-    }
+    this.setFocus(firstOption)
   },
 
   getCurrentFocusedOption() {
@@ -324,7 +322,7 @@ export default {
   },
 
   selectOption(el) {
-    if (!el) return
+    if (!el || el.hasAttribute('data-hidden')) return
 
     let value = el.getAttribute('data-value')
     let displayValue = el.getAttribute('data-display')
@@ -611,11 +609,10 @@ export default {
 
   close() {
     clearTimeout(this.searchTimer)
-    this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
+    this.clearFocus()
     if (this.refs.createOption) {
       this.hideOption(this.refs.createOption)
       this.refs.createOption.textContent = ''
-      this.js().removeAttribute(this.refs.createOption, 'data-focus')
     }
 
     if (!this.refs.optionsContainer || !this.isOpen) return
