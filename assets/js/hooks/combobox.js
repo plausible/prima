@@ -442,8 +442,15 @@ export default {
     if (!this.isOpen) {
       return
     }
+
+    const focusedOption = this.getCurrentFocusedOption()
+    if (e.key === KEYS.TAB && !this.getVisibleOptions().includes(focusedOption)) {
+      this.handleBlur()
+      return
+    }
+
     e.preventDefault()
-    this.selectOption(this.getCurrentFocusedOption())
+    this.selectOption(focusedOption)
   },
 
   handleBackspace(e) {

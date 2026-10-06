@@ -97,6 +97,42 @@ defmodule DemoWeb.ComboboxKeyboardNavigationTest do
     |> assert_has(@options_container |> Query.visible(false))
   end
 
+  for {key, keys, target} <- [
+        {"Tab", [:tab], "next-input"},
+        {"Shift+Tab", [:shift, :tab], "previous-input"}
+      ] do
+    @tag keys: keys, target: target
+    @feature_name "#{key} leaves an async combobox with no results"
+    feature @feature_name, %{
+      session: session,
+      keys: keys,
+      target: target
+    } do
+      input = Query.css("#demo-async-combobox input[data-prima-ref=search_input]")
+
+      session
+      |> visit_fixture("/fixtures/async-combobox", "#demo-async-combobox")
+      |> click(input)
+      |> click(Query.css("#demo-async-combobox [role=option][data-value=Cherry]"))
+      |> fill_in(input, with: "no matching fruit")
+      |> assert_has(Query.css("#demo-async-combobox-options", visible: true))
+      |> assert_has(Query.css("#demo-async-combobox [role=option]", count: 0))
+      |> send_keys(keys)
+      |> assert_has(Query.css("##{target}:focus"))
+      |> assert_has(Query.css("#demo-async-combobox-options", visible: false))
+      |> execute_script(
+        """
+        const root = document.querySelector('#demo-async-combobox');
+        return {
+          search: root.querySelector('[data-prima-ref=search_input]').value,
+          selection: root.querySelector('[data-prima-ref=submit_input]').value
+        };
+        """,
+        fn values -> assert values == %{"search" => "Cherry", "selection" => "Cherry"} end
+      )
+    end
+  end
+
   feature "ArrowDown opens combobox when closed and input is focused", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
