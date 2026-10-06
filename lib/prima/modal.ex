@@ -176,7 +176,9 @@ defmodule Prima.Modal do
       id={@id}
       js-show={JS.show()}
       js-hide={@on_close |> JS.hide()}
-      data-prima-show={@show}
+      js-push-focus={JS.push_focus()}
+      js-pop-focus={JS.pop_focus()}
+      phx-mounted={@show && Prima.Modal.JS.open(@id)}
       style="display: none;"
       phx-hook="Modal"
       class={@class}
