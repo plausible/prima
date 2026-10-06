@@ -144,11 +144,20 @@ export default {
   updated() {
     this.ensureOptionIds()
     this.positionOptions()
-    const focusedDomNode = this.refs.optionsContainer?.querySelector(`${SELECTORS.OPTION}[data-value="${this.focusedOptionBeforeUpdate}"]`)
-    if (this.focusedOptionBeforeUpdate && focusedDomNode) {
-      this.setFocus(focusedDomNode)
-    } else {
-      this.focusFirstOption()
+    if (this.isOptionsVisible()) {
+      const focused = this.getCurrentFocusedOption()
+      if (focused) {
+        if (this.refs.searchInput.getAttribute('aria-activedescendant') !== focused.id) {
+          this.js().setAttribute(this.refs.searchInput, 'aria-activedescendant', focused.id)
+        }
+      } else {
+        const previous = this.findOptionByValue(this.focusedOptionBeforeUpdate)
+        if (previous) {
+          this.setFocus(previous)
+        } else {
+          this.focusFirstOption()
+        }
+      }
     }
     this.syncSelectedAttributes()
   },
@@ -263,6 +272,8 @@ export default {
     const firstOption = this.refs.optionsContainer?.querySelector(SELECTORS.VISIBLE_OPTION)
     if (firstOption) {
       this.setFocus(firstOption)
+    } else {
+      this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
     }
   },
 

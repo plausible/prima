@@ -27,11 +27,13 @@ const SELECTORS = {
 export default {
   mounted() {
     this.initialize()
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
     this.syncSelectionFromInput()
   },
 
   updated() {
     this.initialize()
+    this.setFocus(this.el.querySelector(SELECTORS.FOCUSED_OPTION))
     this.syncSelectionFromInput()
   },
 
@@ -48,7 +50,7 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupEventListeners()
-    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
+    if (this.isListboxVisible()) this.startAutoUpdate()
   },
 
   setupElements() {
@@ -100,6 +102,14 @@ export default {
       })
       this.listeners = []
     }
+  },
+
+  startAutoUpdate() {
+    // Setup autoUpdate to reposition on scroll/resize
+    this.cleanupAutoUpdate()
+    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsWrapper, () => {
+      this.positionListbox()
+    })
   },
 
   cleanupAutoUpdate() {
@@ -380,11 +390,7 @@ export default {
     this.js().setAttribute(this.refs.button, 'aria-expanded', 'true')
     this.refs.listbox.focus({ preventScroll: true })
 
-    // Setup autoUpdate to reposition on scroll/resize
-    this.cleanupAutoUpdate()
-    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsWrapper, () => {
-      this.positionListbox()
-    })
+    this.startAutoUpdate()
   },
 
   handleHideEnd() {

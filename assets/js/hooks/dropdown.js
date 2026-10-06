@@ -24,10 +24,12 @@ const SELECTORS = {
 export default {
   mounted() {
     this.initialize()
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   updated() {
     this.initialize()
+    this.setFocus(this.el.querySelector(SELECTORS.FOCUSED_MENUITEM))
   },
 
   reconnected() {
@@ -42,20 +44,19 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupEventListeners()
-    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
+    if (this.isMenuVisible()) this.startAutoUpdate()
   },
 
   setupElements() {
     const button = this.el.querySelector(SELECTORS.BUTTON)
     const menuWrapper = this.el.querySelector(SELECTORS.MENU_WRAPPER)
     const menu = this.el.querySelector(SELECTORS.MENU)
-    const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
 
     const referenceSelector = menuWrapper?.getAttribute('data-reference')
     const referenceElement = referenceSelector ? document.querySelector(referenceSelector) : button
 
     this.setupAriaRelationships(button, menu)
-    this.refs = { button, menuWrapper, menu, items, referenceElement }
+    this.refs = { button, menuWrapper, menu, referenceElement }
   },
 
   setupEventListeners() {
@@ -83,6 +84,14 @@ export default {
       })
       this.listeners = []
     }
+  },
+
+  startAutoUpdate() {
+    // Setup autoUpdate to reposition on scroll/resize
+    this.cleanupAutoUpdate()
+    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.menuWrapper, () => {
+      this.positionMenu()
+    })
   },
 
   cleanupAutoUpdate() {
@@ -244,11 +253,7 @@ export default {
 
     this.js().setAttribute(this.refs.button, 'aria-expanded', 'true')
 
-    // Setup autoUpdate to reposition on scroll/resize
-    this.cleanupAutoUpdate()
-    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.menuWrapper, () => {
-      this.positionMenu()
-    })
+    this.startAutoUpdate()
   },
 
   handleHideEnd() {
