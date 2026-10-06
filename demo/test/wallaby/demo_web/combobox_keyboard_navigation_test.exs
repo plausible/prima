@@ -57,6 +57,26 @@ defmodule DemoWeb.ComboboxKeyboardNavigationTest do
     |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Pear", "Pear")
   end
 
+  for key <- [:enter, :tab] do
+    @selection_key key
+
+    feature "#{@selection_key} ignores options hidden by filtering", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
+      |> click(@search_input)
+      |> assert_has(Query.css("#demo-combobox [data-value='Apple'][data-focus=true]"))
+      |> fill_in(@search_input, with: "zzzzzz")
+      |> assert_has(Query.css("#demo-combobox [role=option]:not([data-hidden])", count: 0))
+      |> send_keys([@selection_key])
+      |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "zzzzzz", nil)
+      |> assert_has(Query.css("#demo-combobox [data-focus=true]", count: 0, visible: :any))
+      |> assert_has(Query.css("#demo-combobox input:not([aria-activedescendant])"))
+      |> fill_in(@search_input, with: "Pear")
+      |> send_keys([:down_arrow, :enter])
+      |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Pear", "Pear")
+    end
+  end
+
   feature "selects focused option with Tab key", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
