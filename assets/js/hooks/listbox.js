@@ -1,9 +1,8 @@
-import { computePosition, flip, offset, autoUpdate } from '@floating-ui/dom';
+import PopoverController from '../popover.js'
 
 const KEYS = {
   ARROW_UP: 'ArrowUp',
   ARROW_DOWN: 'ArrowDown',
-  ESCAPE: 'Escape',
   ENTER: 'Enter',
   SPACE: ' ',
   HOME: 'Home',
@@ -30,6 +29,10 @@ export default {
     this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
+  beforeUpdate() {
+    this.popover.captureFocus()
+  },
+
   updated() {
     this.initialize()
     this.setFocus(this.el.querySelector(SELECTORS.FOCUSED_OPTION))
@@ -41,15 +44,16 @@ export default {
 
   destroyed() {
     this.cleanup()
+    this.popover?.destroy()
   },
 
   initialize() {
     this.cleanup()
     this.setupElements()
+    this.setupPopover()
     this.setupEventListeners()
     this.syncDisabledState()
     this.syncSelectionFromInput()
-    if (this.isListboxVisible()) this.startAutoUpdate()
   },
 
   setupElements() {
@@ -59,11 +63,8 @@ export default {
     const optionsWrapper = this.el.querySelector(SELECTORS.OPTIONS_WRAPPER)
     const listbox = this.el.querySelector(SELECTORS.LISTBOX)
 
-    const referenceSelector = optionsWrapper?.getAttribute('data-reference')
-    const referenceElement = referenceSelector ? document.querySelector(referenceSelector) : button
-
     this.setupAriaRelationships(button, listbox)
-    this.refs = { button, value, valueInput, optionsWrapper, listbox, referenceElement }
+    this.refs = { button, value, valueInput, optionsWrapper, listbox }
   },
 
   setupAriaRelationships(button, listbox) {
@@ -79,18 +80,27 @@ export default {
   syncDisabledState() {
     const disabled = this.el.getAttribute('data-disabled') === 'true'
     this.refs.button.disabled = disabled
-    if (disabled && this.isListboxVisible()) this.hideListbox()
+    if (disabled) this.popover.close()
+  },
+
+  setupPopover() {
+    this.popover ||= new PopoverController(this, {
+      initialFocus: () => this.refs.listbox,
+      onClose: () => this.clearFocus()
+    })
+    this.popover.update({
+      trigger: this.refs.button,
+      wrapper: this.refs.optionsWrapper,
+      panel: this.refs.listbox
+    })
   },
 
   setupEventListeners() {
     this.listeners = [
-      [this.refs.button, 'click', this.toggleListbox.bind(this)],
-      [document, 'click', this.handleClickOutside.bind(this)],
+      [this.refs.button, 'click', () => this.popover.toggle()],
       [this.refs.listbox, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.listbox, 'click', this.handleListboxClick.bind(this)],
-      [this.el, 'keydown', this.handleKeydown.bind(this)],
-      [this.refs.listbox, 'phx:show-start', this.handleShowStart.bind(this)],
-      [this.refs.listbox, 'phx:hide-end', this.handleHideEnd.bind(this)]
+      [this.el, 'keydown', this.handleKeydown.bind(this)]
     ]
 
     this.listeners.forEach(([element, event, handler]) => {
@@ -99,28 +109,11 @@ export default {
   },
 
   cleanup() {
-    this.cleanupAutoUpdate()
-
     if (this.listeners) {
       this.listeners.forEach(([element, event, handler]) => {
         element.removeEventListener(event, handler)
       })
       this.listeners = []
-    }
-  },
-
-  startAutoUpdate() {
-    // Setup autoUpdate to reposition on scroll/resize
-    this.cleanupAutoUpdate()
-    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsWrapper, () => {
-      this.positionListbox()
-    })
-  },
-
-  cleanupAutoUpdate() {
-    if (this.autoUpdateCleanup) {
-      this.autoUpdateCleanup()
-      this.autoUpdateCleanup = null
     }
   },
 
@@ -130,7 +123,6 @@ export default {
     const keyHandlers = {
       [KEYS.ARROW_UP]: () => this.navigateUp(e),
       [KEYS.ARROW_DOWN]: () => this.navigateDown(e),
-      [KEYS.ESCAPE]: () => this.handleEscape(),
       [KEYS.ENTER]: () => this.handleEnterOrSpace(e),
       [KEYS.SPACE]: () => this.handleEnterOrSpace(e),
       [KEYS.HOME]: () => this.handleHome(e),
@@ -150,7 +142,7 @@ export default {
   navigateUp(e) {
     e.preventDefault()
 
-    if (!this.isListboxVisible() && document.activeElement === this.refs.button) {
+    if (!this.popover.isOpen && document.activeElement === this.refs.button) {
       this.showListboxAndFocus(this.getLastEnabledOption())
       return
     }
@@ -166,7 +158,7 @@ export default {
   navigateDown(e) {
     e.preventDefault()
 
-    if (!this.isListboxVisible() && document.activeElement === this.refs.button) {
+    if (!this.popover.isOpen && document.activeElement === this.refs.button) {
       this.showListboxAndFocus(this.getFirstEnabledOption())
       return
     }
@@ -179,18 +171,8 @@ export default {
     this.setFocus(options[targetIndex])
   },
 
-  handleEscape() {
-    this.hideListbox()
-    this.refs.button.focus()
-  },
-
   handleEnterOrSpace(e) {
-    // Only trust a focused option while the listbox is actually open - data-focus can
-    // linger on an option after Escape closes the listbox, since clearing it happens in
-    // the async phx:hide-end handler, not synchronously in hideListbox(). Without this
-    // guard, a fast Escape followed by Enter/Space can "click" a stale focused option
-    // instead of reopening the listbox.
-    const focusedOption = this.isListboxVisible() ? this.el.querySelector(SELECTORS.FOCUSED_OPTION) : null
+    const focusedOption = this.popover.isOpen ? this.el.querySelector(SELECTORS.FOCUSED_OPTION) : null
 
     if (focusedOption && focusedOption.getAttribute('aria-disabled') !== 'true') {
       // An option is focused - click it
@@ -204,7 +186,7 @@ export default {
   },
 
   handleHome(e) {
-    if (this.isListboxVisible()) {
+    if (this.popover.isOpen) {
       e.preventDefault()
       const options = this.getEnabledOptions()
       if (options.length > 0) {
@@ -214,7 +196,7 @@ export default {
   },
 
   handleEnd(e) {
-    if (this.isListboxVisible()) {
+    if (this.popover.isOpen) {
       e.preventDefault()
       const options = this.getEnabledOptions()
       if (options.length > 0) {
@@ -224,7 +206,7 @@ export default {
   },
 
   handleTypeahead(e) {
-    if (!this.isListboxVisible() || e.key.length !== 1 || !/[a-zA-Z0-9]/.test(e.key)) return
+    if (!this.popover.isOpen || e.key.length !== 1 || !/[a-zA-Z0-9]/.test(e.key)) return
 
     e.preventDefault()
 
@@ -248,13 +230,8 @@ export default {
     this.setFocus(matchingOptions[nextIndex])
   },
 
-  handleClickOutside(e) {
-    if (this.isListboxVisible() && !this.refs.button.contains(e.target) && !this.refs.listbox.contains(e.target)) {
-      this.hideListbox()
-    }
-  },
-
   handleMouseOver(e) {
+    if (!this.popover.isOpen) return
     const option = e.target.closest(SELECTORS.OPTION)
     if (option && option.getAttribute('aria-disabled') !== 'true') {
       this.setFocus(option)
@@ -262,13 +239,12 @@ export default {
   },
 
   handleListboxClick(e) {
-    if (this.refs.button.disabled) return
+    if (this.refs.button.disabled || !this.popover.isOpen) return
 
     const option = e.target.closest(SELECTORS.OPTION)
     if (option && option.getAttribute('aria-disabled') !== 'true') {
       this.selectOption(option)
-      this.hideListbox()
-      this.refs.button.focus()
+      this.popover.close('selection')
     }
   },
 
@@ -325,11 +301,6 @@ export default {
     return this.getFirstEnabledOption()
   },
 
-  isListboxVisible() {
-    const wrapper = this.refs.optionsWrapper
-    return wrapper && wrapper.style.display !== 'none' && wrapper.offsetParent !== null
-  },
-
   getCurrentFocusIndex(options) {
     return Array.prototype.findIndex.call(options, option => option.hasAttribute('data-focus'))
   },
@@ -339,107 +310,17 @@ export default {
     if (el && el.getAttribute('aria-disabled') !== 'true') {
       this.js().setAttribute(el, 'data-focus', '')
       this.js().setAttribute(this.refs.listbox, 'aria-activedescendant', el.id)
-    } else {
-      this.js().removeAttribute(this.refs.listbox, 'aria-activedescendant')
     }
   },
 
   clearFocus() {
     const focused = this.el.querySelector(SELECTORS.FOCUSED_OPTION)
     if (focused) this.js().removeAttribute(focused, 'data-focus')
-  },
-
-  hideListbox() {
-    liveSocket.execJS(this.refs.listbox, this.refs.listbox.getAttribute('js-hide'))
-    this.refs.optionsWrapper.style.display = 'none'
-  },
-
-  toggleListbox() {
-    if (this.isListboxVisible()) {
-      this.hideListbox()
-    } else {
-      this.showListboxAndFocus(null)
-    }
+    this.js().removeAttribute(this.refs.listbox, 'aria-activedescendant')
   },
 
   showListboxAndFocus(optionToFocus) {
-    if (this.refs.button.disabled) return
-
-    // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
-    // then position it, then trigger inner listbox transition. This prevents the listbox
-    // from briefly appearing at wrong position before jumping to correct position.
-    this.refs.optionsWrapper.style.display = 'block'
-    this.positionListbox()
-    liveSocket.execJS(this.refs.listbox, this.refs.listbox.getAttribute('js-show'))
-
-    if (optionToFocus) {
-      this.setFocus(optionToFocus)
-    }
-  },
-
-  // phx:show-start/phx:hide-end are dispatched asynchronously by LiveView's transition
-  // machinery, and the actual display mutation on the inner listbox happens as part of
-  // that same internal, multi-step async completion - not synchronously with these
-  // events. A rapid close-then-reopen (or reopen-then-close) can call execJS(show) and
-  // execJS(hide) back-to-back before the previous call's internal steps finish, so their
-  // completions interleave and whichever happens to run last wins, regardless of which
-  // was issued most recently. Both handlers defensively re-assert the inner listbox's
-  // display against our own synchronous source of truth (the wrapper, which
-  // showListboxAndFocus/hideListbox control directly) so a stale completion corrects
-  // itself instead of leaving the inner element in the wrong state.
-  handleShowStart() {
-    const shouldBeOpen = this.isListboxVisible()
-    this.refs.listbox.style.display = shouldBeOpen ? '' : 'none'
-    if (!shouldBeOpen) return
-
-    this.js().setAttribute(this.refs.button, 'aria-expanded', 'true')
-    this.refs.listbox.focus({ preventScroll: true })
-
-    this.startAutoUpdate()
-  },
-
-  handleHideEnd() {
-    const shouldBeOpen = this.isListboxVisible()
-    this.refs.listbox.style.display = shouldBeOpen ? '' : 'none'
-    if (shouldBeOpen) return
-
-    this.clearFocus()
-    this.js().removeAttribute(this.refs.listbox, 'aria-activedescendant')
-    this.js().setAttribute(this.refs.button, 'aria-expanded', 'false')
-    this.refs.optionsWrapper.style.display = 'none'
-    this.cleanupAutoUpdate()
-  },
-
-  positionListbox() {
-    if (!this.refs.optionsWrapper) return
-
-    const placement = this.refs.optionsWrapper.getAttribute('data-placement') || 'bottom-start'
-    const shouldFlip = this.refs.optionsWrapper.getAttribute('data-flip') !== 'false'
-    const offsetValue = this.refs.optionsWrapper.getAttribute('data-offset')
-
-    const middleware = []
-    if (offsetValue && !isNaN(parseInt(offsetValue))) {
-      middleware.push(offset(parseInt(offsetValue)))
-    }
-    if (shouldFlip) {
-      middleware.push(flip())
-    }
-
-    const matchTriggerWidth = this.refs.optionsWrapper.hasAttribute('data-match-trigger-width')
-    this.refs.optionsWrapper.style.minWidth = matchTriggerWidth
-      ? `${this.refs.referenceElement.offsetWidth}px`
-      : ''
-
-    computePosition(this.refs.referenceElement, this.refs.optionsWrapper, {
-      placement: placement,
-      middleware: middleware
-    }).then(({x, y}) => {
-      Object.assign(this.refs.optionsWrapper.style, {
-        top: `${y}px`,
-        left: `${x}px`
-      })
-    }).catch(error => {
-      console.error('[Prima Listbox] Failed to position listbox:', error)
-    })
+    this.popover.open()
+    if (this.popover.isOpen && optionToFocus) this.setFocus(optionToFocus)
   }
 }

@@ -22,6 +22,7 @@ defmodule DemoWeb.Router do
     live "/listbox", DemoLive, :listbox
 
     if Mix.env() in [:dev, :test] do
+      live "/fixtures/popover-lifecycle", FixturesLive, :popover_lifecycle
       live "/fixtures/dropdown", FixturesLive, :dropdown
       live "/fixtures/dropdown-with-transition", FixturesLive, :dropdown_with_transition
       live "/fixtures/dropdown-with-disabled", FixturesLive, :dropdown_with_disabled

@@ -1,0 +1,62 @@
+<form phx-change="refresh-popovers">
+  <input id="popover-refresh" name="version" value={@popover_version} />
+</form>
+<%= for kind <- ["dropdown", "listbox", "combobox"] do %>
+  <div>
+    <button id={"before-#{kind}"}>Before {kind}</button>
+    <.dropdown :if={kind == "dropdown"} id="popover-dropdown" data-patch={@form_change_count}>
+      <.dropdown_trigger id={"popover-dropdown-trigger-#{@popover_version}"}>
+        Open menu
+      </.dropdown_trigger>
+      <.dropdown_menu
+        id={"popover-dropdown-panel-#{@popover_version}"}
+        transition_enter={@popover_transition}
+        transition_leave={@popover_exit_transition}
+      >
+        <.dropdown_item id="popover-dropdown-apple">Apple</.dropdown_item>
+        <.dropdown_item id="popover-dropdown-pear">Pear</.dropdown_item>
+      </.dropdown_menu>
+    </.dropdown>
+    <.listbox
+      :if={kind == "listbox"}
+      id="popover-listbox"
+      data-patch={@form_change_count}
+      name="fruit"
+      value="apple"
+    >
+      <.listbox_trigger id={"popover-listbox-trigger-#{@popover_version}"}>
+        <.listbox_value>Apple</.listbox_value>
+      </.listbox_trigger>
+      <.listbox_options
+        id={"popover-listbox-panel-#{@popover_version}"}
+        transition_enter={@popover_transition}
+        transition_leave={@popover_exit_transition}
+      >
+        <.listbox_option id="popover-listbox-apple" value="apple">Apple</.listbox_option>
+        <.listbox_option id="popover-listbox-pear" value="pear">Pear</.listbox_option>
+      </.listbox_options>
+    </.listbox>
+    <.combobox
+      :if={kind == "combobox"}
+      id="popover-combobox"
+      data-patch={@form_change_count}
+      name="fruit"
+    >
+      <.combobox_input id={"popover-combobox-trigger-#{@popover_version}"} />
+      <.combobox_options
+        id={"popover-combobox-panel-#{@popover_version}"}
+        transition_enter={@popover_transition}
+        transition_leave={@popover_exit_transition}
+      >
+        <.combobox_option id={"popover-combobox-apple-#{@popover_version}"} value="apple">
+          Apple
+        </.combobox_option>
+        <.combobox_option id={"popover-combobox-pear-#{@popover_version}"} value="pear">
+          Pear
+        </.combobox_option>
+        <.creatable_option class={"popover-combobox-create-#{@popover_version}"} />
+      </.combobox_options>
+    </.combobox>
+    <button id={"after-#{kind}"} style="margin-top: 120px;">After {kind}</button>
+  </div>
+<% end %>

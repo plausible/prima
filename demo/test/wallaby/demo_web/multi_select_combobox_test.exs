@@ -14,6 +14,30 @@ defmodule DemoWeb.MultiSelectComboboxTest do
   @template_remove Query.css("#selection-template-combobox .default-remove")
   @template_custom_remove Query.css("#selection-template-combobox .custom-remove")
 
+  feature "Tab discards a multi-select search and preserves existing selections", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
+    |> click(@search_input)
+    |> click(Query.css("#demo-multi-select-combobox [data-value=Apple]"))
+    |> fill_in(@search_input, with: "Ban")
+    |> assert_has(Query.css("#demo-multi-select-combobox [data-value=Banana][data-focus=true]"))
+    |> send_keys([:tab])
+    |> assert_has(Query.css("#after-multi-combobox:focus"))
+    |> assert_has(@options_container |> Query.visible(false))
+    |> execute_script(
+      """
+      const root = document.querySelector('#demo-multi-select-combobox');
+      return {
+        search: root.querySelector('input[data-prima-ref=search_input]').value,
+        selected: Array.from(root.querySelector('select').selectedOptions, option => option.value)
+      };
+      """,
+      fn result -> assert result == %{"search" => "", "selected" => ["Apple"]} end
+    )
+  end
+
   feature "combobox has data-multiple attribute", %{session: session} do
     session
     |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
@@ -84,8 +108,8 @@ defmodule DemoWeb.MultiSelectComboboxTest do
     |> assert_has(
       Query.css("#demo-multi-select-combobox [role=option][data-value='Banana'][data-focus=true]")
     )
-    # Select with Tab
-    |> send_keys([:tab])
+    # Select with Enter
+    |> send_keys([:enter])
     # Options should close
     |> assert_has(@options_container |> Query.visible(false))
     # Re-open to verify both options are marked as selected

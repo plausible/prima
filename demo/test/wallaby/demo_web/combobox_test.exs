@@ -400,7 +400,7 @@ defmodule DemoWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(false))
   end
 
-  feature "single-select does not focus input after clicking selection", %{session: session} do
+  feature "single-select restores input focus after clicking selection", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
@@ -408,12 +408,12 @@ defmodule DemoWeb.ComboboxTest do
     # Select an option by clicking
     |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
     |> assert_has(@options_container |> Query.visible(false))
-    # Verify the search input is NOT focused after selection
+    # Selection returns focus to the input.
     |> execute_script(
       "return document.activeElement === document.querySelector('#demo-combobox input[data-prima-ref=search_input]')",
       fn is_focused ->
-        assert is_focused == false,
-               "Expected search input to not be focused after selection in single-select mode"
+        assert is_focused == true,
+               "Expected search input to be focused after selection in single-select mode"
       end
     )
   end
