@@ -10,24 +10,6 @@ defmodule DemoWeb.ComboboxAriaTest do
     |> assert_has(@combobox_input)
   end
 
-  feature "aria-expanded toggles between true and false based on dropdown state", %{
-    session: session
-  } do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    # Initially closed - aria-expanded should be false
-    |> assert_has(Query.css("#demo-combobox input[aria-expanded=false]"))
-    |> assert_has(@options_container |> Query.visible(false))
-    # Open options - aria-expanded should be true
-    |> click(@combobox_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    |> assert_has(Query.css("#demo-combobox input[aria-expanded=true]"))
-    # Close by clicking outside - aria-expanded should be false again
-    |> click(Query.css("body"))
-    |> assert_has(@options_container |> Query.visible(false))
-    |> assert_has(Query.css("#demo-combobox input[aria-expanded=false]"))
-  end
-
   feature "aria-controls references the options container ID", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")

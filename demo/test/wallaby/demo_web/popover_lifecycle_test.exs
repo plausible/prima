@@ -91,9 +91,15 @@ defmodule DemoWeb.PopoverLifecycleTest do
       |> assert_has(Query.css("#{@panel}[data-shows='1'][inert]", visible: false))
     end
 
-    feature "#{@kind} closes without an exit animation", %{session: session} do
+    feature "#{@kind} toggles on trigger clicks and closes with Escape", %{session: session} do
       session
       |> open_popup(@kind, false)
+      |> click(Query.css(@trigger))
+      |> assert_has(Query.css("#{@trigger}[aria-expanded=false]"))
+      |> assert_has(Query.css(@panel, visible: false))
+      |> click(Query.css(@trigger))
+      |> assert_has(Query.css("#{@trigger}[aria-expanded=true]"))
+      |> assert_has(Query.css(@panel))
       |> send_keys([:escape])
       |> assert_has(Query.css("#{@trigger}:focus[aria-expanded=false]"))
       |> assert_has(Query.css(@panel, visible: false))
@@ -103,6 +109,7 @@ defmodule DemoWeb.PopoverLifecycleTest do
       session
       |> open_popup(@kind, true)
       |> click(Query.css("#after-#{@kind}"))
+      |> assert_has(Query.css("#{@trigger}[aria-expanded=false]"))
       |> assert_has(Query.css("#{@panel}[data-hides='1']", visible: false))
       |> assert_has(Query.css("#after-#{@kind}:focus"))
     end
@@ -229,11 +236,17 @@ defmodule DemoWeb.PopoverLifecycleTest do
   end
 
   defp open_popup(session, kind, animated) do
+    focus_target = if kind == "combobox", do: "trigger", else: "panel"
+
     session
     |> visit_fixture("/fixtures/popover-lifecycle?animated=#{animated}", "#popover-#{kind}")
+    |> assert_has(Query.css("#popover-#{kind}-trigger-0[aria-expanded=false]"))
+    |> assert_has(Query.css("#popover-#{kind}-panel-0", visible: false))
     |> watch_transitions("#popover-#{kind}-panel-0")
     |> click(Query.css("#popover-#{kind}-trigger-0"))
     |> assert_has(Query.css("#popover-#{kind}-panel-0[data-shows='1']"))
+    |> assert_has(Query.css("#popover-#{kind}-trigger-0[aria-expanded=true]"))
+    |> assert_has(Query.css("#popover-#{kind}-#{focus_target}-0:focus"))
   end
 
   defp watch_transitions(session, panel) do

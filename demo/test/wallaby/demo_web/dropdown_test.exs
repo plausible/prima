@@ -1,43 +1,13 @@
 defmodule DemoWeb.DropdownTest do
   use Prima.WallabyCase, async: true
 
-  @dropdown_container Query.css("#dropdown")
   @dropdown_button Query.css("#dropdown [aria-haspopup=menu]")
   @dropdown_menu Query.css("#dropdown [role=menu]")
-  @dropdown_items Query.css("#dropdown [role=menuitem]")
 
   feature "default dropdown trigger has type='button'", %{session: session} do
     session
     |> visit_fixture("/fixtures/dropdown", "#dropdown")
     |> assert_has(Query.css("#dropdown button[aria-haspopup=menu][type=button]"))
-  end
-
-  feature "shows dropdown menu when button is clicked", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/dropdown", "#dropdown")
-    |> assert_has(@dropdown_container)
-    |> assert_has(@dropdown_button |> Query.visible(true))
-    |> assert_has(@dropdown_menu |> Query.visible(false))
-    |> click(@dropdown_button)
-    |> assert_has(@dropdown_menu |> Query.visible(true))
-    |> assert_has(@dropdown_items |> Query.count(4))
-  end
-
-  feature "stays open after the click that starts an enter transition", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/dropdown-with-transition", "#dropdown")
-    |> assert_has(@dropdown_menu |> Query.visible(false))
-    |> click(@dropdown_button)
-    |> assert_has(@dropdown_menu |> Query.visible(true))
-  end
-
-  feature "hides dropdown menu when button is clicked again", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/dropdown", "#dropdown")
-    |> click(@dropdown_button)
-    |> assert_has(@dropdown_menu |> Query.visible(true))
-    |> click(@dropdown_button)
-    |> assert_has(@dropdown_menu |> Query.visible(false))
   end
 
   feature "closes dropdown when clicking outside", %{session: session} do
@@ -46,15 +16,6 @@ defmodule DemoWeb.DropdownTest do
     |> click(@dropdown_button)
     |> assert_has(@dropdown_menu |> Query.visible(true))
     |> click(Query.css("#outside-area"))
-    |> assert_has(@dropdown_menu |> Query.visible(false))
-  end
-
-  feature "closes dropdown when pressing escape key", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/dropdown", "#dropdown")
-    |> click(@dropdown_button)
-    |> assert_has(@dropdown_menu |> Query.visible(true))
-    |> send_keys([:escape])
     |> assert_has(@dropdown_menu |> Query.visible(false))
   end
 
@@ -146,18 +107,6 @@ defmodule DemoWeb.DropdownTest do
     |> assert_missing(Query.css("#dropdown [role=menuitem]:first-child[data-focus]"))
   end
 
-  feature "focus returns to trigger button when dropdown closes", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/dropdown", "#dropdown")
-    |> click(@dropdown_button)
-    |> assert_has(@dropdown_menu |> Query.visible(true))
-    |> send_keys([:escape])
-    |> assert_has(@dropdown_menu |> Query.visible(false))
-    # Verify focus is on trigger button (we can test this by sending a key that would open the dropdown)
-    |> send_keys([:enter])
-    |> assert_has(@dropdown_menu |> Query.visible(true))
-  end
-
   feature "supports accessible role and aria attributes", %{session: session} do
     session
     |> visit_fixture("/fixtures/dropdown", "#dropdown")
@@ -165,19 +114,6 @@ defmodule DemoWeb.DropdownTest do
     |> click(@dropdown_button)
     |> assert_has(Query.css("#dropdown [role=menu]"))
     |> assert_has(Query.css("#dropdown [role=menuitem]") |> Query.count(4))
-  end
-
-  feature "aria-expanded reflects dropdown state", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/dropdown", "#dropdown")
-    # Initially dropdown should be collapsed
-    |> assert_has(Query.css("#dropdown [aria-haspopup=menu][aria-expanded=false]"))
-    # After clicking, dropdown should be expanded
-    |> click(@dropdown_button)
-    |> assert_has(Query.css("#dropdown [aria-haspopup=menu][aria-expanded=true]"))
-    # After closing, dropdown should be collapsed again
-    |> click(@dropdown_button)
-    |> assert_has(Query.css("#dropdown [aria-haspopup=menu][aria-expanded=false]"))
   end
 
   feature "auto-generates IDs and aria-controls relationship", %{session: session} do

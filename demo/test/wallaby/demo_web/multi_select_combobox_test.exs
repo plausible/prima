@@ -1,10 +1,8 @@
 defmodule DemoWeb.MultiSelectComboboxTest do
   use Prima.WallabyCase, async: true
 
-  @combobox_container Query.css("#demo-multi-select-combobox")
   @search_input Query.css("#demo-multi-select-combobox input[data-prima-ref=search_input]")
   @options_container Query.css("#demo-multi-select-combobox [data-prima-ref=options]")
-  @all_options Query.css("#demo-multi-select-combobox [role=option]")
 
   @template_search_input Query.css(
                            "#selection-template-combobox input[data-prima-ref=search_input]"
@@ -47,17 +45,6 @@ defmodule DemoWeb.MultiSelectComboboxTest do
         assert has_attr == true, "Expected data-multiple attribute to be present"
       end
     )
-  end
-
-  feature "shows combobox options when input is focused", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
-    |> assert_has(@combobox_container)
-    |> assert_has(@search_input)
-    |> assert_has(@options_container |> Query.visible(false))
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    |> assert_has(@all_options |> Query.count(4))
   end
 
   feature "selects multiple options via click", %{session: session} do
@@ -406,22 +393,6 @@ defmodule DemoWeb.MultiSelectComboboxTest do
         assert is_focused == true, "Expected search input to be focused after selection"
       end
     )
-  end
-
-  feature "clicking search input toggles options visibility", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
-    # Initially options are hidden
-    |> assert_has(@options_container |> Query.visible(false))
-    # Click to open
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    # Click again to close
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(false))
-    # Click again to open
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
   end
 
   feature "clicking remove button keeps input focused", %{session: session} do
