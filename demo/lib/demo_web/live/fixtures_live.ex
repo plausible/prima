@@ -28,6 +28,8 @@ defmodule DemoWeb.FixturesLive do
       |> assign(listbox_disabled?: false, submitted_fruit: "not submitted")
       |> assign(trigger_label: "Open Dropdown")
       |> assign(modal_title: "Good news")
+      |> assign(modal_initial_show?: params["show"] == "true")
+      |> assign(modal_present?: true)
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
       |> stream(:suggestions, [])
 
@@ -114,6 +116,11 @@ defmodule DemoWeb.FixturesLive do
   @impl true
   def handle_event("update-modal-title", _params, socket) do
     {:noreply, assign(socket, modal_title: "Updated Title")}
+  end
+
+  @impl true
+  def handle_event("remove-modal", _params, socket) do
+    {:noreply, assign(socket, modal_present?: false)}
   end
 
   def handle_event("close-frontend-modal", _params, socket) do

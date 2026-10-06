@@ -13,6 +13,7 @@ export default {
   },
 
   destroyed() {
+    this.finishClose()
     this.cleanup()
   },
 
@@ -20,7 +21,6 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupDOMEventListeners()
-    this.checkInitialShow()
     this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
@@ -61,7 +61,7 @@ export default {
     // Focus management - when panel is shown, focus first element
     if (this.ref("modal-panel")) {
       this.listeners.push(
-        [this.ref("modal-panel"), "phx:show-end", this.handlePanelShowEnd.bind(this)]
+        [this.ref("modal-panel"), "phx:show-end", this.focusFirstElement.bind(this)]
       )
     }
 
@@ -75,29 +75,22 @@ export default {
   cleanup() {
     if (this.listeners) {
       this.listeners.forEach(([element, event, handler]) => {
-        element.removeEventListener(event, handler)
+        element?.removeEventListener(event, handler)
       })
       this.listeners = []
     }
   },
 
-  checkInitialShow() {
-    if (Object.hasOwn(this.el.dataset, 'primaShow')) {
-      this.el.dispatchEvent(new Event('prima:modal:open'))
-    }
-  },
-
   handleModalOpen() {
-    this.storeFocusedElement()
+    if (this.isOpen()) return
+
+    // Execute against the active element so LiveView saves the opener, not the modal.
+    this.liveSocket.execJS(document.activeElement, this.el.getAttribute('js-push-focus'))
     this.preventBodyScroll()
     this.js().removeAttribute(this.el, 'aria-hidden')
     this.maybeExecJS(this.el, "js-show");
     this.maybeExecJS(this.ref("modal-overlay"), "js-show");
-    if (this.async) {
-      this.maybeExecJS(this.ref("modal-loader"), "js-show");
-    } else {
-      this.maybeExecJS(this.ref("modal-panel"), "js-show");
-    }
+    this.maybeExecJS(this.ref(this.async ? "modal-loader" : "modal-panel"), "js-show");
   },
 
   handlePanelMounted() {
@@ -106,7 +99,7 @@ export default {
     this.setupAriaRelationships()
     this.js().removeAttribute(this.el, 'aria-hidden')
 
-    const panelShowEndHandler = this.handlePanelShowEnd.bind(this)
+    const panelShowEndHandler = this.focusFirstElement.bind(this)
     this.ref("modal-panel").addEventListener("phx:show-end", panelShowEndHandler);
     this.listeners.push([this.ref("modal-panel"), "phx:show-end", panelShowEndHandler])
   },
@@ -118,33 +111,45 @@ export default {
   },
 
   handleModalClose() {
-    this.restoreBodyScroll()
+    if (!this.isOpen()) return
+
     this.maybeExecJS(this.ref("modal-overlay"), "js-hide");
     this.maybeExecJS(this.ref("modal-panel"), "js-hide");
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
-    if (this.async) {
-      this.ref("modal-panel").dataset.primaDirty = true
+    const panel = this.ref("modal-panel")
+    if (this.async && panel) {
+      panel.dataset.primaDirty = true
     }
   },
 
   handleOverlayHideEnd() {
+    if (!this.isOpen()) return
+
     this.maybeExecJS(this.el, "js-hide");
-    this.js().setAttribute(this.el, 'aria-hidden', 'true')
-    this.restoreFocusedElement()
+    this.finishClose()
   },
 
-  handlePanelShowEnd() {
-    this.focusFirstElement()
+  isOpen() {
+    return this.el.getAttribute('aria-hidden') !== 'true'
+  },
+
+  finishClose() {
+    if (!this.isOpen()) return
+
+    this.js().setAttribute(this.el, 'aria-hidden', 'true')
+    this.restoreBodyScroll()
+    this.maybeExecJS(this.el, 'js-pop-focus')
   },
 
   maybeExecJS(el, attribute) {
-    if (el && el.getAttribute(attribute)) {
-      this.liveSocket.execJS(el, el.getAttribute(attribute));
+    const command = el?.getAttribute(attribute)
+    if (command) {
+      this.liveSocket.execJS(el, command);
     }
   },
 
   panelIsDirty() {
-    return this.ref('modal-panel') && this.ref("modal-panel").dataset.primaDirty
+    return this.ref('modal-panel')?.dataset.primaDirty
   },
 
   ref(ref) {
@@ -177,16 +182,6 @@ export default {
 
       // Set aria-labelledby on the modal container
       this.js().setAttribute(this.el, 'aria-labelledby', titleElement.id)
-    }
-  },
-
-  storeFocusedElement() {
-    this.previouslyFocusedElement = document.activeElement
-  },
-
-  restoreFocusedElement() {
-    if (this.previouslyFocusedElement && this.previouslyFocusedElement.focus) {
-      this.previouslyFocusedElement.focus()
     }
   },
 
