@@ -1,5 +1,5 @@
-<form phx-change="form_changed">
-  <.listbox id="listbox-form" name="fruit" value={@selected_fruit}>
+<form id="listbox-test-form" phx-change="form_changed" phx-submit="listbox_form_submitted">
+  <.listbox id="listbox-form" name="fruit" value={@selected_fruit} disabled={@listbox_disabled?}>
     <.listbox_trigger
       id="listbox-form-trigger"
       class="w-64 inline-flex justify-between items-center rounded-lg bg-white border border-gray-300 px-3 py-2 text-sm text-gray-700"
@@ -26,4 +26,13 @@
   <div id="listbox-form-change-count" data-testid="change-count">
     Form changes: {@form_change_count}
   </div>
+  <button id="submit-listbox-form" type="submit">Submit</button>
+  <div id="listbox-submission">Submitted: {@submitted_fruit}</div>
 </form>
+<button
+  id="toggle-listbox-disabled"
+  type="button"
+  phx-click={Phoenix.LiveView.JS.push("toggle-listbox-disabled")}
+>
+  Toggle disabled
+</button>

@@ -12,7 +12,8 @@ defmodule DemoWeb.CodeExample do
     DemoWeb.DemoLive.AsyncModalDemo,
     DemoWeb.DemoLive.FormModalDemo,
     DemoWeb.DemoLive.AsyncComboboxDemo,
-    DemoWeb.DemoLive.ListboxFormDemo
+    DemoWeb.DemoLive.ListboxFormDemo,
+    DemoWeb.DemoLive.DisabledListboxDemo
   ]
 
   for module <- @live_component_modules, do: Code.ensure_compiled(module)

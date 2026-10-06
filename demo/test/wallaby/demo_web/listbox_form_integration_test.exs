@@ -77,4 +77,61 @@ defmodule DemoWeb.ListboxFormIntegrationTest do
     |> assert_has(@selection_display |> Query.text("Selected: none"))
     |> assert_form_change_count(0)
   end
+
+  feature "disabling an open listbox closes it and blocks selection until re-enabled", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/listbox-form", "#listbox-form")
+    |> click(@button)
+    |> click(Query.css("#listbox-form-option-apple"))
+    |> assert_has(@selection_display |> Query.text("Selected: Apple"))
+    |> click(@button)
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#listbox-form-option-apple[data-focus]"))
+    # Send the LiveView event without an outside click closing the listbox first.
+    |> execute_script("""
+    const toggle = document.querySelector('#toggle-listbox-disabled');
+    window.liveSocket.execJS(toggle, toggle.getAttribute('phx-click'));
+    """)
+    |> assert_has(Query.css("#listbox-form-trigger:disabled[aria-expanded=false]"))
+    |> assert_has(@listbox |> Query.visible(false))
+    |> assert_missing(Query.css("#listbox-form [data-focus]", visible: :any))
+    |> assert_missing(Query.css("#listbox-form-trigger:focus"))
+    |> execute_script("""
+    const options = document.querySelector('#listbox-form-options');
+    options.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+    document.querySelector('#listbox-form-option-mango').click();
+    """)
+    |> assert_has(@listbox_value |> Query.text("Apple"))
+    |> assert_form_change_count(1)
+    |> click(Query.css("#toggle-listbox-disabled"))
+    |> assert_has(Query.css("#listbox-form:not([data-disabled]) #listbox-form-trigger:enabled"))
+    |> click(@button)
+    |> send_keys([:down_arrow, :down_arrow, :enter])
+    |> assert_has(@selection_display |> Query.text("Selected: Mango"))
+    |> assert_form_change_count(2)
+  end
+
+  feature "disabled fields are omitted from submission and retain their value when re-enabled", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/fixtures/listbox-form", "#listbox-form")
+    |> click(@button)
+    |> click(Query.css("#listbox-form-option-mango"))
+    |> assert_has(@selection_display |> Query.text("Selected: Mango"))
+    |> click(Query.css("#toggle-listbox-disabled"))
+    |> assert_has(Query.css("#listbox-form-trigger:disabled"))
+    |> assert_has(Query.css("#listbox-form input:disabled[value=Mango]", visible: false))
+    |> click(Query.css("#submit-listbox-form"))
+    |> assert_has(Query.css("#listbox-submission", text: "Submitted: omitted"))
+    |> assert_has(Query.css("#listbox-form-trigger:disabled"))
+    |> click(Query.css("#toggle-listbox-disabled"))
+    |> assert_has(Query.css("#listbox-form:not([data-disabled]) #listbox-form-trigger:enabled"))
+    |> assert_has(@listbox_value |> Query.text("Mango"))
+    |> assert_has(Query.css("#listbox-form input:enabled[value=Mango]", visible: false))
+    |> click(Query.css("#submit-listbox-form"))
+    |> assert_has(Query.css("#listbox-submission", text: "Submitted: Mango"))
+  end
 end

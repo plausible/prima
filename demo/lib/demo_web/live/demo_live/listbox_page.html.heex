@@ -76,6 +76,38 @@
     <.code_example file="listbox/disabled.html.heex" id="disabled-listbox-demo" />
   </div>
 
+  <p>
+    Disabled items use <code>aria-disabled="true"</code>
+    and <code>data-disabled="true"</code>
+    attributes for accessibility and styling. Use the <code>data-disabled:</code>
+    variant to style disabled items differently, such as reducing opacity or changing text color.
+  </p>
+
+  <h2>Disabled Listbox</h2>
+  <p>
+    Disable the entire listbox with <code>disabled={true}</code>
+    on <code>.listbox</code>. The hidden input is disabled in the initial HTML,
+    excluding its value from form submission. When the JavaScript hook mounts, it
+    disables the trigger button, preventing interaction and removing it from the tab
+    order. LiveView updates keep the state synchronized and close an open listbox
+    when it becomes disabled. Re-enabling the field preserves its selected value.
+  </p>
+
+  <div class="not-prose">
+    <.code_example
+      file="listbox/disabled_listbox_demo.ex"
+      module={DemoWeb.DemoLive.DisabledListboxDemo}
+      id="disabled-listbox-code-example"
+    />
+  </div>
+
+  <p>
+    To style the disabled state, use the <code>in-data-disabled:</code> variant on the
+    trigger button. The regular <code>data-disabled:</code> does not work because Prima
+    is unable to copy the <code>data-disabled="true"</code> attribute over to the
+    trigger button in the server-rendered HTML.
+  </p>
+
   <h2>Keyboard Interaction</h2>
   <p>
     The listbox provides keyboard navigation that follows standard ARIA patterns.
