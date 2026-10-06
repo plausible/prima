@@ -11,14 +11,7 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
     |> assert_has(
       Query.css("#{combobox_id} input[data-prima-ref=search_input]:not(.phx-change-loading)")
     )
-    |> then(fn session ->
-      actual_text = text(session, Query.css("#change-count"))
-
-      assert actual_text == "Form changes: #{expected_count}",
-             "Expected form change count to be #{expected_count} but got '#{actual_text}'"
-
-      session
-    end)
+    |> assert_has(Query.css("#change-count", text: "Form changes: #{expected_count}"))
   end
 
   feature "phx-change on combobox fires when user selects an option", %{session: session} do
