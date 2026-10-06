@@ -1,9 +1,6 @@
 <form>
-  <.combobox id="country-combobox">
-    <.combobox_input
-      name="country-combobox[country]"
-      placeholder="Select a country..."
-    />
+  <.combobox id="country-combobox" name="country-combobox[country]">
+    <.combobox_input placeholder="Select a country..." />
 
     <.combobox_options id="country-combobox-options">
       <%= for {code, name} <- [

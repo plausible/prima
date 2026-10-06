@@ -1,0 +1,29 @@
+<form id="selection-template-form">
+  <.combobox id="selection-template-combobox" multiple={true} name="selections">
+    <.combobox_selections>
+      <:selection class="selection-pill">
+        <span class="selection-icon" aria-hidden="true">★</span>
+        <strong><.combobox_selection_label class="selection-text" /></strong>
+        <.combobox_selection_remove class="default-remove">
+          <span>×</span>
+        </.combobox_selection_remove>
+        <.combobox_selection_remove class="custom-remove" aria-label="Remove selection">
+          Remove
+        </.combobox_selection_remove>
+      </:selection>
+    </.combobox_selections>
+
+    <.combobox_input placeholder="Select or create..." />
+
+    <.combobox_options id="selection-template-options">
+      <.combobox_option
+        id="quoted-option"
+        value={~S(country["quoted"]\value)}
+        display={~s(<b data-injected="true">__VALUE__ & "quoted"</b>)}
+      >
+        Quoted value and HTML label
+      </.combobox_option>
+      <.creatable_option />
+    </.combobox_options>
+  </.combobox>
+</form>

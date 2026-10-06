@@ -37,12 +37,30 @@
 
   <h2>Advanced Usage</h2>
 
+  <h3>Selection</h3>
+  <p>
+    Set <code>selections</code>
+    on the combobox to supply a selected item.
+    Use a map with <code>value</code>
+    and an optional <code>display</code>
+    label.
+    Pass the text supplied by <code>:let</code>
+    to the input's <code>value</code>
+    to display it immediately.
+    Choose another country, then click Reset to restore the initial selection from the server.
+  </p>
+
+  <div class="not-prose">
+    <.code_example
+      file="combobox/selection_combobox_demo.ex"
+      module={DemoWeb.DemoLive.SelectionComboboxDemo}
+      id="selection-combobox-demo"
+    />
+  </div>
+
   <h3>Server-side Search</h3>
   <p>
-    For large datasets or dynamic content, enable server-side search by adding
-    <code>phx-change</code>
-    to the input.
-    The component automatically switches to async mode with debounced search queries.
+    Set <code>on_search</code> on the input to enable debounced server-side search.
   </p>
 
   <div class="not-prose">
@@ -54,9 +72,8 @@
   </div>
 
   <p>
-    The async pattern sends search queries to your LiveView with automatic debouncing. Handle the
-    <code>phx-change</code>
-    event to filter results server-side and update the options dynamically.
+    Handle the event with <code>{"%{\"query\" => query}"}</code> and return matching options.
+    Return default options when the query is empty. No enclosing form is required.
   </p>
 
   <h3>Create Custom Values</h3>
@@ -91,7 +108,11 @@
     The <code>.combobox_selections</code>
     component uses a template-based approach for rendering pills. Customize the appearance using the
     <code>:selection</code>
-    slot - it supports any markup including icons, badges, and remove buttons. The dropdown stays open after each selection for quick multi-select workflows, and selected items are visually highlighted with <code>data-selected="true"</code>.
+    slot - it supports surrounding markup including icons and badges. Use
+    <code>.combobox_selection_label</code>
+    to display the label and <code>.combobox_selection_remove</code>
+    for a button bound to the selected value.
+    Selected items are visually highlighted with <code>data-selected="true"</code>.
   </p>
 
   <p>

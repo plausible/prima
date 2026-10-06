@@ -1,9 +1,6 @@
 <form>
-  <.combobox id="overflow-combobox">
-    <.combobox_input
-      name="overflow-combobox[item]"
-      placeholder="Type to search..."
-    />
+  <.combobox id="overflow-combobox" name="overflow-combobox[item]">
+    <.combobox_input placeholder="Type to search..." />
 
     <.combobox_options id="overflow-combobox-options" class="max-h-48 overflow-y-auto">
       <%= for option <- 1..50 do %>

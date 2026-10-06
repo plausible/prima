@@ -4,7 +4,11 @@ defmodule DemoWeb.CodeExample do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
-  @examples_dir "priv/code_examples"
+  @examples_dir Path.expand("../../../priv/code_examples", __DIR__)
+  @example_paths @examples_dir
+                 |> Path.join("**/*")
+                 |> Path.wildcard()
+                 |> Enum.filter(&File.regular?/1)
   @syntax_theme "molokai"
   @code_block_classes "p-4 rounded-b-lg overflow-x-auto text-sm"
 
@@ -12,6 +16,7 @@ defmodule DemoWeb.CodeExample do
     DemoWeb.DemoLive.AsyncModalDemo,
     DemoWeb.DemoLive.FormModalDemo,
     DemoWeb.DemoLive.AsyncComboboxDemo,
+    DemoWeb.DemoLive.SelectionComboboxDemo,
     DemoWeb.DemoLive.ListboxFormDemo,
     DemoWeb.DemoLive.DisabledListboxDemo
   ]
@@ -19,10 +24,8 @@ defmodule DemoWeb.CodeExample do
   for module <- @live_component_modules, do: Code.ensure_compiled(module)
 
   @highlighted_examples (
-                          examples_path = Path.join(File.cwd!(), @examples_dir)
-
                           highlight_file = fn file_path ->
-                            relative_path = Path.relative_to(file_path, examples_path)
+                            relative_path = Path.relative_to(file_path, @examples_dir)
                             content = File.read!(file_path)
 
                             highlighted_html =
@@ -36,14 +39,23 @@ defmodule DemoWeb.CodeExample do
                             {relative_path, %{highlighted: highlighted_html, source: content}}
                           end
 
-                          Path.wildcard(Path.join([examples_path, "**", "*"]))
-                          |> Enum.filter(&File.regular?/1)
+                          @example_paths
                           |> Enum.map(highlight_file)
                           |> Map.new()
                         )
 
   for {file_path, _} <- @highlighted_examples do
     @external_resource Path.join([@examples_dir, file_path])
+  end
+
+  def __mix_recompile__? do
+    paths =
+      @examples_dir
+      |> Path.join("**/*")
+      |> Path.wildcard()
+      |> Enum.filter(&File.regular?/1)
+
+    paths != @example_paths
   end
 
   attr :file, :string, required: true, doc: "Path to file in priv/code_examples/"

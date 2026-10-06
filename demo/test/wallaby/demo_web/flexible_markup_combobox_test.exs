@@ -24,35 +24,18 @@ defmodule DemoWeb.FlexibleMarkupComboboxTest do
     |> assert_has(@options_container |> Query.visible(true))
     # Click on the main title text within the option
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='urgent']"))
-    |> execute_script(
-      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "urgent",
-               "Expected search input value to be 'urgent', got '#{values["search"]}'"
-
-        assert values["submit"] == "urgent",
-               "Expected submit input value to be 'urgent', got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "urgent", "urgent")
   end
 
-  feature "selects option by clicking on nested description text", %{session: session} do
+  feature "selects option by clicking on nested text", %{session: session} do
     session
     |> visit_fixture("/fixtures/flexible-markup-combobox", "#flexible-markup-combobox")
     |> click(@search_input)
     |> assert_has(@options_container |> Query.visible(true))
-    # Click on the high priority option
-    |> click(Query.css("#flexible-markup-combobox [role=option][data-value='high']"))
-    |> execute_script(
-      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "high",
-               "Expected search input value to be 'high', got '#{values["search"]}'"
-
-        assert values["submit"] == "high",
-               "Expected submit input value to be 'high', got '#{values["submit"]}'"
-      end
+    |> click(
+      Query.css("#flexible-markup-combobox [role=option][data-value='high'] div div:first-child")
     )
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "high", "high")
   end
 
   feature "selects option by clicking on SVG icon", %{session: session} do
@@ -62,16 +45,7 @@ defmodule DemoWeb.FlexibleMarkupComboboxTest do
     |> assert_has(@options_container |> Query.visible(true))
     # Click on the SVG icon within the medium priority option
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='medium'] svg"))
-    |> execute_script(
-      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "medium",
-               "Expected search input value to be 'medium', got '#{values["search"]}'"
-
-        assert values["submit"] == "medium",
-               "Expected submit input value to be 'medium', got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "medium", "medium")
   end
 
   feature "selects option by clicking on the container div", %{session: session} do
@@ -81,16 +55,7 @@ defmodule DemoWeb.FlexibleMarkupComboboxTest do
     |> assert_has(@options_container |> Query.visible(true))
     # Click on the option itself (testing that basic click still works)
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='low']"))
-    |> execute_script(
-      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "low",
-               "Expected search input value to be 'low', got '#{values["search"]}'"
-
-        assert values["submit"] == "low",
-               "Expected submit input value to be 'low', got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "low", "low")
   end
 
   feature "navigates complex markup options with keyboard arrows", %{session: session} do
@@ -134,17 +99,7 @@ defmodule DemoWeb.FlexibleMarkupComboboxTest do
     |> send_keys([:enter])
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the selected value
-    |> execute_script(
-      "const searchVal = document.querySelector('#flexible-markup-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "backlog",
-               "Expected search input value to be 'backlog', got '#{values["search"]}'"
-
-        assert values["submit"] == "backlog",
-               "Expected submit input value to be 'backlog', got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#flexible-markup-combobox", "priority", "backlog", "backlog")
   end
 
   feature "filters complex markup options based on search input", %{session: session} do
@@ -196,16 +151,12 @@ defmodule DemoWeb.FlexibleMarkupComboboxTest do
     |> assert_has(@options_container |> Query.visible(true))
     # Select the high priority option
     |> click(Query.css("#flexible-markup-combobox [role=option][data-value='high']"))
-    # Verify the form input has the correct name and value for submission
     |> execute_script(
-      "const input = document.querySelector('#flexible-markup-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {name: input ? input.name : '', value: input ? input.value : ''}",
-      fn data ->
-        assert data["name"] == "priority",
-               "Expected form input name to be 'priority', got '#{data["name"]}'"
-
-        assert data["value"] == "high",
-               "Expected form input value to be 'high', got '#{data["value"]}'"
-      end
+      """
+      const form = document.querySelector('#flexible-markup-combobox').closest('form');
+      return Array.from(new FormData(form).entries());
+      """,
+      fn entries -> assert entries == [["priority", "high"]] end
     )
   end
 end

@@ -5,20 +5,164 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
   @search_input Query.css("#change-combobox input[data-prima-ref=search_input]")
   @options_container Query.css("#change-options")
   @selection_display Query.css("#selection-display")
+  @async_root "#async-form-change-combobox"
+  @async_input Query.css("#{@async_root} [data-prima-ref=search_input]")
+  @async_options Query.css("#{@async_root} [role=option]")
+
+  @submission_input Query.css("#submission-combobox [data-prima-ref=search_input]")
+
+  feature "async dismissal restores default results after clicking outside", %{session: session} do
+    assert_async_reopens(session, :outside)
+  end
+
+  feature "async dismissal restores default results after Escape", %{session: session} do
+    assert_async_reopens(session, :escape)
+  end
+
+  feature "async response after dismissal preserves a selection without server binding", %{
+    session: session
+  } do
+    root = "#demo-async-combobox"
+    input = Query.css("#{root} [data-prima-ref=search_input]")
+
+    session
+    |> visit_fixture("/combobox", root)
+    |> click(input)
+    |> click(Query.css("#{root} [data-value=Cherry]"))
+    |> execute_script("window.liveSocket.enableLatencySim(500)")
+    |> click(input)
+    |> send_keys(["asdasdas"])
+    |> assert_has(Query.css("#{root}.phx-hook-loading"))
+    |> click(Query.css("body"))
+    |> assert_has(Query.css("#demo-async-combobox-options", visible: false))
+    |> assert_has(Query.css("#{root}:not(.phx-hook-loading)"))
+    |> assert_has(Query.css("#{root} [role=option]", count: 0, visible: :any))
+    |> execute_script(
+      """
+      const root = document.querySelector('#demo-async-combobox');
+      return {
+        display: root.querySelector('[data-prima-ref=search_input]').value,
+        value: root.querySelector('[data-prima-ref=submit_input]').value
+      };
+      """,
+      fn result -> assert result == %{"display" => "Cherry", "value" => "Cherry"} end
+    )
+  end
+
+  feature "async demo supports LiveComponent search and selection without a form", %{
+    session: session
+  } do
+    session
+    |> visit_fixture("/combobox", "#demo-async-combobox")
+    |> click(Query.css("#demo-async-combobox [data-prima-ref=search_input]"))
+    |> assert_has(Query.css("#demo-async-combobox [role=option]", count: 5))
+    |> fill_in(Query.css("#demo-async-combobox [data-prima-ref=search_input]"), with: "Ki")
+    |> assert_has(Query.css("#demo-async-combobox [role=option]", count: 1, text: "Kiwi"))
+    |> click(Query.css("#demo-async-combobox [data-value=Kiwi]"))
+    |> execute_script(
+      """
+      const root = document.querySelector('#demo-async-combobox');
+      const selection = root.querySelector('[data-prima-ref=submit_input]');
+      return {name: selection.name, value: selection.value};
+      """,
+      fn result ->
+        assert result == %{"name" => "user[favourite_fruit]", "value" => "Kiwi"}
+      end
+    )
+  end
+
+  feature "async reconnection closes the search and preserves the selected value", %{
+    session: session
+  } do
+    root = "#demo-async-combobox"
+    input = Query.css("#{root} [data-prima-ref=search_input]")
+
+    session
+    |> visit_fixture("/fixtures/async-combobox", root)
+    |> click(input)
+    |> click(Query.css("#{root} [data-value=Cherry]"))
+    |> click(input)
+    |> fill_in(input, with: "Ki")
+    |> assert_has(Query.css("#{root} [role=option]", count: 1, text: "Kiwi"))
+    |> execute_script("window.liveSocket.disconnect(() => window.liveSocket.connect())")
+    |> assert_has(Query.css("#{root} [role=option]", count: 5, visible: :any))
+    |> assert_has(Query.css("#demo-async-combobox-options", visible: false))
+    |> execute_script(
+      """
+      const root = document.querySelector('#demo-async-combobox');
+      const input = root.querySelector('[data-prima-ref=search_input]');
+      return {
+        display: input.value,
+        value: root.querySelector('[data-prima-ref=submit_input]').value,
+        expanded: input.getAttribute('aria-expanded'),
+        activeOption: input.getAttribute('aria-activedescendant')
+      };
+      """,
+      fn result ->
+        assert result == %{
+                 "display" => "Cherry",
+                 "value" => "Cherry",
+                 "expanded" => "false",
+                 "activeOption" => nil
+               }
+      end
+    )
+    |> click(input)
+    |> assert_has(Query.css("#{root} [role=option]", count: 5))
+    |> click(Query.css("#{root} [data-value=Kiwi]"))
+    |> assert_has(Query.css("#demo-async-combobox-options", visible: false))
+  end
+
+  defp assert_async_reopens(session, dismissal) do
+    session =
+      session
+      |> visit_fixture("/fixtures/async-combobox-form-change", @async_root)
+      |> click(@async_input)
+      |> assert_has(@async_options |> Query.count(5))
+      |> click(Query.css("#{@async_root} [data-value=Cherry]"))
+      |> click(@async_input)
+      |> assert_has(@async_options |> Query.count(5))
+      |> fill_in(@async_input, with: "Ki")
+      |> assert_has(Query.css("#{@async_root} [data-value=Kiwi]"))
+      |> assert_has(@async_options |> Query.count(1))
+      |> assert_missing(Query.css("#{@async_root} [data-value=Cherry]", visible: :any))
+      |> execute_script("window.liveSocket.enableLatencySim(200)")
+
+    session =
+      case dismissal do
+        :outside -> click(session, Query.css("body"))
+        :escape -> send_keys(session, [:escape])
+      end
+
+    session
+    |> assert_has(Query.css("#async-form-change-options", visible: false))
+    |> assert_async_fields()
+    |> click(@async_input)
+    |> assert_has(Query.css("#{@async_root}.phx-hook-loading"))
+    |> assert_has(@async_options |> Query.count(5))
+    |> assert_async_fields()
+    |> assert_form_change_count(@async_root, 1)
+  end
+
+  defp assert_async_fields(session) do
+    execute_script(
+      session,
+      """
+      const root = document.querySelector('#async-form-change-combobox');
+      const form = new FormData(root.closest('form'));
+      return {display: root.querySelector('[data-prima-ref=search_input]').value,
+        selection: form.get('fruit'), query: form.get('fruit_search')};
+      """,
+      fn result ->
+        assert result == %{"display" => "Cherry", "selection" => "Cherry", "query" => nil}
+      end
+    )
+  end
 
   defp assert_form_change_count(session, combobox_id, expected_count) do
     session
-    |> assert_has(
-      Query.css("#{combobox_id} input[data-prima-ref=search_input]:not(.phx-change-loading)")
-    )
-    |> then(fn session ->
-      actual_text = text(session, Query.css("#change-count"))
-
-      assert actual_text == "Form changes: #{expected_count}",
-             "Expected form change count to be #{expected_count} but got '#{actual_text}'"
-
-      session
-    end)
+    |> assert_missing(Query.css("#{combobox_id} .phx-change-loading", visible: :any))
+    |> assert_has(Query.css("#change-count", text: "Form changes: #{expected_count}"))
   end
 
   feature "phx-change on combobox fires when user selects an option", %{session: session} do
@@ -174,5 +318,99 @@ defmodule DemoWeb.ComboboxFormIntegrationTest do
     # Should trigger phx-change with cleared value
     |> assert_form_change_count("#change-combobox", 2)
     |> assert_has(@selection_display |> Query.text("Selected: none"))
+  end
+
+  feature "single selection changes are complete before events fire", %{session: session} do
+    session
+    |> visit_submission(false)
+    |> select_value("a")
+    |> assert_change(1, %{"fruit" => "a"}, [["fruit", "a"]])
+    |> select_value("b")
+    |> assert_change(2, %{"fruit" => "b"}, [["fruit", "b"]])
+    |> clear_selection()
+    |> assert_change(3, %{}, [])
+    |> select_value("")
+    |> assert_change(4, %{"fruit" => ""}, [["fruit", ""]])
+    |> clear_selection()
+    |> assert_change(5, %{}, [])
+  end
+
+  feature "removing one of multiple selections never emits a phantom empty value", %{
+    session: session
+  } do
+    session
+    |> visit_submission(true)
+    |> select_value("a")
+    |> assert_change(1, %{"fruits" => ["a"]}, [["fruits[]", "a"]])
+    |> select_value("b")
+    |> assert_change(2, %{"fruits" => ["a", "b"]}, [
+      ["fruits[]", "a"],
+      ["fruits[]", "b"]
+    ])
+    |> click(Query.css("[data-prima-ref=remove-selection][data-value=a]"))
+    |> assert_change(3, %{"fruits" => ["b"]}, [["fruits[]", "b"]])
+    |> select_value("")
+    |> assert_change(4, %{"fruits" => ["b", ""]}, [
+      ["fruits[]", "b"],
+      ["fruits[]", ""]
+    ])
+    |> click(Query.css("[data-prima-ref=remove-selection][data-value=b]"))
+    |> assert_change(5, %{"fruits" => [""]}, [["fruits[]", ""]])
+    |> clear_selection()
+    |> assert_change(6, %{}, [])
+  end
+
+  defp visit_submission(session, multiple) do
+    session
+    |> visit_fixture("/fixtures/combobox-submission?multiple=#{multiple}", "#submission-combobox")
+    |> execute_script("""
+    const form = document.querySelector('#submission-form');
+    window.selectionEvents = [];
+    for (const type of ['input', 'change']) {
+      form.addEventListener(type, () => {
+        window.selectionEvents.push({
+          type,
+          entries: Array.from(new FormData(form).entries())
+        });
+      });
+    }
+    """)
+  end
+
+  defp select_value(session, value) do
+    session
+    |> click(@submission_input)
+    |> click(Query.css("#submission-options [role=option][data-value='#{value}']"))
+  end
+
+  defp clear_selection(session) do
+    session
+    |> click(@submission_input)
+    |> assert_has(Query.css("#submission-options", visible: true))
+    |> send_keys([:backspace])
+    |> send_keys([:escape])
+    |> assert_has(Query.css("#submission-options", visible: false))
+  end
+
+  defp assert_change(session, count, params, entries) do
+    session
+    |> assert_has(Query.css("#submission-state[data-change-count='#{count}']", visible: :any))
+    |> execute_script(
+      """
+      return {
+        params: JSON.parse(document.querySelector('#submission-state').dataset.change),
+        events: window.selectionEvents
+      };
+      """,
+      fn result ->
+        assert Map.delete(result["params"], "_target") == params
+        assert length(result["events"]) == count * 2
+
+        assert Enum.take(result["events"], -2) == [
+                 %{"type" => "input", "entries" => entries},
+                 %{"type" => "change", "entries" => entries}
+               ]
+      end
+    )
   end
 end

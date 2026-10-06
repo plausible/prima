@@ -12,6 +12,8 @@ config :demo, DemoWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
   code_reloader: true,
+  # Reload the local component library alongside the demo that consumes it.
+  reloadable_apps: [:prima, :demo],
   debug_errors: true,
   secret_key_base: "t1nFkqTRuxcxKzdQGTRZvrYsUzUuYkwWk7I6F88EbwgvnekiBnP2bPH9xX/KWvj1",
   server: true,

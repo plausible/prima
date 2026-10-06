@@ -13,12 +13,18 @@ defmodule DemoWeb.FixturesLive do
   ]
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     socket =
       socket
       |> assign(async_modal_open?: false)
       |> assign(selected_fruit: nil)
       |> assign(form_change_count: 0)
+      |> assign(submission_multiple: params["multiple"] == "true")
+      |> assign(
+        submission_selection:
+          if(params["selection"], do: Jason.decode!(params["selection"], keys: :atoms!))
+      )
+      |> assign(submission_change: %{})
       |> assign(listbox_disabled?: false, submitted_fruit: "not submitted")
       |> assign(trigger_label: "Open Dropdown")
       |> assign(modal_title: "Good news")
@@ -50,9 +56,7 @@ defmodule DemoWeb.FixturesLive do
   end
 
   @impl true
-  def handle_event("async_combobox_search", params, socket) do
-    input = get_in(params, params["_target"])
-
+  def handle_event("async_combobox_search", %{"query" => input}, socket) do
     suggestions =
       Enum.filter(@options, fn option ->
         String.contains?(String.downcase(option), String.downcase(input))
@@ -62,7 +66,8 @@ defmodule DemoWeb.FixturesLive do
   end
 
   @impl true
-  def handle_event("form_changed", %{"fruit" => fruit}, socket) do
+  def handle_event("form_changed", params, socket) do
+    fruit = params["fruit"]
     # Treat empty string as nil for display purposes
     selected_fruit = if fruit == "", do: nil, else: fruit
 
@@ -72,6 +77,23 @@ defmodule DemoWeb.FixturesLive do
       |> assign(selected_fruit: selected_fruit)
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("submission_changed", params, socket) do
+    selection =
+      for value <- List.wrap(params["fruits"] || params["fruit"]) do
+        Enum.find(List.wrap(socket.assigns.submission_selection), &(to_string(&1.value) == value)) ||
+          %{value: value}
+      end
+
+    selection = if socket.assigns.submission_multiple, do: selection, else: List.first(selection)
+
+    {:noreply,
+     socket
+     |> assign(submission_change: params)
+     |> assign(submission_selection: selection)
+     |> update(:form_change_count, &(&1 + 1))}
   end
 
   @impl true
