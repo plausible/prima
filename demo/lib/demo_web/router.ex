@@ -19,14 +19,17 @@ defmodule DemoWeb.Router do
     live "/modal", DemoLive, :modal
     live "/modal/history", DemoLive, :modal_history
     live "/combobox", DemoLive, :combobox
+    live "/listbox", DemoLive, :listbox
 
     if Mix.env() in [:dev, :test] do
       live "/fixtures/dropdown", FixturesLive, :dropdown
+      live "/fixtures/dropdown-with-transition", FixturesLive, :dropdown_with_transition
       live "/fixtures/dropdown-with-disabled", FixturesLive, :dropdown_with_disabled
       live "/fixtures/dropdown-custom-components", FixturesLive, :dropdown_custom_components
       live "/fixtures/dropdown-custom-ids", FixturesLive, :dropdown_custom_ids
       live "/fixtures/dropdown-rerender-trigger", FixturesLive, :dropdown_rerender_trigger
       live "/fixtures/dropdown-sections", FixturesLive, :dropdown_sections
+      live "/fixtures/dropdown-generated-ids", FixturesLive, :dropdown_generated_ids
       live "/fixtures/simple-modal", FixturesLive, :simple_modal
       live "/fixtures/async-modal", FixturesLive, :async_modal
       live "/fixtures/modal-rerender-title", FixturesLive, :modal_rerender_title
@@ -40,11 +43,16 @@ defmodule DemoWeb.Router do
       live "/fixtures/creatable-combobox", FixturesLive, :creatable_combobox
       live "/fixtures/flexible-markup-combobox", FixturesLive, :flexible_markup_combobox
       live "/fixtures/multi-select-combobox", FixturesLive, :multi_select_combobox
+      live "/fixtures/selection-template-combobox", FixturesLive, :selection_template_combobox
       live "/fixtures/combobox-form-tab", FixturesLive, :combobox_form_tab
       live "/fixtures/overflow-combobox", FixturesLive, :overflow_combobox
       live "/fixtures/display-value-combobox", FixturesLive, :display_value_combobox
       live "/fixtures/combobox-change", FixturesLive, :combobox_change
+      live "/fixtures/combobox-submission", FixturesLive, :combobox_submission
       live "/fixtures/async-combobox-form-change", FixturesLive, :async_combobox_form_change
+      live "/fixtures/listbox", FixturesLive, :listbox
+      live "/fixtures/listbox-with-transition", FixturesLive, :listbox_with_transition
+      live "/fixtures/listbox-form", FixturesLive, :listbox_form
     end
   end
 end

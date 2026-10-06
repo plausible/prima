@@ -4,8 +4,11 @@
   </.button>
 
   <.modal id="no-portal-modal" portal={false}>
-    <.modal_overlay />
-    <.modal_panel id="no-portal-modal-panel">
+    <.modal_overlay class="fixed inset-0 bg-gray-500/75" />
+    <.modal_panel
+      id="no-portal-modal-panel"
+      class="fixed inset-0 z-10 flex items-center justify-center"
+    >
       <button phx-click={Prima.Modal.JS.close()} testing-ref="close-button">
         Close
       </button>

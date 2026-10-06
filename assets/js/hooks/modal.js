@@ -1,5 +1,8 @@
+import { ensureId } from '../ensure_id';
+
 export default {
   mounted() {
+    this.setupPushEventListeners()
     this.initialize()
   },
 
@@ -19,24 +22,21 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupDOMEventListeners()
-    this.setupPushEventListeners()
     this.checkInitialShow()
     this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   setupPushEventListeners() {
-    this.pushEventRefs = [
-      this.handleEvent("prima:modal:open", (payload) => {
-        if (!payload.id || payload.id === this.el.id) {
-          this.handleModalOpen()
-        }
-      }),
-      this.handleEvent("prima:modal:close", (payload) => {
-        if (!payload.id || payload.id === this.el.id) {
-          this.handleModalClose()
-        }
-      })
-    ]
+    this.handleEvent("prima:modal:open", (payload) => {
+      if (!payload.id || payload.id === this.el.id) {
+        this.handleModalOpen()
+      }
+    })
+    this.handleEvent("prima:modal:close", (payload) => {
+      if (!payload.id || payload.id === this.el.id) {
+        this.handleModalClose()
+      }
+    })
   },
 
   setupElements() {
@@ -80,13 +80,6 @@ export default {
         element.removeEventListener(event, handler)
       })
       this.listeners = []
-    }
-
-    if (this.pushEventRefs) {
-      this.pushEventRefs.forEach(ref => {
-        if (ref) this.removeHandleEvent(ref)
-      })
-      this.pushEventRefs = []
     }
   },
 
@@ -180,9 +173,7 @@ export default {
 
     if (titleElement) {
       // Generate ID for the title if it doesn't have one
-      if (!titleElement.id) {
-        this.js().setAttribute(titleElement, 'id', `${modalId}-title`)
-      }
+      ensureId(titleElement, `${modalId}-title`, this.js())
 
       // Set aria-labelledby on the modal container
       this.js().setAttribute(this.el, 'aria-labelledby', titleElement.id)

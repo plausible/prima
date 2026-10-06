@@ -96,6 +96,7 @@ defmodule Prima.Dropdown do
 
   attr :flip, :boolean, default: true
   attr :offset, :integer, default: 4
+  attr :match_trigger_width, :boolean, default: false
 
   # Two-div structure separates positioning from transitions:
   # - Outer wrapper: Handles Floating UI positioning (must be display:block for measurements)
@@ -106,11 +107,13 @@ defmodule Prima.Dropdown do
     ~H"""
     <div
       style="display: none; position: absolute; top: 0; left: 0;"
+      phx-mounted={JS.ignore_attributes("style")}
       data-prima-ref="menu-wrapper"
       data-reference={@reference}
       data-placement={@placement}
       data-flip={@flip}
       data-offset={@offset}
+      data-match-trigger-width={@match_trigger_width}
     >
       <div
         class={@class}
@@ -118,7 +121,6 @@ defmodule Prima.Dropdown do
         js-show={JS.show(transition: @transition_enter)}
         js-hide={JS.hide(transition: @transition_leave)}
         role="menu"
-        phx-click-away={JS.dispatch("prima:close")}
         {@rest}
       >
         {render_slot(@inner_block)}

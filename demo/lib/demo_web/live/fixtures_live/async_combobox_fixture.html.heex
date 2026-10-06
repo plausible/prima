@@ -1,24 +1,21 @@
-<form phx-submit="save">
-  <.combobox id="demo-async-combobox">
-    <.combobox_input
-      name="user[favourite_fruit]"
-      phx-change="async_combobox_search"
-      placeholder="Type to search..."
-    />
+<.combobox id="demo-async-combobox" name="user[favourite_fruit]">
+  <.combobox_input
+    on_search="async_combobox_search"
+    placeholder="Type to search..."
+  />
 
-    <.combobox_options
-      phx-update="stream"
-      class="w-64 py-1"
-      id="demo-async-combobox-options"
-    >
-      <%= for {id, option} <- @streams.suggestions do %>
-        <.combobox_option
-          id={id}
-          value={option}
-        >
-          {option}
-        </.combobox_option>
-      <% end %>
-    </.combobox_options>
-  </.combobox>
-</form>
+  <.combobox_options
+    phx-update="stream"
+    class="w-64 py-1"
+    id="demo-async-combobox-options"
+  >
+    <%= for {id, option} <- @streams.suggestions do %>
+      <.combobox_option
+        id={id}
+        value={option}
+      >
+        {option}
+      </.combobox_option>
+    <% end %>
+  </.combobox_options>
+</.combobox>

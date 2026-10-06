@@ -40,7 +40,7 @@ defmodule Demo.MixProject do
       # Phoenix framework
       {:phoenix, ">= 1.7.0"},
       {:phoenix_html, "~> 4.2"},
-      {:phoenix_live_view, "~> 1.1"},
+      {:phoenix_live_view, "~> 1.2"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
 
       # Assets
@@ -60,7 +60,7 @@ defmodule Demo.MixProject do
 
       # Dev tools
       {:tidewave, "~> 0.5", only: [:dev]},
-      {:autumn, "~> 0.5"},
+      {:lumis, "~> 0.1"},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false}
     ]
   end
@@ -70,8 +70,7 @@ defmodule Demo.MixProject do
       setup: ["deps.get", "assets.setup", "assets.build"],
       "assets.setup": [
         "tailwind.install --if-missing",
-        "esbuild.install --if-missing",
-        "cmd --cd assets npm install"
+        "esbuild.install --if-missing"
       ],
       "assets.build": ["tailwind default", "esbuild default"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],

@@ -9,6 +9,41 @@ defmodule DemoWeb.CreatableComboboxTest do
                      "#demo-creatable-combobox [role=option]:not([data-prima-ref=create-option])"
                    )
 
+  feature "created selection without server binding survives dismissal and reconnection",
+          %{
+            session: session
+          } do
+    session
+    |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
+    |> click(@search_input)
+    |> fill_in(@search_input, with: "Strawberry")
+    |> click(@create_option)
+    |> fill_in(@search_input, with: "App")
+    |> send_keys([:escape])
+    |> assert_created_selection("Strawberry")
+    |> fill_in(@search_input, with: "Pear")
+    |> click(Query.css("body"))
+    |> assert_created_selection("Strawberry")
+    |> execute_script("""
+    document.querySelector('#demo-creatable-combobox').removeAttribute('data-prima-ready');
+    window.liveSocket.disconnect(() => window.liveSocket.connect());
+    """)
+    |> assert_has(Query.css("#demo-creatable-combobox[data-prima-ready=true]"))
+    |> fill_in(@search_input, with: "Mango")
+    |> send_keys([:escape])
+    |> assert_created_selection("Strawberry")
+  end
+
+  defp assert_created_selection(session, expected) do
+    assert_combobox_selection(
+      session,
+      "#demo-creatable-combobox",
+      "demo-creatable-combobox[fruit]",
+      expected,
+      expected
+    )
+  end
+
   feature "create option is hidden initially when combobox opens", %{session: session} do
     session
     |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
@@ -90,7 +125,7 @@ defmodule DemoWeb.CreatableComboboxTest do
     |> assert_has(@create_option |> Query.text("Create \"Grapefruit\""))
   end
 
-  feature "selecting create option sets both search and submit inputs", %{session: session} do
+  feature "selecting create option updates the display and submitted value", %{session: session} do
     session
     |> visit_fixture("/fixtures/creatable-combobox", "#demo-creatable-combobox")
     |> click(@search_input)
@@ -101,16 +136,11 @@ defmodule DemoWeb.CreatableComboboxTest do
     |> click(@create_option)
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the created value
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-creatable-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Strawberry",
-               "Expected search input value to be 'Strawberry', got '#{values["search"]}'"
-
-        assert values["submit"] == "Strawberry",
-               "Expected submit input value to be 'Strawberry', got '#{values["submit"]}'"
-      end
+    |> assert_combobox_selection(
+      "#demo-creatable-combobox",
+      "demo-creatable-combobox[fruit]",
+      "Strawberry",
+      "Strawberry"
     )
   end
 
@@ -124,16 +154,11 @@ defmodule DemoWeb.CreatableComboboxTest do
     |> click(@create_option)
     # Options should be hidden after selection
     |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the created value
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-creatable-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-creatable-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Watermelon",
-               "Expected search input value to be 'Watermelon', got '#{values["search"]}'"
-
-        assert values["submit"] == "Watermelon",
-               "Expected submit input value to be 'Watermelon', got '#{values["submit"]}'"
-      end
+    |> assert_combobox_selection(
+      "#demo-creatable-combobox",
+      "demo-creatable-combobox[fruit]",
+      "Watermelon",
+      "Watermelon"
     )
   end
 

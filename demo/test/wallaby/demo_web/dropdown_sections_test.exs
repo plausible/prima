@@ -62,7 +62,8 @@ defmodule DemoWeb.DropdownSectionsTest do
       )
     )
     # Verify the first section's heading ID matches its aria-labelledby and contains correct text
-    |> execute_script("""
+    |> execute_script(
+      """
       const firstSection = document.querySelector('#dropdown-sections [role=group]');
       const labelId = firstSection.getAttribute('aria-labelledby');
       const heading = document.getElementById(labelId);
@@ -70,9 +71,12 @@ defmodule DemoWeb.DropdownSectionsTest do
              heading.getAttribute('role') === 'presentation' &&
              labelId === 'dropdown-sections-section-0-heading' &&
              heading.textContent.trim().includes('Account');
-    """)
+      """,
+      fn valid -> assert valid end
+    )
     # Verify the second section's heading ID and text
-    |> execute_script("""
+    |> execute_script(
+      """
       const sections = document.querySelectorAll('#dropdown-sections [role=group]');
       const secondSection = sections[1];
       const labelId = secondSection.getAttribute('aria-labelledby');
@@ -81,7 +85,9 @@ defmodule DemoWeb.DropdownSectionsTest do
              heading.getAttribute('role') === 'presentation' &&
              labelId === 'dropdown-sections-section-1-heading' &&
              heading.textContent.trim().includes('Support');
-    """)
+      """,
+      fn valid -> assert valid end
+    )
   end
 
   feature "keyboard navigation skips headings and separators", %{session: session} do

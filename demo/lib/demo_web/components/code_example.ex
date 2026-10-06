@@ -4,34 +4,33 @@ defmodule DemoWeb.CodeExample do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
-  @examples_dir "priv/code_examples"
+  @examples_dir Path.expand("../../../priv/code_examples", __DIR__)
+  @example_paths @examples_dir
+                 |> Path.join("**/*")
+                 |> Path.wildcard()
+                 |> Enum.filter(&File.regular?/1)
   @syntax_theme "molokai"
   @code_block_classes "p-4 rounded-b-lg overflow-x-auto text-sm"
 
   @live_component_modules [
     DemoWeb.DemoLive.AsyncModalDemo,
     DemoWeb.DemoLive.FormModalDemo,
-    DemoWeb.DemoLive.AsyncComboboxDemo
+    DemoWeb.DemoLive.AsyncComboboxDemo,
+    DemoWeb.DemoLive.SelectionComboboxDemo,
+    DemoWeb.DemoLive.ListboxFormDemo,
+    DemoWeb.DemoLive.DisabledListboxDemo
   ]
 
   for module <- @live_component_modules, do: Code.ensure_compiled(module)
 
   @highlighted_examples (
-                          examples_path = Path.join(File.cwd!(), @examples_dir)
-
                           highlight_file = fn file_path ->
-                            relative_path = Path.relative_to(file_path, examples_path)
+                            relative_path = Path.relative_to(file_path, @examples_dir)
                             content = File.read!(file_path)
 
-                            language =
-                              case Path.extname(file_path) do
-                                ".ex" -> "elixir"
-                                ".heex" -> "heex"
-                              end
-
                             highlighted_html =
-                              Autumn.highlight!(content,
-                                language: language,
+                              Lumis.highlight!(content,
+                                language: file_path,
                                 formatter:
                                   {:html_inline,
                                    theme: @syntax_theme, pre_class: @code_block_classes}
@@ -40,14 +39,23 @@ defmodule DemoWeb.CodeExample do
                             {relative_path, %{highlighted: highlighted_html, source: content}}
                           end
 
-                          Path.wildcard(Path.join([examples_path, "**", "*"]))
-                          |> Enum.filter(&File.regular?/1)
+                          @example_paths
                           |> Enum.map(highlight_file)
                           |> Map.new()
                         )
 
   for {file_path, _} <- @highlighted_examples do
     @external_resource Path.join([@examples_dir, file_path])
+  end
+
+  def __mix_recompile__? do
+    paths =
+      @examples_dir
+      |> Path.join("**/*")
+      |> Path.wildcard()
+      |> Enum.filter(&File.regular?/1)
+
+    paths != @example_paths
   end
 
   attr :file, :string, required: true, doc: "Path to file in priv/code_examples/"
@@ -166,6 +174,7 @@ defmodule DemoWeb.CodeExample do
         import Prima.Modal
         import Prima.Dropdown
         import Prima.Combobox
+        import Prima.Listbox
         import DemoWeb.CoreComponents
         alias Phoenix.LiveView.JS
 

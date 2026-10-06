@@ -7,7 +7,7 @@ defmodule Prima.MixProject do
       name: "Prima",
       description: "Unstyled, accessible components for LiveView applications",
       app: :prima,
-      version: "0.2.5",
+      version: "0.2.6",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -30,7 +30,7 @@ defmodule Prima.MixProject do
     [
       {:phoenix, ">= 1.7.0"},
       {:phoenix_html, "~> 4.2"},
-      {:phoenix_live_view, "~> 1.1"},
+      {:phoenix_live_view, "~> 1.2"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false}
     ]
@@ -38,14 +38,14 @@ defmodule Prima.MixProject do
 
   defp aliases do
     [
-      setup: ["deps.get", "assets.setup", "assets.build"],
+      setup: ["deps.get", "cmd --cd assets npm ci", "assets.setup", "assets.build"],
       "assets.setup": ["esbuild.install --if-missing"],
       "assets.build": ["esbuild library"],
       "docs.serve": ["docs", "cmd open doc/index.html"],
 
       # Demo application convenience aliases
-      "phx.server": ["cmd cd demo && mix phx.server"],
-      test: ["cmd cd demo && mix test"]
+      "phx.server": ["cmd --cd demo mix phx.server"],
+      test: ["cmd --cd demo mix test"]
     ]
   end
 

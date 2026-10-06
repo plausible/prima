@@ -113,6 +113,22 @@
     The component automatically repositions when scrolling or resizing to stay visible and accessible.
   </p>
 
+  <h3>Match Trigger Width</h3>
+  <p>
+    Use <code>match_trigger_width={true}</code>
+    on <code>.dropdown_menu</code>
+    to make the menu at least as wide as its trigger. This is useful for select-style dropdowns where the menu should align with the trigger's edges.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="dropdown/match_trigger_width.html.heex" />
+  </div>
+
+  <p>
+    The menu's <code>min-width</code>
+    is set to the trigger's width, so the menu can still grow wider if its content requires it. The width is recalculated automatically on scroll and resize.
+  </p>
+
   <h2>Keyboard Interaction</h2>
   <p>
     The dropdown component provides full keyboard accessibility with comprehensive navigation support. All interactions follow standard ARIA patterns for menu components. Try typing letters like "a", "b", or "d" when the menu is open to see typeahead search in action.

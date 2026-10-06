@@ -5,13 +5,14 @@ import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 // Import from built library bundle
-import { Dropdown, Modal, Combobox } from "../../../priv/static/assets/prima"
+import { Dropdown, Modal, Combobox, Listbox } from "../../../priv/static/assets/prima"
 
 
 let Hooks = {}
 Hooks.Dropdown = Dropdown
 Hooks.Modal = Modal
 Hooks.Combobox = Combobox
+Hooks.Listbox = Listbox
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks: Hooks })

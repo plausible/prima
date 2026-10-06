@@ -59,17 +59,7 @@ defmodule DemoWeb.ComboboxTest do
     |> assert_has(@options_container |> Query.visible(true))
     |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
     |> assert_has(@options_container |> Query.visible(false))
-    # Check that both inputs have the selected value
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Apple",
-               "Expected search input value to be 'Apple', got '#{values["search"]}'"
-
-        assert values["submit"] == "Apple",
-               "Expected submit input value to be 'Apple', got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Apple", "Apple")
   end
 
   feature "focuses option on mouse hover", %{session: session} do
@@ -91,17 +81,7 @@ defmodule DemoWeb.ComboboxTest do
     # Click outside to lose focus
     |> click(Query.css("body"))
     |> assert_has(@options_container |> Query.visible(false))
-    # Check that search input is reset but submit input remains empty
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "",
-               "Expected search input to be reset to empty, got '#{values["search"]}'"
-
-        assert values["submit"] == "",
-               "Expected submit input to remain empty, got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "", nil)
   end
 
   feature "preserves focused option after search if focused option still present", %{
@@ -175,16 +155,12 @@ defmodule DemoWeb.ComboboxTest do
     # Select an option
     |> click(Query.css("#demo-combobox [role=option][data-value='Pear']"))
     |> assert_has(@options_container |> Query.visible(false))
-    # Verify the form input has the correct name and value for submission
     |> execute_script(
-      "const input = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {name: input ? input.name : '', value: input ? input.value : ''}",
-      fn data ->
-        assert data["name"] == "demo-combobox[fruit]",
-               "Expected form input name to be 'demo-combobox[fruit]', got '#{data["name"]}'"
-
-        assert data["value"] == "Pear",
-               "Expected form input value to be 'Pear', got '#{data["value"]}'"
-      end
+      """
+      const form = document.querySelector('#demo-combobox').closest('form');
+      return Array.from(new FormData(form).entries());
+      """,
+      fn entries -> assert entries == [["demo-combobox[fruit]", "Pear"]] end
     )
   end
 
@@ -298,6 +274,12 @@ defmodule DemoWeb.ComboboxTest do
       with: "Orange"
     )
     |> assert_has(Query.css("#demo-async-combobox-options") |> Query.visible(true))
+    # "Orange" is always present, even in the unfiltered initial list (an empty search
+    # matches everything) - so this alone doesn't prove the debounced async search for
+    # "Orange" actually completed. Wait for the result count to narrow to the single
+    # match "Orange" produces among the fixture's options, so Enter can't land on a
+    # stale, not-yet-filtered option under load (e.g. a slow CI runner).
+    |> assert_has(Query.css("#demo-async-combobox [role=option]") |> Query.count(1))
     |> assert_has(Query.css("#demo-async-combobox [role=option][data-value='Orange']"))
     # Select Orange
     |> send_keys([:enter])
@@ -477,19 +459,12 @@ defmodule DemoWeb.ComboboxTest do
     |> send_keys([:enter])
     |> assert_has(@options_container |> Query.visible(false))
     # Verify selection worked
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Pear",
-               "Expected search input value to be 'Pear', got '#{values["search"]}'"
-
-        assert values["submit"] == "Pear",
-               "Expected submit input value to be 'Pear', got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Pear", "Pear")
   end
 
-  feature "backspacing after selection and blur clears both inputs", %{session: session} do
+  feature "backspacing after selection clears the display and omits the submitted field", %{
+    session: session
+  } do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
@@ -502,17 +477,7 @@ defmodule DemoWeb.ComboboxTest do
     # Focus back on the input and hit backspace
     |> click(@search_input)
     |> send_keys([:backspace])
-    # Both search and submit inputs should be empty
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "",
-               "Expected search input to be empty after backspace, got '#{values["search"]}'"
-
-        assert values["submit"] == "",
-               "Expected submit input to be empty after backspace, got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "", nil)
   end
 
   feature "backspacing with remaining text does not clear submit value", %{session: session} do
@@ -533,16 +498,6 @@ defmodule DemoWeb.ComboboxTest do
     )
     # Hit backspace - removes one character
     |> send_keys([:backspace])
-    # Search input should have "Appl" but submit input should still be "Apple"
-    |> execute_script(
-      "const searchVal = document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value; const hiddenInput = document.querySelector('#demo-combobox [data-prima-ref=submit_container] input[type=hidden]'); return {search: searchVal, submit: hiddenInput ? hiddenInput.value : ''}",
-      fn values ->
-        assert values["search"] == "Appl",
-               "Expected search input to be 'Appl' after backspace, got '#{values["search"]}'"
-
-        assert values["submit"] == "Apple",
-               "Expected submit input to remain 'Apple', got '#{values["submit"]}'"
-      end
-    )
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Appl", "Apple")
   end
 end

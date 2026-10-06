@@ -4,14 +4,21 @@ defmodule Mix.Tasks.WatchLibrary do
 
   @shortdoc "Watch and rebuild library assets"
   def run(_args) do
-    # Run esbuild watch from parent directory
+    assets_dir = Path.expand("../../../../assets", __DIR__)
+
     {_result, exit_code} =
       System.cmd(
-        "sh",
+        Esbuild.bin_path(),
         [
-          "-c",
-          "cd .. && npx esbuild assets/js/prima.js --bundle --format=esm --target=es2017 --outdir=priv/static/assets --watch --sourcemap=inline"
+          "js/prima.js",
+          "--bundle",
+          "--format=esm",
+          "--target=es2017",
+          "--outdir=../priv/static/assets",
+          "--watch",
+          "--sourcemap=inline"
         ],
+        cd: assets_dir,
         into: IO.stream(:stdio, :line),
         stderr_to_stdout: true
       )

@@ -1,5 +1,8 @@
-<div :if={@live_action == :dropdown}>
-  <.dropdown_fixture />
+<div :if={@live_action in [:dropdown, :dropdown_with_transition]}>
+  <.dropdown_fixture transition_enter={
+    if @live_action == :dropdown_with_transition,
+      do: {"ease-out duration-100", "opacity-0 scale-95", "opacity-100 scale-100"}
+  } />
 </div>
 
 <div :if={@live_action == :dropdown_with_disabled}>
@@ -20,6 +23,10 @@
 
 <div :if={@live_action == :dropdown_sections}>
   <.dropdown_sections_fixture />
+</div>
+
+<div :if={@live_action == :dropdown_generated_ids}>
+  <.dropdown_generated_ids_fixture dropdown_sections={@dropdown_sections} />
 </div>
 
 <div :if={@live_action == :simple_modal}>
@@ -74,6 +81,10 @@
   <.multi_select_combobox_fixture />
 </div>
 
+<div :if={@live_action == :selection_template_combobox}>
+  <.selection_template_combobox_fixture />
+</div>
+
 <div :if={@live_action == :combobox_form_tab}>
   <.combobox_form_tab_fixture />
 </div>
@@ -90,6 +101,30 @@
   <.combobox_change_fixture {assigns} />
 </div>
 
+<div :if={@live_action == :combobox_submission}>
+  <.combobox_submission_fixture
+    multiple={@submission_multiple}
+    selection={@submission_selection}
+  />
+  <div
+    id="submission-state"
+    data-change-count={@form_change_count}
+    data-change={Jason.encode!(@submission_change)}
+  >
+  </div>
+</div>
+
 <div :if={@live_action == :async_combobox_form_change}>
   <.async_combobox_form_change_fixture {assigns} />
+</div>
+
+<div :if={@live_action in [:listbox, :listbox_with_transition]}>
+  <.listbox_fixture transition_enter={
+    if @live_action == :listbox_with_transition,
+      do: {"ease-out duration-100", "opacity-0 scale-95", "opacity-100 scale-100"}
+  } />
+</div>
+
+<div :if={@live_action == :listbox_form}>
+  <.listbox_form_fixture {assigns} />
 </div>
