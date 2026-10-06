@@ -15,7 +15,7 @@ const KEYS = {
 
 const SELECTORS = {
   SEARCH_INPUT: 'input[data-prima-ref=search_input]',
-  SUBMIT_CONTAINER: '[data-prima-ref=submit_container]',
+  SUBMIT_INPUT: 'select[data-prima-ref=submit_input]',
   OPTIONS_WRAPPER: '[data-prima-ref="options-wrapper"]',
   OPTIONS: '[data-prima-ref="options"]',
   OPTION: '[role=option]',
@@ -23,6 +23,7 @@ const SELECTORS = {
   SELECTIONS: '[data-prima-ref=selections]',
   SELECTION_TEMPLATE: '[data-prima-ref=selection-template]',
   SELECTION_ITEM: '[data-prima-ref="selection-item"]',
+  SELECTION_LABEL: '[data-prima-ref="selection-label"]',
   REMOVE_SELECTION: '[data-prima-ref="remove-selection"]',
   VISIBLE_OPTION: '[role=option]:not([data-hidden])',
   FOCUSED_OPTION: '[role=option][data-focus=true]',
@@ -31,36 +32,35 @@ const SELECTORS = {
 
 export default {
   mounted() {
-    this.initialize()
+    this.isOpen = false
+    this.setupElements()
+    this.setupEventListeners()
+    this.syncSelectedAttributes()
+    this.setupAriaAttributes()
+    this.syncSelection()
+    this.close()
+    this.sendQuery('')
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   reconnected() {
-    this.initialize()
+    this.handleBlur()
+    this.lastSentQuery = undefined
+    this.sendQuery('')
+  },
+
+  disconnected() {
+    clearTimeout(this.searchTimer)
   },
 
   destroyed() {
     this.cleanup()
   },
 
-  initialize() {
-    this.cleanup()
-    this.setupElements()
-    this.setupEventListeners()
-    this.initializeCreateOption()
-    this.syncSelectedAttributes()
-    this.setupAriaAttributes()
-
-    if (this.mode === 'async') {
-      this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
-    }
-
-    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
-  },
-
   setupElements() {
     this.refs = {
       searchInput: this.el.querySelector(SELECTORS.SEARCH_INPUT),
-      submitContainer: this.el.querySelector(SELECTORS.SUBMIT_CONTAINER),
+      submitInput: this.el.querySelector(SELECTORS.SUBMIT_INPUT),
       optionsWrapper: this.el.querySelector(SELECTORS.OPTIONS_WRAPPER),
       optionsContainer: this.el.querySelector(SELECTORS.OPTIONS),
       selectionsContainer: this.el.querySelector(SELECTORS.SELECTIONS)
@@ -72,26 +72,30 @@ export default {
     const referenceSelector = this.refs.optionsWrapper?.getAttribute('data-reference')
     this.refs.referenceElement = referenceSelector ? document.querySelector(referenceSelector) : this.refs.searchInput
 
-    this.mode = this.getMode()
     this.isMultiple = this.el.hasAttribute('data-multiple')
-    this.hasCreateOption = !!this.refs.createOption
+    if (this.refs.submitInput) this.refs.submitInput.multiple = this.isMultiple
   },
 
   setupEventListeners() {
+    const onSearchInput = handler => event => {
+      if (event.target === this.refs.searchInput) handler(event)
+    }
+
     this.listeners = [
       [this.el, 'keydown', this.handleKeydown.bind(this)],
       [this.el, 'click', this.handleClick.bind(this)],
-      [this.refs.searchInput, 'focus', this.handleSearchFocus.bind(this)],
-      [this.refs.searchInput, 'click', this.handleSearchClick.bind(this)],
-      [this.refs.searchInput, 'change', (e) => e.stopPropagation()],
-      [this.refs.searchInput, 'input', this.handleInput.bind(this)]
+      [document, 'click', this.handleClickOutside.bind(this)],
+      [this.el, 'focusin', onSearchInput(this.handleSearchFocus.bind(this))],
+      [this.el, 'click', onSearchInput(this.handleSearchClick.bind(this))],
+      [this.el, 'change', onSearchInput(e => e.stopPropagation())],
+      [this.el, 'input', onSearchInput(this.handleInput.bind(this))]
     ]
 
     if (this.refs.optionsContainer) {
       this.listeners.push(
-        [this.refs.optionsContainer, 'click', this.handleClick.bind(this)],
         [this.refs.optionsContainer, 'mouseover', this.handleHover.bind(this)],
-        [this.refs.optionsContainer, 'phx:show-start', this.handleShowStart.bind(this)],
+        [this.refs.optionsContainer, 'phx:show-start', this.startPositioning.bind(this)],
+        [this.refs.optionsContainer, 'phx:show-end', this.handleShowEnd.bind(this)],
         [this.refs.optionsContainer, 'phx:hide-end', this.handleHideEnd.bind(this)]
       )
     }
@@ -129,6 +133,7 @@ export default {
   },
 
   cleanup() {
+    clearTimeout(this.searchTimer)
     this.cleanupAutoUpdate()
 
     if (this.listeners) {
@@ -142,28 +147,44 @@ export default {
   },
 
   updated() {
-    this.ensureOptionIds()
+    this.setupElements()
+    this.syncSelection(document.activeElement === this.refs.searchInput)
+    this.setupAriaAttributes()
     this.positionOptions()
-    if (this.isOptionsVisible()) {
-      const focused = this.getCurrentFocusedOption()
-      if (focused) {
-        if (this.refs.searchInput.getAttribute('aria-activedescendant') !== focused.id) {
-          this.js().setAttribute(this.refs.searchInput, 'aria-activedescendant', focused.id)
-        }
-      } else {
-        const previous = this.findOptionByValue(this.focusedOptionBeforeUpdate)
-        if (previous) {
-          this.setFocus(previous)
-        } else {
-          this.focusFirstOption()
-        }
-      }
-    }
+    if (this.isOpen) this.restoreOptionFocus()
     this.syncSelectedAttributes()
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
-  getMode() {
-    return this.refs.searchInput.hasAttribute('phx-change') ? 'async' : 'frontend'
+  restoreOptionFocus() {
+    const options = this.getVisibleOptions()
+    const focused = this.getCurrentFocusedOption()
+    if (options.includes(focused)) {
+      this.js().setAttribute(this.refs.searchInput, 'aria-activedescendant', focused.id)
+      return
+    }
+
+    const focusedOption = options.find(option => option.dataset.value === this.focusedOptionBeforeUpdate) || options[0]
+    if (focusedOption) {
+      this.setFocus(focusedOption)
+    } else {
+      this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
+    }
+  },
+
+  sendQuery(query) {
+    clearTimeout(this.searchTimer)
+    const input = this.refs.searchInput
+    const event = input.dataset.onSearch
+    if (!event) return
+    if (query === this.lastSentQuery) return
+
+    const target = input.getAttribute('phx-target')
+    const request = target
+      ? this.pushEventTo(target, event, { query })
+      : this.pushEvent(event, { query })
+    this.lastSentQuery = query
+    request.catch(error => console.error('[Prima Combobox] Search failed:', error))
   },
 
   getVisibleOptions() {
@@ -174,85 +195,72 @@ export default {
     return this.refs.optionsContainer?.querySelectorAll(SELECTORS.REGULAR_OPTION) || []
   },
 
-  isOptionsVisible() {
-    if (!this.refs.optionsContainer) return false
-    return this.refs.optionsContainer.style.display !== 'none'
-  },
-
   getSelectedValues() {
-    const inputs = this.refs.submitContainer?.querySelectorAll('input[type="hidden"]') || []
-    return Array.from(inputs).map(input => input.value)
+    return Array.from(this.refs.submitInput?.selectedOptions || []).map(option => option.value)
   },
 
-  findOptionByValue(value) {
-    if (!value) return null
-    const allOptions = this.getRegularOptions()
-    return Array.from(allOptions).find(option =>
-      option.getAttribute('data-value') === value
-    )
-  },
+  syncSelection(preserveSearch = false) {
+    const input = this.refs.submitInput
+    if (!input) return
 
-  getSelectedOption() {
-    const selectedValues = this.getSelectedValues()
-    return this.findOptionByValue(selectedValues[0])
-  },
+    // Like a native text input, focused edits win; a later unfocused patch can
+    // apply the latest server value, even when that value has not changed again.
+    // Without a server binding, patches retain the current client selection.
+    const selection = preserveSearch || !input.hasAttribute('data-selection')
+      ? Array.from(input.options, option => [option.value, option.textContent])
+      : JSON.parse(input.dataset.selection)
+    const options = Array.from(this.getRegularOptions())
+    input.replaceChildren()
+    this.refs.selectionsContainer?.querySelectorAll(SELECTORS.SELECTION_ITEM).forEach(pill => pill.remove())
 
-  restoreSelectedDisplayValue() {
-    const selectedOption = this.getSelectedOption()
-    if (selectedOption) {
-      this.refs.searchInput.value = selectedOption.getAttribute('data-display')
-    } else {
-      this.refs.searchInput.value = ''
+    for (const [value, display] of selection) {
+      const option = options.find(option => option.dataset.value === value)
+      const label = display ?? option?.dataset.display ?? value
+      this.addSelection({ value, label })
+    }
+
+    if (!preserveSearch) {
+      this.refs.searchInput.value = this.isMultiple ? '' : input.selectedOptions[0]?.textContent ?? ''
     }
   },
 
-  getInputName() {
-    if (!this.refs.submitContainer) return ''
-    const baseName = this.refs.submitContainer.getAttribute('data-input-name')
-    return this.isMultiple ? baseName + '[]' : baseName
-  },
+  addSelection(item) {
+    if (!this.refs.submitInput) return false
 
-  addSelection(value) {
-    if (!this.refs.submitContainer) return
-
+    const { value } = item
     const selectedValues = this.getSelectedValues()
 
-    if (selectedValues.includes(value)) return
+    if (selectedValues.includes(value)) return false
 
     if (!this.isMultiple) {
-      this.refs.submitContainer.innerHTML = ''
+      this.refs.submitInput.replaceChildren()
     }
 
-    const input = document.createElement('input')
-    input.type = 'hidden'
-    input.name = this.getInputName()
-    input.value = value
-    this.refs.submitContainer.appendChild(input)
+    // Keep selected labels and values independently of the current search results.
+    this.refs.submitInput.add(new Option(item.label, value, true, true))
 
     if (this.isMultiple) {
-      this.appendSelectionPill(value)
+      this.appendSelectionPill(item)
     }
 
     this.syncSelectedAttributes()
-    this.notifyFormChange(input)
+    return true
   },
 
   removeSelection(value) {
-    const inputs = Array.from(this.refs.submitContainer.querySelectorAll('input[type="hidden"]'))
-    const input = inputs.find(input => input.value === value)
-
+    const option = Array.from(this.refs.submitInput?.options || []).find(option => option.value === value)
+    if (!option) return
 
     if (this.isMultiple) {
-      const pill = this.refs.selectionsContainer?.querySelector(
-        `${SELECTORS.SELECTION_ITEM}[data-value="${value}"]`
-      )
-      pill?.remove()
+      const pills = this.refs.selectionsContainer?.querySelectorAll(SELECTORS.SELECTION_ITEM) || []
+      for (const pill of pills) {
+        if (pill.dataset.value === value) pill.remove()
+      }
     }
 
-    input.value = ''
-    this.notifyFormChange(input)
-    input.remove()
+    option.remove()
     this.syncSelectedAttributes()
+    this.notifyFormChange()
   },
 
   setFocus(el) {
@@ -326,7 +334,7 @@ export default {
       displayValue = value
     }
 
-    this.addSelection(value)
+    const changed = this.addSelection({ value, label: displayValue })
 
     if (this.isMultiple) {
       this.refs.searchInput.value = ''
@@ -335,7 +343,8 @@ export default {
       this.refs.searchInput.value = displayValue
     }
 
-    this.hideOptions()
+    this.close()
+    if (changed) this.notifyFormChange()
   },
 
   syncSelectedAttributes() {
@@ -354,16 +363,22 @@ export default {
     }
   },
 
-  appendSelectionPill(value) {
+  appendSelectionPill({ value, label }) {
     if (!this.refs.selectionsContainer || !this.refs.selectionTemplate) return
 
-    const option = this.findOptionByValue(value)
-    const displayValue = option ? option.getAttribute('data-display') : value
-
     const pill = this.refs.selectionTemplate.content.cloneNode(true)
-    const item = pill.querySelector(SELECTORS.SELECTION_ITEM)
-    item.dataset.value = value
-    item.innerHTML = item.innerHTML.replaceAll('__VALUE__', displayValue)
+    for (const item of pill.querySelectorAll(SELECTORS.SELECTION_ITEM)) {
+      item.dataset.value = value
+    }
+    for (const labelElement of pill.querySelectorAll(SELECTORS.SELECTION_LABEL)) {
+      labelElement.textContent = label
+    }
+    for (const button of pill.querySelectorAll(SELECTORS.REMOVE_SELECTION)) {
+      button.setAttribute('data-value', value)
+      if (!button.hasAttribute('aria-label')) {
+        button.setAttribute('aria-label', `Remove ${label}`)
+      }
+    }
 
     this.refs.selectionsContainer.appendChild(pill)
   },
@@ -388,14 +403,14 @@ export default {
     const otherNavigationKeys = [KEYS.HOME, KEYS.END, KEYS.PAGE_UP, KEYS.PAGE_DOWN]
 
     // Arrow keys open options if closed, then navigate
-    if (arrowKeys.includes(e.key) && !this.isOptionsVisible()) {
+    if (arrowKeys.includes(e.key) && !this.isOpen) {
       e.preventDefault()
-      this.showOptions()
+      this.openOptions()
       return
     }
 
     // Other navigation keys only work when options are visible
-    if (otherNavigationKeys.includes(e.key) && !this.isOptionsVisible()) {
+    if (otherNavigationKeys.includes(e.key) && !this.isOpen) {
       return
     }
 
@@ -420,18 +435,11 @@ export default {
 
   handleEscape(e) {
     e.preventDefault()
-
-    if (!this.isMultiple) {
-      this.restoreSelectedDisplayValue()
-    } else {
-      this.refs.searchInput.value = ''
-    }
-
-    this.hideOptions()
+    this.handleBlur()
   },
 
   handleEnterOrTab(e) {
-    if (!this.isOptionsVisible()) {
+    if (!this.isOpen) {
       return
     }
     e.preventDefault()
@@ -462,14 +470,15 @@ export default {
   },
 
   handleSearchClick() {
-    if (this.isOptionsVisible()) {
-      this.hideOptions()
+    if (this.isOpen) {
+      this.handleBlur()
     } else {
-      this.showOptions()
+      this.openOptions()
     }
   },
 
   handleInput(e) {
+    e.stopPropagation()
     const searchValue = e.target.value
 
     // Clear selection when search input becomes empty
@@ -477,31 +486,19 @@ export default {
       this.removeSelection(this.getSelectedValues()[0])
     }
 
-    if (this.hasCreateOption) {
-      this.updateCreateOption(searchValue)
-    }
+    this.updateCreateOption(searchValue)
 
-    if (this.mode === 'async') {
-      this.handleAsyncMode()
-    } else {
-      e.stopPropagation()
-      this.handleFrontendMode(searchValue)
-    }
-  },
-
-  handleAsyncMode() {
-    if (this.refs.searchInput.value.length > 0) {
-      this.showOptions()
-    }
-    this.focusedOptionBeforeUpdate = this.getCurrentFocusedOption()?.dataset.value
-  },
-
-  handleFrontendMode(searchValue) {
     if (searchValue.length > 0) {
       this.showOptions()
     }
 
-    this.filterOptions(searchValue)
+    if (this.refs.searchInput.dataset.onSearch) {
+      this.focusedOptionBeforeUpdate = this.getCurrentFocusedOption()?.dataset.value
+      clearTimeout(this.searchTimer)
+      this.searchTimer = setTimeout(() => this.sendQuery(searchValue), Number(this.refs.searchInput.dataset.searchDebounce))
+    } else {
+      this.filterOptions(searchValue)
+    }
   },
 
   filterOptions(searchValue) {
@@ -521,9 +518,7 @@ export default {
       }
     }
 
-    if (this.hasCreateOption) {
-      this.updateCreateOptionVisibility(searchValue)
-    }
+    this.updateCreateOptionVisibility(searchValue)
 
     if (previouslyFocusedOptionIsHidden) {
       this.focusFirstOption()
@@ -575,28 +570,38 @@ export default {
     }
   },
 
+  openOptions() {
+    this.showOptions()
+    this.sendQuery('')
+  },
+
   showOptions() {
+    if (!this.refs.optionsContainer || this.isOpen) return
+
+    this.isOpen = true
+    this.js().setAttribute(this.refs.searchInput, 'aria-expanded', 'true')
+    // Reset local filtering for a fresh opening.
+    for (const option of this.getRegularOptions()) {
+      this.showOption(option)
+    }
     // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
     // then position it, then trigger inner options transition. This prevents the options from
     // briefly appearing at wrong position before jumping to correct position.
     this.refs.optionsWrapper.style.display = 'block'
     this.positionOptions()
-    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'));
-
-    this.refs.optionsContainer.addEventListener('phx:show-end', () => {
-      this.focusFirstOption()
-    }, {once: true})
-
-    this.setupClickOutsideHandler()
+    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-show'))
   },
 
-  handleShowStart() {
-    this.js().setAttribute(this.refs.searchInput, 'aria-expanded', 'true')
-
+  startPositioning() {
     // Setup autoUpdate to reposition on scroll/resize
+    this.cleanupAutoUpdate()
     this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsWrapper, () => {
       this.positionOptions()
     })
+  },
+
+  handleShowEnd() {
+    if (this.isOpen) this.focusFirstOption()
   },
 
   handleHideEnd() {
@@ -604,50 +609,36 @@ export default {
     this.cleanupAutoUpdate()
   },
 
-  hideOptions() {
-    if (!this.refs.optionsContainer) return
-
-    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'));
-    this.js().setAttribute(this.refs.searchInput, 'aria-expanded', 'false')
+  close() {
+    clearTimeout(this.searchTimer)
     this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
-
-    this.refs.optionsContainer.addEventListener('phx:hide-end', () => {
-      const regularOptions = this.getRegularOptions()
-      for (const option of regularOptions) {
-        this.showOption(option)
-      }
-    }, { once: true })
-  },
-
-  setupClickOutsideHandler() {
-    const handleClickOutside = (event) => {
-      if (!this.refs.optionsContainer.contains(event.target) && !this.refs.searchInput.contains(event.target)) {
-        this.handleBlur()
-        document.removeEventListener('click', handleClickOutside)
-      }
+    if (this.refs.createOption) {
+      this.hideOption(this.refs.createOption)
+      this.refs.createOption.textContent = ''
+      this.js().removeAttribute(this.refs.createOption, 'data-focus')
     }
 
-    document.addEventListener('click', handleClickOutside)
+    if (!this.refs.optionsContainer || !this.isOpen) return
+
+    this.isOpen = false
+    this.js().setAttribute(this.refs.searchInput, 'aria-expanded', 'false')
+    this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'))
+  },
+
+  handleClickOutside(event) {
+    if (this.isOpen && !this.refs.optionsContainer.contains(event.target) && !this.refs.searchInput.contains(event.target)) {
+      this.handleBlur()
+    }
   },
 
   handleBlur() {
-    const hasSelection = this.getSelectedValues().length > 0
-    const hasSearchText = this.refs.searchInput.value.length > 0
+    if (!this.isOpen) return
 
-    if (hasSelection && hasSearchText) {
-      this.restoreSelectedDisplayValue()
-    } else if (hasSearchText) {
-      this.refs.searchInput.value = ''
-      this.refs.searchInput.dispatchEvent(new Event("input", {bubbles: true}))
-      this.refs.submitContainer.innerHTML = ''
-    }
+    this.refs.searchInput.value = this.isMultiple
+      ? ''
+      : this.refs.submitInput?.selectedOptions[0]?.textContent ?? ''
 
-    this.hideOptions()
-  },
-
-  initializeCreateOption() {
-    if (!this.hasCreateOption) return
-    this.hideOption(this.refs.createOption)
+    this.close()
   },
 
   updateCreateOption(searchValue) {
@@ -682,7 +673,9 @@ export default {
     return hasStaticMatch || hasSelectedMatch
   },
 
-  notifyFormChange(input) {
+  notifyFormChange() {
+    const input = this.refs.submitInput
     input.dispatchEvent(new Event('input', { bubbles: true }))
+    input.dispatchEvent(new Event('change', { bubbles: true }))
   }
 }

@@ -1,7 +1,12 @@
 <form phx-change="form_changed">
-  <.combobox id="change-combobox">
+  <.combobox
+    :let={input_value}
+    id="change-combobox"
+    name="fruit"
+    selections={@selected_fruit && %{value: @selected_fruit}}
+  >
     <.combobox_input
-      name="fruit"
+      value={input_value}
       placeholder="Select a fruit..."
     />
 
