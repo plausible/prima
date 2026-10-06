@@ -33,7 +33,6 @@ export default {
     this.setupElements()
     this.setupPopover()
     this.setupEventListeners()
-    this.syncSelectedAttributes()
     this.setupAriaAttributes()
     this.syncSelection()
     this.resetSearch()
@@ -99,20 +98,13 @@ export default {
       [this.el, 'focusin', onSearchInput(this.handleSearchFocus.bind(this))],
       [this.el, 'click', onSearchInput(this.handleSearchClick.bind(this))],
       [this.el, 'change', onSearchInput(e => e.stopPropagation())],
-      [this.el, 'input', onSearchInput(this.handleInput.bind(this))]
+      [this.el, 'input', onSearchInput(this.handleInput.bind(this))],
+      [this.el, 'mouseover', event => {
+        if (this.refs.optionsContainer?.contains(event.target)) this.handleHover(event)
+      }]
     ]
 
-    if (this.refs.optionsContainer) {
-      this.listeners.push(
-        [this.refs.optionsContainer, 'mouseover', this.handleHover.bind(this)]
-      )
-    }
-
-    this.listeners.forEach(([element, event, handler]) => {
-      if (element) {
-        element.addEventListener(event, handler)
-      }
-    })
+    this.listeners.forEach(([element, event, handler]) => element.addEventListener(event, handler))
   },
 
   setupAriaAttributes() {
@@ -141,14 +133,8 @@ export default {
   },
 
   cleanup() {
-    if (this.listeners) {
-      this.listeners.forEach(([element, event, handler]) => {
-        if (element) {
-          element.removeEventListener(event, handler)
-        }
-      })
-      this.listeners = []
-    }
+    this.listeners.forEach(([element, event, handler]) => element.removeEventListener(event, handler))
+    this.listeners = []
   },
 
   beforeUpdate() {
@@ -156,14 +142,11 @@ export default {
   },
 
   updated() {
-    this.cleanup()
     this.setupElements()
     this.setupPopover()
-    this.setupEventListeners()
     this.syncSelection(document.activeElement === this.refs.searchInput)
     this.setupAriaAttributes()
     if (this.popover.isOpen) this.restoreOptionFocus()
-    this.syncSelectedAttributes()
     this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
@@ -225,6 +208,7 @@ export default {
       const label = display ?? option?.dataset.display ?? value
       this.addSelection({ value, label })
     }
+    this.syncSelectedAttributes()
 
     if (!preserveSearch) {
       this.refs.searchInput.value = this.isMultiple ? '' : input.selectedOptions[0]?.textContent ?? ''
@@ -250,7 +234,6 @@ export default {
       this.appendSelectionPill(item)
     }
 
-    this.syncSelectedAttributes()
     return true
   },
 
@@ -344,6 +327,7 @@ export default {
     }
 
     const changed = this.addSelection({ value, label: displayValue })
+    if (changed) this.syncSelectedAttributes()
 
     this.popover.close('selection')
     if (changed) this.notifyFormChange()
@@ -353,11 +337,11 @@ export default {
     if (!this.refs.optionsContainer) return
 
     const allOptions = this.getRegularOptions()
-    const selectedValues = this.getSelectedValues()
+    const selectedValues = new Set(this.getSelectedValues())
 
     for (const option of allOptions) {
       const value = option.getAttribute('data-value')
-      if (selectedValues.includes(value)) {
+      if (selectedValues.has(value)) {
         option.setAttribute('data-selected', 'true')
       } else {
         option.removeAttribute('data-selected')

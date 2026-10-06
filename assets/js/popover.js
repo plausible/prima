@@ -10,22 +10,24 @@ export default class PopoverController {
     this.onOpened = onOpened
     this.isOpen = false
     this.listeners = []
+    this.setupDismissal()
+    this.setupTransitions()
   }
 
   update({ trigger, wrapper, panel }) {
-    this.detach()
+    const referenceSelector = wrapper?.getAttribute('data-reference')
+    const reference = (referenceSelector && document.querySelector(referenceSelector)) || trigger
+    if (this.reference !== reference || this.wrapper !== wrapper) this.stopPositioning()
     this.trigger = trigger
     this.wrapper = wrapper
     this.panel = panel
-    const referenceSelector = wrapper?.getAttribute('data-reference')
-    this.reference = (referenceSelector && document.querySelector(referenceSelector)) || trigger
+    this.reference = reference
     if (!trigger || !wrapper || !panel) {
       this.isOpen = false
+      this.stopPositioning()
       return
     }
 
-    this.setupDismissal()
-    this.setupTransitions()
     this.syncAttributes()
     this.syncDisplay()
     if (this.isOpen) this.startPositioning()
@@ -54,15 +56,19 @@ export default class PopoverController {
   }
 
   setupTransitions() {
-    this.listen(this.panel, 'phx:show-start', () => {
+    // LiveView transition events do not bubble; capture them on the stable hook root.
+    const onPanel = handler => event => {
+      if (event.target === this.panel) handler()
+    }
+    this.listen(this.hook.el, 'phx:show-start', onPanel(() => {
       this.panel.style.display = this.isOpen ? 'block' : 'none'
       if (this.isOpen) this.initialFocus?.()?.focus({ preventScroll: true })
-    })
-    this.listen(this.panel, 'phx:show-end', () => {
+    }), true)
+    this.listen(this.hook.el, 'phx:show-end', onPanel(() => {
       this.syncDisplay()
       if (this.isOpen) this.onOpened?.()
-    })
-    this.listen(this.panel, 'phx:hide-end', () => this.syncDisplay())
+    }), true)
+    this.listen(this.hook.el, 'phx:hide-end', onPanel(() => this.syncDisplay()), true)
   }
 
   // Preserve the original hooks' basic display correction after LiveView commands.
@@ -86,9 +92,9 @@ export default class PopoverController {
     }
   }
 
-  listen(element, event, handler) {
-    element.addEventListener(event, handler)
-    this.listeners.push([element, event, handler])
+  listen(element, event, handler, capture = false) {
+    element.addEventListener(event, handler, capture)
+    this.listeners.push([element, event, handler, capture])
   }
 
   contains(target) {
@@ -142,8 +148,8 @@ export default class PopoverController {
   }
 
   startPositioning() {
-    this.stopPositioning()
-    this.autoUpdateCleanup = autoUpdate(this.reference, this.wrapper, () => this.position())
+    if (this.autoUpdateCleanup) this.position()
+    else this.autoUpdateCleanup = autoUpdate(this.reference, this.wrapper, () => this.position())
   }
 
   position() {
@@ -168,14 +174,10 @@ export default class PopoverController {
     this.autoUpdateCleanup = null
   }
 
-  detach() {
-    this.stopPositioning()
-    this.listeners.forEach(([element, event, handler]) => element.removeEventListener(event, handler))
-    this.listeners = []
-  }
-
   destroy() {
     this.isOpen = false
-    this.detach()
+    this.stopPositioning()
+    this.listeners.forEach(([element, event, handler, capture]) => element.removeEventListener(event, handler, capture))
+    this.listeners = []
   }
 }

@@ -26,6 +26,7 @@ const SELECTORS = {
 export default {
   mounted() {
     this.initialize()
+    this.setupEventListeners()
     this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
@@ -48,10 +49,8 @@ export default {
   },
 
   initialize() {
-    this.cleanup()
     this.setupElements()
     this.setupPopover()
-    this.setupEventListeners()
     this.syncDisabledState()
     this.syncSelectionFromInput()
   },
@@ -97,9 +96,13 @@ export default {
 
   setupEventListeners() {
     this.listeners = [
-      [this.refs.button, 'click', () => this.popover.toggle()],
-      [this.refs.listbox, 'mouseover', this.handleMouseOver.bind(this)],
-      [this.refs.listbox, 'click', this.handleListboxClick.bind(this)],
+      [this.el, 'click', event => {
+        if (this.refs.button.contains(event.target)) this.popover.toggle()
+        else if (this.refs.listbox.contains(event.target)) this.handleListboxClick(event)
+      }],
+      [this.el, 'mouseover', event => {
+        if (this.refs.listbox.contains(event.target)) this.handleMouseOver(event)
+      }],
       [this.el, 'keydown', this.handleKeydown.bind(this)]
     ]
 
@@ -275,11 +278,7 @@ export default {
 
   findOptionByValue(value) {
     if (!value) return null
-    return Array.from(this.getAllOptions()).find(option => option.getAttribute('data-value') === value)
-  },
-
-  getAllOptions() {
-    return this.el.querySelectorAll(SELECTORS.OPTION)
+    return Array.from(this.el.querySelectorAll(SELECTORS.OPTION)).find(option => option.getAttribute('data-value') === value)
   },
 
   getEnabledOptions() {

@@ -23,6 +23,7 @@ const SELECTORS = {
 export default {
   mounted() {
     this.initialize()
+    this.setupEventListeners()
     this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
@@ -45,10 +46,8 @@ export default {
   },
 
   initialize() {
-    this.cleanup()
     this.setupElements()
     this.setupPopover()
-    this.setupEventListeners()
   },
 
   setupElements() {
@@ -74,9 +73,13 @@ export default {
 
   setupEventListeners() {
     this.listeners = [
-      [this.refs.button, 'click', () => this.popover.toggle()],
-      [this.refs.menu, 'mouseover', this.handleMouseOver.bind(this)],
-      [this.refs.menu, 'click', this.handleMenuClick.bind(this)],
+      [this.el, 'click', event => {
+        if (this.refs.button.contains(event.target)) this.popover.toggle()
+        else if (this.refs.menu.contains(event.target)) this.handleMenuClick(event)
+      }],
+      [this.el, 'mouseover', event => {
+        if (this.refs.menu.contains(event.target)) this.handleMouseOver(event)
+      }],
       [this.el, 'keydown', this.handleKeydown.bind(this)]
     ]
 
