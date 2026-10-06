@@ -29,6 +29,7 @@ defmodule DemoWeb.Router do
       live "/fixtures/dropdown-custom-ids", FixturesLive, :dropdown_custom_ids
       live "/fixtures/dropdown-rerender-trigger", FixturesLive, :dropdown_rerender_trigger
       live "/fixtures/dropdown-sections", FixturesLive, :dropdown_sections
+      live "/fixtures/dropdown-generated-ids", FixturesLive, :dropdown_generated_ids
       live "/fixtures/simple-modal", FixturesLive, :simple_modal
       live "/fixtures/async-modal", FixturesLive, :async_modal
       live "/fixtures/modal-rerender-title", FixturesLive, :modal_rerender_title

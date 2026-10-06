@@ -27,6 +27,7 @@ defmodule DemoWeb.FixturesLive do
       |> assign(submission_change: %{})
       |> assign(listbox_disabled?: false, submitted_fruit: "not submitted")
       |> assign(trigger_label: "Open Dropdown")
+      |> assign(dropdown_sections: ["Apple", "Banana"])
       |> assign(modal_title: "Good news")
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
       |> stream(:suggestions, [])
@@ -109,6 +110,11 @@ defmodule DemoWeb.FixturesLive do
   @impl true
   def handle_event("update-dropdown-trigger", _params, socket) do
     {:noreply, assign(socket, trigger_label: "Updated Trigger")}
+  end
+
+  @impl true
+  def handle_event("update-dropdown-items", _params, socket) do
+    {:noreply, assign(socket, dropdown_sections: ["Banana", "Cherry"])}
   end
 
   @impl true

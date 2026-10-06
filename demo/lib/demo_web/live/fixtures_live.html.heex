@@ -25,6 +25,10 @@
   <.dropdown_sections_fixture />
 </div>
 
+<div :if={@live_action == :dropdown_generated_ids}>
+  <.dropdown_generated_ids_fixture dropdown_sections={@dropdown_sections} />
+</div>
+
 <div :if={@live_action == :simple_modal}>
   <.simple_modal_fixture />
 </div>

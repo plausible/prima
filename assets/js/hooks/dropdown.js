@@ -1,4 +1,5 @@
 import { computePosition, flip, offset, autoUpdate } from '@floating-ui/dom';
+import { ensureId } from '../ensure_id';
 
 const KEYS = {
   ARROW_UP: 'ArrowUp',
@@ -349,19 +350,36 @@ export default {
   },
 
   setupAriaRelationships(button, menu) {
-    this.js().setAttribute(button, 'aria-controls', menu.id)
-    this.js().setAttribute(menu, 'aria-labelledby', button.id)
+    const dropdownId = this.el.id
+    const triggerId = ensureId(button, `${dropdownId}-trigger`, this.js())
+    const menuId = ensureId(menu, `${dropdownId}-menu`, this.js())
 
+    this.js().setAttribute(button, 'aria-controls', menuId)
+    this.js().setAttribute(menu, 'aria-labelledby', triggerId)
+
+    this.setupMenuitemIds()
     this.setupSectionLabels()
   },
 
+  setupMenuitemIds() {
+    const dropdownId = this.el.id
+    const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
+
+    items.forEach((item, index) => {
+      ensureId(item, `${dropdownId}-item-${index}`, this.js())
+    })
+  },
+
   setupSectionLabels() {
+    const dropdownId = this.el.id
     const sections = this.el.querySelectorAll('[role="group"]')
 
-    sections.forEach((section) => {
+    sections.forEach((section, sectionIndex) => {
       // Check if the first child is a heading (role="presentation")
       const firstChild = section.firstElementChild
       if (firstChild && firstChild.getAttribute('role') === 'presentation') {
+        // Ensure the heading has an ID
+        ensureId(firstChild, `${dropdownId}-section-${sectionIndex}-heading`, this.js())
         // Link the section to the heading
         this.js().setAttribute(section, 'aria-labelledby', firstChild.id)
       }

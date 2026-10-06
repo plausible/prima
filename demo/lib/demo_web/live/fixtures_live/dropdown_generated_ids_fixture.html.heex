@@ -1,0 +1,24 @@
+<div>
+  <.dropdown id="generated-dropdown">
+    <.dropdown_trigger>Open Dropdown</.dropdown_trigger>
+    <.dropdown_menu>
+      <.dropdown_section
+        :for={section <- @dropdown_sections}
+        :key={section}
+        data-section={section}
+      >
+        <.dropdown_heading>{section}</.dropdown_heading>
+        <.dropdown_item data-item={section}>{section}</.dropdown_item>
+      </.dropdown_section>
+      <.dropdown_section>
+        <.dropdown_heading id="generated-dropdown-section-1-heading-1">
+          Custom
+        </.dropdown_heading>
+        <.dropdown_item id="generated-dropdown-item-1-1" data-item="Custom">
+          Custom
+        </.dropdown_item>
+      </.dropdown_section>
+    </.dropdown_menu>
+  </.dropdown>
+  <button id="update-items" phx-click="update-dropdown-items">Update items</button>
+</div>

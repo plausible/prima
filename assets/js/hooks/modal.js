@@ -1,3 +1,5 @@
+import { ensureId } from '../ensure_id';
+
 export default {
   mounted() {
     this.setupPushEventListeners()
@@ -123,7 +125,7 @@ export default {
     this.maybeExecJS(this.ref("modal-panel"), "js-hide");
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     if (this.async) {
-      this.ref("modal-panel").dataset.primaDirty = true
+      this.js().setAttribute(this.ref("modal-panel"), 'data-prima-dirty', 'true')
     }
   },
 
@@ -171,9 +173,7 @@ export default {
 
     if (titleElement) {
       // Generate ID for the title if it doesn't have one
-      if (!titleElement.id) {
-        titleElement.id = `${modalId}-title`
-      }
+      ensureId(titleElement, `${modalId}-title`, this.js())
 
       // Set aria-labelledby on the modal container
       this.js().setAttribute(this.el, 'aria-labelledby', titleElement.id)

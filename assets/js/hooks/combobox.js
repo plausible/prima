@@ -1,4 +1,5 @@
 import { computePosition, flip, offset, autoUpdate } from '@floating-ui/dom';
+import { ensureId } from '../ensure_id';
 
 const KEYS = {
   ARROW_UP: 'ArrowUp',
@@ -125,10 +126,8 @@ export default {
 
     const options = this.refs.optionsContainer.querySelectorAll(SELECTORS.OPTION)
     options.forEach((option, index) => {
-      if (!option.id) {
-        const comboboxId = this.el.id || 'combobox'
-        option.id = `${comboboxId}-option-${index}`
-      }
+      const comboboxId = this.el.id || 'combobox'
+      ensureId(option, `${comboboxId}-option-${index}`, this.js())
     })
   },
 

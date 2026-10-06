@@ -30,7 +30,7 @@ defmodule Prima.MixProject do
     [
       {:phoenix, ">= 1.7.0"},
       {:phoenix_html, "~> 4.2"},
-      {:phoenix_live_view, "~> 1.1"},
+      {:phoenix_live_view, "~> 1.2"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
       {:ex_doc, "~> 0.32", only: :dev, runtime: false}
     ]

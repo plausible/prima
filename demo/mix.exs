@@ -40,7 +40,7 @@ defmodule Demo.MixProject do
       # Phoenix framework
       {:phoenix, ">= 1.7.0"},
       {:phoenix_html, "~> 4.2"},
-      {:phoenix_live_view, "~> 1.1"},
+      {:phoenix_live_view, "~> 1.2"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
 
       # Assets

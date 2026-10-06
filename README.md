@@ -11,6 +11,8 @@ Prima is a Phoenix LiveView component library providing unstyled, accessible UI 
 
 ## Installation
 
+Prima requires Phoenix LiveView 1.2 or later, including the matching JavaScript client.
+
 Add `prima` to your list of dependencies in `mix.exs`:
 
 ```elixir
