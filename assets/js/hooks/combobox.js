@@ -40,7 +40,7 @@ export default {
     this.syncSelection()
     this.close()
     this.sendQuery('')
-    this.el.setAttribute('data-prima-ready', 'true')
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   reconnected() {
@@ -112,7 +112,7 @@ export default {
     if (this.refs.optionsContainer && this.refs.searchInput) {
       const optionsId = this.refs.optionsContainer.getAttribute('id')
       if (optionsId) {
-        this.refs.searchInput.setAttribute('aria-controls', optionsId)
+        this.js().setAttribute(this.refs.searchInput, 'aria-controls', optionsId)
       }
     }
 
@@ -153,13 +153,23 @@ export default {
     this.positionOptions()
     if (this.isOpen) this.restoreOptionFocus()
     this.syncSelectedAttributes()
-    this.el.setAttribute('data-prima-ready', 'true')
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   restoreOptionFocus() {
     const options = this.getVisibleOptions()
+    const focused = this.getCurrentFocusedOption()
+    if (options.includes(focused)) {
+      this.js().setAttribute(this.refs.searchInput, 'aria-activedescendant', focused.id)
+      return
+    }
+
     const focusedOption = options.find(option => option.dataset.value === this.focusedOptionBeforeUpdate) || options[0]
-    if (focusedOption) this.setFocus(focusedOption)
+    if (focusedOption) {
+      this.setFocus(focusedOption)
+    } else {
+      this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
+    }
   },
 
   sendQuery(query) {
@@ -254,12 +264,13 @@ export default {
   },
 
   setFocus(el) {
-    this.refs.optionsContainer?.querySelector(SELECTORS.FOCUSED_OPTION)?.removeAttribute('data-focus')
-    el.setAttribute('data-focus', 'true')
+    const focused = this.getCurrentFocusedOption()
+    if (focused) this.js().removeAttribute(focused, 'data-focus')
+    this.js().setAttribute(el, 'data-focus', 'true')
 
     // Update aria-activedescendant to point to the focused option
     if (el.id) {
-      this.refs.searchInput.setAttribute('aria-activedescendant', el.id)
+      this.js().setAttribute(this.refs.searchInput, 'aria-activedescendant', el.id)
     }
 
     el.scrollIntoView({ block: 'nearest', inline: 'nearest' })
@@ -269,6 +280,8 @@ export default {
     const firstOption = this.refs.optionsContainer?.querySelector(SELECTORS.VISIBLE_OPTION)
     if (firstOption) {
       this.setFocus(firstOption)
+    } else {
+      this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
     }
   },
 
@@ -566,7 +579,7 @@ export default {
     if (!this.refs.optionsContainer || this.isOpen) return
 
     this.isOpen = true
-    this.refs.searchInput.setAttribute('aria-expanded', 'true')
+    this.js().setAttribute(this.refs.searchInput, 'aria-expanded', 'true')
     // Reset local filtering for a fresh opening.
     for (const option of this.getRegularOptions()) {
       this.showOption(option)
@@ -598,17 +611,17 @@ export default {
 
   close() {
     clearTimeout(this.searchTimer)
-    this.refs.searchInput.removeAttribute('aria-activedescendant')
+    this.js().removeAttribute(this.refs.searchInput, 'aria-activedescendant')
     if (this.refs.createOption) {
       this.hideOption(this.refs.createOption)
       this.refs.createOption.textContent = ''
-      this.refs.createOption.removeAttribute('data-focus')
+      this.js().removeAttribute(this.refs.createOption, 'data-focus')
     }
 
     if (!this.refs.optionsContainer || !this.isOpen) return
 
     this.isOpen = false
-    this.refs.searchInput.setAttribute('aria-expanded', 'false')
+    this.js().setAttribute(this.refs.searchInput, 'aria-expanded', 'false')
     this.liveSocket.execJS(this.refs.optionsContainer, this.refs.optionsContainer.getAttribute('js-hide'))
   },
 

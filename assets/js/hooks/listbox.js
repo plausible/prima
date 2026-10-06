@@ -27,10 +27,12 @@ const SELECTORS = {
 export default {
   mounted() {
     this.initialize()
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   updated() {
     this.initialize()
+    this.setFocus(this.el.querySelector(SELECTORS.FOCUSED_OPTION))
   },
 
   reconnected() {
@@ -47,7 +49,7 @@ export default {
     this.setupEventListeners()
     this.syncDisabledState()
     this.syncSelectionFromInput()
-    this.el.setAttribute('data-prima-ready', 'true')
+    if (this.isListboxVisible()) this.startAutoUpdate()
   },
 
   setupElements() {
@@ -65,8 +67,8 @@ export default {
   },
 
   setupAriaRelationships(button, listbox) {
-    button.setAttribute('aria-controls', listbox.id)
-    listbox.setAttribute('aria-labelledby', button.id)
+    this.js().setAttribute(button, 'aria-controls', listbox.id)
+    this.js().setAttribute(listbox, 'aria-labelledby', button.id)
   },
 
   syncSelectionFromInput() {
@@ -105,6 +107,14 @@ export default {
       })
       this.listeners = []
     }
+  },
+
+  startAutoUpdate() {
+    // Setup autoUpdate to reposition on scroll/resize
+    this.cleanupAutoUpdate()
+    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsWrapper, () => {
+      this.positionListbox()
+    })
   },
 
   cleanupAutoUpdate() {
@@ -327,15 +337,16 @@ export default {
   setFocus(el) {
     this.clearFocus()
     if (el && el.getAttribute('aria-disabled') !== 'true') {
-      el.setAttribute('data-focus', '')
-      this.refs.listbox.setAttribute('aria-activedescendant', el.id)
+      this.js().setAttribute(el, 'data-focus', '')
+      this.js().setAttribute(this.refs.listbox, 'aria-activedescendant', el.id)
     } else {
-      this.refs.listbox.removeAttribute('aria-activedescendant')
+      this.js().removeAttribute(this.refs.listbox, 'aria-activedescendant')
     }
   },
 
   clearFocus() {
-    this.el.querySelector(SELECTORS.FOCUSED_OPTION)?.removeAttribute('data-focus')
+    const focused = this.el.querySelector(SELECTORS.FOCUSED_OPTION)
+    if (focused) this.js().removeAttribute(focused, 'data-focus')
   },
 
   hideListbox() {
@@ -381,14 +392,10 @@ export default {
     this.refs.listbox.style.display = shouldBeOpen ? '' : 'none'
     if (!shouldBeOpen) return
 
-    this.refs.button.setAttribute('aria-expanded', 'true')
+    this.js().setAttribute(this.refs.button, 'aria-expanded', 'true')
     this.refs.listbox.focus({ preventScroll: true })
 
-    // Setup autoUpdate to reposition on scroll/resize
-    this.cleanupAutoUpdate()
-    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.optionsWrapper, () => {
-      this.positionListbox()
-    })
+    this.startAutoUpdate()
   },
 
   handleHideEnd() {
@@ -397,8 +404,8 @@ export default {
     if (shouldBeOpen) return
 
     this.clearFocus()
-    this.refs.listbox.removeAttribute('aria-activedescendant')
-    this.refs.button.setAttribute('aria-expanded', 'false')
+    this.js().removeAttribute(this.refs.listbox, 'aria-activedescendant')
+    this.js().setAttribute(this.refs.button, 'aria-expanded', 'false')
     this.refs.optionsWrapper.style.display = 'none'
     this.cleanupAutoUpdate()
   },

@@ -1,5 +1,6 @@
 export default {
   mounted() {
+    this.setupPushEventListeners()
     this.initialize()
   },
 
@@ -19,24 +20,21 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupDOMEventListeners()
-    this.setupPushEventListeners()
     this.checkInitialShow()
-    this.el.setAttribute('data-prima-ready', 'true')
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   setupPushEventListeners() {
-    this.pushEventRefs = [
-      this.handleEvent("prima:modal:open", (payload) => {
-        if (!payload.id || payload.id === this.el.id) {
-          this.handleModalOpen()
-        }
-      }),
-      this.handleEvent("prima:modal:close", (payload) => {
-        if (!payload.id || payload.id === this.el.id) {
-          this.handleModalClose()
-        }
-      })
-    ]
+    this.handleEvent("prima:modal:open", (payload) => {
+      if (!payload.id || payload.id === this.el.id) {
+        this.handleModalOpen()
+      }
+    })
+    this.handleEvent("prima:modal:close", (payload) => {
+      if (!payload.id || payload.id === this.el.id) {
+        this.handleModalClose()
+      }
+    })
   },
 
   setupElements() {
@@ -81,13 +79,6 @@ export default {
       })
       this.listeners = []
     }
-
-    if (this.pushEventRefs) {
-      this.pushEventRefs.forEach(ref => {
-        if (ref) this.removeHandleEvent(ref)
-      })
-      this.pushEventRefs = []
-    }
   },
 
   checkInitialShow() {
@@ -99,7 +90,7 @@ export default {
   handleModalOpen() {
     this.storeFocusedElement()
     this.preventBodyScroll()
-    this.el.removeAttribute('aria-hidden')
+    this.js().removeAttribute(this.el, 'aria-hidden')
     this.maybeExecJS(this.el, "js-show");
     this.maybeExecJS(this.ref("modal-overlay"), "js-show");
     if (this.async) {
@@ -113,7 +104,7 @@ export default {
     this.maybeExecJS(this.ref("modal-loader"), "js-hide");
     this.maybeExecJS(this.ref("modal-panel"), "js-show");
     this.setupAriaRelationships()
-    this.el.removeAttribute('aria-hidden')
+    this.js().removeAttribute(this.el, 'aria-hidden')
 
     const panelShowEndHandler = this.handlePanelShowEnd.bind(this)
     this.ref("modal-panel").addEventListener("phx:show-end", panelShowEndHandler);
@@ -138,7 +129,7 @@ export default {
 
   handleOverlayHideEnd() {
     this.maybeExecJS(this.el, "js-hide");
-    this.el.setAttribute('aria-hidden', 'true')
+    this.js().setAttribute(this.el, 'aria-hidden', 'true')
     this.restoreFocusedElement()
   },
 
@@ -185,7 +176,7 @@ export default {
       }
 
       // Set aria-labelledby on the modal container
-      this.el.setAttribute('aria-labelledby', titleElement.id)
+      this.js().setAttribute(this.el, 'aria-labelledby', titleElement.id)
     }
   },
 

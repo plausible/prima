@@ -24,10 +24,12 @@ const SELECTORS = {
 export default {
   mounted() {
     this.initialize()
+    this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   updated() {
     this.initialize()
+    this.setFocus(this.el.querySelector(SELECTORS.FOCUSED_MENUITEM))
   },
 
   reconnected() {
@@ -42,20 +44,19 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupEventListeners()
-    this.el.setAttribute('data-prima-ready', 'true')
+    if (this.isMenuVisible()) this.startAutoUpdate()
   },
 
   setupElements() {
     const button = this.el.querySelector(SELECTORS.BUTTON)
     const menuWrapper = this.el.querySelector(SELECTORS.MENU_WRAPPER)
     const menu = this.el.querySelector(SELECTORS.MENU)
-    const items = this.el.querySelectorAll(SELECTORS.MENUITEM)
 
     const referenceSelector = menuWrapper?.getAttribute('data-reference')
     const referenceElement = referenceSelector ? document.querySelector(referenceSelector) : button
 
     this.setupAriaRelationships(button, menu)
-    this.refs = { button, menuWrapper, menu, items, referenceElement }
+    this.refs = { button, menuWrapper, menu, referenceElement }
   },
 
   setupEventListeners() {
@@ -83,6 +84,14 @@ export default {
       })
       this.listeners = []
     }
+  },
+
+  startAutoUpdate() {
+    // Setup autoUpdate to reposition on scroll/resize
+    this.cleanupAutoUpdate()
+    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.menuWrapper, () => {
+      this.positionMenu()
+    })
   },
 
   cleanupAutoUpdate() {
@@ -242,13 +251,9 @@ export default {
     this.refs.menu.style.display = shouldBeOpen ? '' : 'none'
     if (!shouldBeOpen) return
 
-    this.refs.button.setAttribute('aria-expanded', 'true')
+    this.js().setAttribute(this.refs.button, 'aria-expanded', 'true')
 
-    // Setup autoUpdate to reposition on scroll/resize
-    this.cleanupAutoUpdate()
-    this.autoUpdateCleanup = autoUpdate(this.refs.referenceElement, this.refs.menuWrapper, () => {
-      this.positionMenu()
-    })
+    this.startAutoUpdate()
   },
 
   handleHideEnd() {
@@ -257,8 +262,8 @@ export default {
     if (shouldBeOpen) return
 
     this.clearFocus()
-    this.refs.menu.removeAttribute('aria-activedescendant')
-    this.refs.button.setAttribute('aria-expanded', 'false')
+    this.js().removeAttribute(this.refs.menu, 'aria-activedescendant')
+    this.js().setAttribute(this.refs.button, 'aria-expanded', 'false')
     this.refs.menuWrapper.style.display = 'none'
     this.cleanupAutoUpdate()
   },
@@ -283,15 +288,16 @@ export default {
   setFocus(el) {
     this.clearFocus()
     if (el && el.getAttribute('aria-disabled') !== 'true') {
-      el.setAttribute('data-focus', '')
-      this.refs.menu.setAttribute('aria-activedescendant', el.id)
+      this.js().setAttribute(el, 'data-focus', '')
+      this.js().setAttribute(this.refs.menu, 'aria-activedescendant', el.id)
     } else {
-      this.refs.menu.removeAttribute('aria-activedescendant')
+      this.js().removeAttribute(this.refs.menu, 'aria-activedescendant')
     }
   },
 
   clearFocus() {
-    this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)?.removeAttribute('data-focus')
+    const focused = this.el.querySelector(SELECTORS.FOCUSED_MENUITEM)
+    if (focused) this.js().removeAttribute(focused, 'data-focus')
   },
 
   hideMenu() {
@@ -343,8 +349,8 @@ export default {
   },
 
   setupAriaRelationships(button, menu) {
-    button.setAttribute('aria-controls', menu.id)
-    menu.setAttribute('aria-labelledby', button.id)
+    this.js().setAttribute(button, 'aria-controls', menu.id)
+    this.js().setAttribute(menu, 'aria-labelledby', button.id)
 
     this.setupSectionLabels()
   },
@@ -357,7 +363,7 @@ export default {
       const firstChild = section.firstElementChild
       if (firstChild && firstChild.getAttribute('role') === 'presentation') {
         // Link the section to the heading
-        section.setAttribute('aria-labelledby', firstChild.id)
+        this.js().setAttribute(section, 'aria-labelledby', firstChild.id)
       }
     })
   },

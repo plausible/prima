@@ -464,6 +464,7 @@ defmodule Prima.Combobox do
     ~H"""
     <div
       style="position: absolute; top: 0; left: 0;"
+      phx-mounted={JS.ignore_attributes("style")}
       data-prima-ref="options-wrapper"
       data-reference={@reference}
       data-placement={@placement}
