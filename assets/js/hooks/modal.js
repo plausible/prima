@@ -1,5 +1,6 @@
 export default {
   mounted() {
+    this.setupPushEventListeners()
     this.initialize()
   },
 
@@ -19,24 +20,21 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupDOMEventListeners()
-    this.setupPushEventListeners()
     this.checkInitialShow()
     this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
   setupPushEventListeners() {
-    this.pushEventRefs = [
-      this.handleEvent("prima:modal:open", (payload) => {
-        if (!payload.id || payload.id === this.el.id) {
-          this.handleModalOpen()
-        }
-      }),
-      this.handleEvent("prima:modal:close", (payload) => {
-        if (!payload.id || payload.id === this.el.id) {
-          this.handleModalClose()
-        }
-      })
-    ]
+    this.handleEvent("prima:modal:open", (payload) => {
+      if (!payload.id || payload.id === this.el.id) {
+        this.handleModalOpen()
+      }
+    })
+    this.handleEvent("prima:modal:close", (payload) => {
+      if (!payload.id || payload.id === this.el.id) {
+        this.handleModalClose()
+      }
+    })
   },
 
   setupElements() {
@@ -80,13 +78,6 @@ export default {
         element.removeEventListener(event, handler)
       })
       this.listeners = []
-    }
-
-    if (this.pushEventRefs) {
-      this.pushEventRefs.forEach(ref => {
-        if (ref) this.removeHandleEvent(ref)
-      })
-      this.pushEventRefs = []
     }
   },
 
