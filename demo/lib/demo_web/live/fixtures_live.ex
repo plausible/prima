@@ -25,6 +25,7 @@ defmodule DemoWeb.FixturesLive do
           if(params["selection"], do: Jason.decode!(params["selection"], keys: :atoms!))
       )
       |> assign(submission_change: %{})
+      |> assign(listbox_disabled?: false, submitted_fruit: "not submitted")
       |> assign(trigger_label: "Open Dropdown")
       |> assign(modal_title: "Good news")
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
@@ -93,6 +94,16 @@ defmodule DemoWeb.FixturesLive do
      |> assign(submission_change: params)
      |> assign(submission_selection: selection)
      |> update(:form_change_count, &(&1 + 1))}
+  end
+
+  @impl true
+  def handle_event("toggle-listbox-disabled", _params, socket) do
+    {:noreply, update(socket, :listbox_disabled?, &(!&1))}
+  end
+
+  @impl true
+  def handle_event("listbox_form_submitted", params, socket) do
+    {:noreply, assign(socket, submitted_fruit: Map.get(params, "fruit", "omitted"))}
   end
 
   @impl true
