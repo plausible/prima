@@ -28,18 +28,15 @@ export default {
   mounted() {
     this.initialize()
     this.js().setAttribute(this.el, 'data-prima-ready', 'true')
-    this.syncSelectionFromInput()
   },
 
   updated() {
     this.initialize()
     this.setFocus(this.el.querySelector(SELECTORS.FOCUSED_OPTION))
-    this.syncSelectionFromInput()
   },
 
   reconnected() {
     this.initialize()
-    this.syncSelectionFromInput()
   },
 
   destroyed() {
@@ -50,6 +47,8 @@ export default {
     this.cleanup()
     this.setupElements()
     this.setupEventListeners()
+    this.syncDisabledState()
+    this.syncSelectionFromInput()
     if (this.isListboxVisible()) this.startAutoUpdate()
   },
 
@@ -77,9 +76,15 @@ export default {
     this.syncSelectedState(option)
   },
 
+  syncDisabledState() {
+    const disabled = this.el.getAttribute('data-disabled') === 'true'
+    this.refs.button.disabled = disabled
+    if (disabled && this.isListboxVisible()) this.hideListbox()
+  },
+
   setupEventListeners() {
     this.listeners = [
-      [this.refs.button, 'click', this.handleToggle.bind(this)],
+      [this.refs.button, 'click', this.toggleListbox.bind(this)],
       [document, 'click', this.handleClickOutside.bind(this)],
       [this.refs.listbox, 'mouseover', this.handleMouseOver.bind(this)],
       [this.refs.listbox, 'click', this.handleListboxClick.bind(this)],
@@ -120,6 +125,8 @@ export default {
   },
 
   handleKeydown(e) {
+    if (this.refs.button.disabled) return
+
     const keyHandlers = {
       [KEYS.ARROW_UP]: () => this.navigateUp(e),
       [KEYS.ARROW_DOWN]: () => this.navigateDown(e),
@@ -241,10 +248,6 @@ export default {
     this.setFocus(matchingOptions[nextIndex])
   },
 
-  handleToggle() {
-    this.toggleListbox()
-  },
-
   handleClickOutside(e) {
     if (this.isListboxVisible() && !this.refs.button.contains(e.target) && !this.refs.listbox.contains(e.target)) {
       this.hideListbox()
@@ -259,6 +262,8 @@ export default {
   },
 
   handleListboxClick(e) {
+    if (this.refs.button.disabled) return
+
     const option = e.target.closest(SELECTORS.OPTION)
     if (option && option.getAttribute('aria-disabled') !== 'true') {
       this.selectOption(option)
@@ -281,9 +286,7 @@ export default {
     this.refs.value.textContent = option.getAttribute('data-display')
   },
 
-  // Mount-time sync only: the displayed value is rendered by the caller and is
-  // already correct on first paint, so only the ARIA/visual selection markers
-  // are synced here - the value itself is left untouched.
+  // Sync selection markers without changing the caller-rendered displayed value.
   syncSelectedState(option) {
     this.el.querySelector(SELECTORS.SELECTED_OPTION)?.removeAttribute('aria-selected')
     this.el.querySelectorAll('[data-selected]').forEach(el => el.removeAttribute('data-selected'))
@@ -360,6 +363,8 @@ export default {
   },
 
   showListboxAndFocus(optionToFocus) {
+    if (this.refs.button.disabled) return
+
     // Wrapper pattern: Show wrapper first (display:block) so Floating UI can measure it,
     // then position it, then trigger inner listbox transition. This prevents the listbox
     // from briefly appearing at wrong position before jumping to correct position.

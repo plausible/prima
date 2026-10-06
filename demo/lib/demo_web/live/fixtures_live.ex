@@ -19,6 +19,7 @@ defmodule DemoWeb.FixturesLive do
       |> assign(async_modal_open?: false)
       |> assign(selected_fruit: nil)
       |> assign(form_change_count: 0)
+      |> assign(listbox_disabled?: false, submitted_fruit: "not submitted")
       |> assign(trigger_label: "Open Dropdown")
       |> assign(modal_title: "Good news")
       |> stream_configure(:suggestions, dom_id: &"suggestions-#{&1}")
@@ -71,6 +72,16 @@ defmodule DemoWeb.FixturesLive do
       |> assign(selected_fruit: selected_fruit)
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("toggle-listbox-disabled", _params, socket) do
+    {:noreply, update(socket, :listbox_disabled?, &(!&1))}
+  end
+
+  @impl true
+  def handle_event("listbox_form_submitted", params, socket) do
+    {:noreply, assign(socket, submitted_fruit: Map.get(params, "fruit", "omitted"))}
   end
 
   @impl true
