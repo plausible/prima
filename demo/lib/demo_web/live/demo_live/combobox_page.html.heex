@@ -141,6 +141,18 @@
     The component automatically repositions on scroll and window resize to stay visible.
   </p>
 
+  <h3>Popup width</h3>
+  <p>
+    Width is controlled by CSS. <code>--reference-width</code>
+    tracks the width of the search input, or the element selected by <code>reference</code>, while open.
+    Apply width classes to <code>.combobox_options</code>.
+  </p>
+
+  <p>
+    Use <code>min-w-[var(--reference-width)]</code> for a minimum width,
+    or <code>w-[var(--reference-width)]</code> for an exact match.
+  </p>
+
   <h3>Flexible Markup</h3>
   <p>
     Combobox options support rich, custom markup including icons, descriptions, badges, and complex layouts.
@@ -286,16 +298,6 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
               <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
                 Enter
-              </kbd>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-700">
-              Selects the currently focused option and closes the combobox
-            </td>
-          </tr>
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-              <kbd class="px-2 py-1.5 text-xs bg-gray-200 border border-gray-300 rounded shadow-sm font-semibold">
-                Tab
               </kbd>
             </td>
             <td class="px-6 py-4 text-sm text-gray-700">

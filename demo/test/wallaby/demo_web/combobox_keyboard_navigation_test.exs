@@ -57,39 +57,49 @@ defmodule DemoWeb.ComboboxKeyboardNavigationTest do
     |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Pear", "Pear")
   end
 
-  for key <- [:enter, :tab] do
-    @selection_key key
-
-    feature "#{@selection_key} ignores options hidden by filtering", %{session: session} do
-      session
-      |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-      |> click(@search_input)
-      |> assert_has(Query.css("#demo-combobox [data-value='Apple'][data-focus=true]"))
-      |> fill_in(@search_input, with: "zzzzzz")
-      |> assert_has(Query.css("#demo-combobox [role=option]:not([data-hidden])", count: 0))
-      |> send_keys([@selection_key])
-      |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "zzzzzz", nil)
-      |> assert_has(Query.css("#demo-combobox [data-focus=true]", count: 0, visible: :any))
-      |> assert_has(Query.css("#demo-combobox input:not([aria-activedescendant])"))
-      |> fill_in(@search_input, with: "Pear")
-      |> send_keys([:down_arrow, :enter])
-      |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Pear", "Pear")
-    end
-  end
-
-  feature "selects focused option with Tab key", %{session: session} do
+  feature "Enter ignores options hidden by filtering", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    # Navigate to third option
-    |> send_keys([:down_arrow, :down_arrow])
-    |> assert_has(Query.css("#demo-combobox [role=option][data-value='Mango'][data-focus=true]"))
-    # Select with Tab
+    |> assert_has(Query.css("#demo-combobox [data-value='Apple'][data-focus=true]"))
+    |> fill_in(@search_input, with: "zzzzzz")
+    |> assert_has(Query.css("#demo-combobox [role=option]:not([data-hidden])", count: 0))
+    |> send_keys([:enter])
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "zzzzzz", nil)
+    |> assert_has(Query.css("#demo-combobox [data-focus=true]", count: 0, visible: :any))
+    |> assert_has(Query.css("#demo-combobox input:not([aria-activedescendant])"))
+    |> fill_in(@search_input, with: "Pear")
+    |> send_keys([:down_arrow, :enter])
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Pear", "Pear")
+  end
+
+  feature "Tab discards search without selecting the highlighted option", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/combobox-form-tab", "#demo-combobox")
+    |> click(@search_input)
+    |> fill_in(@search_input, with: "Man")
+    |> send_keys([:down_arrow])
+    |> assert_has(Query.css("#demo-combobox [data-value='Mango'][data-focus=true]"))
     |> send_keys([:tab])
-    # Options should be hidden after selection
+    |> assert_has(Query.css("#next-input:focus"))
     |> assert_has(@options_container |> Query.visible(false))
-    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Mango", "Mango")
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "", nil)
+  end
+
+  feature "Tab preserves the committed selection and restores its label", %{session: session} do
+    session
+    |> visit_fixture("/fixtures/combobox-form-tab", "#demo-combobox")
+    |> click(@search_input)
+    |> click(Query.css("#demo-combobox [data-value='Apple']"))
+    |> execute_script("""
+    const input = document.querySelector('#demo-combobox input[data-prima-ref=search_input]');
+    input.value = 'Man';
+    input.dispatchEvent(new Event('input', {bubbles: true}));
+    """)
+    |> send_keys([:down_arrow, :tab])
+    |> assert_has(Query.css("#next-input:focus"))
+    |> assert_has(@options_container |> Query.visible(false))
+    |> assert_combobox_selection("#demo-combobox", "demo-combobox[fruit]", "Apple", "Apple")
   end
 
   feature "tab key moves focus to next input when options are closed", %{session: session} do

@@ -35,7 +35,7 @@ defmodule DemoWeb.DemoLive.DisabledListboxDemo do
 
           <.listbox_options
             id="disabled-listbox-example-options"
-            class="py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none"
+            class="min-w-[var(--reference-width)] py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none"
           >
             <.listbox_option
               id="disabled-listbox-example-option-basic"

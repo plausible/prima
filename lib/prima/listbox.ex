@@ -13,7 +13,7 @@ defmodule Prima.Listbox do
           <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
         </.listbox_trigger>
 
-        <.listbox_options id="fruit-listbox-options">
+        <.listbox_options id="fruit-listbox-options" class="min-w-[var(--reference-width)]">
           <.listbox_option id="fruit-option-apple" value="apple">Apple</.listbox_option>
           <.listbox_option id="fruit-option-banana" value="banana">Banana</.listbox_option>
         </.listbox_options>
@@ -65,7 +65,7 @@ defmodule Prima.Listbox do
         <.listbox_trigger id="fruit-listbox-trigger" class="in-data-disabled:opacity-50">
           <.listbox_value>{@selected_fruit || "Select a fruit..."}</.listbox_value>
         </.listbox_trigger>
-        <.listbox_options id="fruit-listbox-options">
+        <.listbox_options id="fruit-listbox-options" class="min-w-[var(--reference-width)]">
           <.listbox_option id="fruit-option-apple" value="apple">Apple</.listbox_option>
         </.listbox_options>
       </.listbox>
@@ -179,10 +179,20 @@ defmodule Prima.Listbox do
 
   attr :flip, :boolean, default: true
   attr :offset, :integer, default: 4
-  attr :match_trigger_width, :boolean, default: true
 
   # Two-div structure separates positioning from transitions, same as Dropdown's
   # menu wrapper — see lib/prima/dropdown.ex for the rationale.
+  @doc """
+  The listbox options.
+
+  ### CSS variables
+
+  * `--reference-width`: Width of the trigger, or the element selected by
+    `reference`. Updates automatically while open.
+
+  Apply `min-width: var(--reference-width)` for a minimum width, or
+  `width: var(--reference-width)` for an exact match.
+  """
   def listbox_options(assigns) do
     ~H"""
     <div
@@ -193,7 +203,6 @@ defmodule Prima.Listbox do
       data-placement={@placement}
       data-flip={@flip}
       data-offset={@offset}
-      data-match-trigger-width={@match_trigger_width}
     >
       <div
         id={@id}

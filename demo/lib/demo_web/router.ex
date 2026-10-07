@@ -22,8 +22,8 @@ defmodule DemoWeb.Router do
     live "/listbox", DemoLive, :listbox
 
     if Mix.env() in [:dev, :test] do
+      live "/fixtures/popover-lifecycle", FixturesLive, :popover_lifecycle
       live "/fixtures/dropdown", FixturesLive, :dropdown
-      live "/fixtures/dropdown-with-transition", FixturesLive, :dropdown_with_transition
       live "/fixtures/dropdown-with-disabled", FixturesLive, :dropdown_with_disabled
       live "/fixtures/dropdown-custom-components", FixturesLive, :dropdown_custom_components
       live "/fixtures/dropdown-custom-ids", FixturesLive, :dropdown_custom_ids
@@ -50,7 +50,6 @@ defmodule DemoWeb.Router do
       live "/fixtures/combobox-submission", FixturesLive, :combobox_submission
       live "/fixtures/async-combobox-form-change", FixturesLive, :async_combobox_form_change
       live "/fixtures/listbox", FixturesLive, :listbox
-      live "/fixtures/listbox-with-transition", FixturesLive, :listbox_with_transition
       live "/fixtures/listbox-form", FixturesLive, :listbox_form
     end
   end
