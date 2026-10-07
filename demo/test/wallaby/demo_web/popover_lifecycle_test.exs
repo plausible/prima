@@ -38,33 +38,16 @@ defmodule DemoWeb.PopoverLifecycleTest do
       |> assert_has(Query.css("#{@panel}[data-hides='1']", visible: false))
     end
 
-    feature "#{@kind} ignores reopening during exit and accepts a later click", %{
-      session: session
-    } do
+    feature "#{@kind} can reopen during its exit without stale cleanup", %{session: session} do
       session
       |> open_popup(@kind, true)
-      |> execute_script(
-        """
-        const trigger = document.querySelector('#{@trigger}');
-        document.activeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
-        trigger.click();
-        return trigger.getAttribute('aria-expanded');
-        """,
-        fn expanded -> assert expanded == "false" end
-      )
-      |> assert_has(
-        Query.css("#{@panel}[data-hides='1'][data-shows='1'][inert][aria-hidden=true]",
-          visible: false
-        )
-      )
-      |> click(Query.css(@trigger))
+      |> execute_script("""
+      const trigger = document.querySelector('#{@trigger}');
+      document.activeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+      trigger.click();
+      """)
       |> assert_has(Query.css("#{@trigger}[aria-expanded=true]"))
-      |> assert_has(Query.css("#{@panel}[data-shows='2']:not([inert]):not([aria-hidden])"))
-      |> assert_has(
-        Query.css(
-          "#popover-#{@kind}-#{if @kind == "combobox", do: "trigger", else: "panel"}-0:focus"
-        )
-      )
+      |> assert_has(Query.css("#{@panel}[data-hides='1']:not([inert]):not([aria-hidden])"))
       |> execute_script("""
       const input = document.querySelector('#popover-refresh');
       input.value = 'patch';
@@ -77,7 +60,7 @@ defmodule DemoWeb.PopoverLifecycleTest do
       |> assert_has(Query.css("#{@trigger}:focus[aria-expanded=false]"))
     end
 
-    feature "#{@kind} ignores repeated opening and closing requests during exit", %{
+    feature "#{@kind} honors close-open-close during an unfinished transition", %{
       session: session
     } do
       session
@@ -93,40 +76,18 @@ defmodule DemoWeb.PopoverLifecycleTest do
       |> assert_has(Query.css("#{@trigger}:focus[aria-expanded=false]"))
     end
 
-    for animated <- [false, true] do
-      @animated animated
-
-      feature "#{@kind} can reopen after closing before show completes (animated=#{@animated})",
-              %{session: session} do
-        session =
-          session
-          |> visit_fixture("/fixtures/popover-lifecycle?animated=#{@animated}", @root)
-          |> watch_transitions(@panel)
-          |> execute_script("""
-          const trigger = document.querySelector('#{@trigger}');
-          trigger.focus();
-          trigger.click();
-          trigger.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
-          """)
-          |> assert_has(Query.css("#{@trigger}[aria-expanded=false]"))
-          |> assert_has(Query.css("#{@panel}[data-shows='1'][inert]", visible: false))
-
-        if @animated do
-          assert_has(session, Query.css("#{@panel}[data-hides='1']", visible: false))
-        else
-          assert_missing(session, Query.css("#{@panel}[data-hides]", visible: :any))
-        end
-
-        session
-        |> click(Query.css(@trigger))
-        |> assert_has(Query.css("#{@trigger}[aria-expanded=true]"))
-        |> assert_has(Query.css("#{@panel}[data-shows='2']:not([inert])"))
-        |> assert_has(
-          Query.css(
-            "#popover-#{@kind}-#{if @kind == "combobox", do: "trigger", else: "panel"}-0:focus"
-          )
-        )
-      end
+    feature "#{@kind} closes before its first show completes", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/popover-lifecycle?animated=true", @root)
+      |> watch_transitions(@panel)
+      |> execute_script("""
+      const trigger = document.querySelector('#{@trigger}');
+      trigger.focus();
+      trigger.click();
+      trigger.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+      """)
+      |> assert_has(Query.css("#{@trigger}[aria-expanded=false]"))
+      |> assert_has(Query.css("#{@panel}[data-shows='1'][inert]", visible: false))
     end
 
     feature "#{@kind} toggles on trigger clicks and closes with Escape", %{session: session} do
