@@ -8,7 +8,7 @@ defmodule Prima.Combobox do
 
   ## Features
 
-  * **Keyboard Navigation** - Arrow key navigation and Enter to select; Tab moves focus onward and discards unfinished search
+  * **Keyboard Navigation** - Arrow key navigation and Enter to select
   * **Smart Positioning** - Powered by Floating UI with automatic flipping and repositioning
   * **Dual Modes** - Frontend filtering or server-side async search
   * **Create New Items** - Optional "create new" functionality for user-generated content

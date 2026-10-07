@@ -3,7 +3,7 @@ import { computePosition, flip, offset, autoUpdate } from '@floating-ui/dom'
 // Internal lifecycle shared by anchored popups. Selection and active-option
 // policies belong to the hooks; logical openness never depends on an animation.
 export default class PopoverController {
-  constructor(hook, { initialFocus, onClose, onOpened } = {}) {
+  constructor(hook, { initialFocus, onClose, onOpened }) {
     this.hook = hook
     this.initialFocus = initialFocus
     this.onClose = onClose
@@ -15,18 +15,13 @@ export default class PopoverController {
   }
 
   update({ trigger, wrapper, panel }) {
-    const referenceSelector = wrapper?.getAttribute('data-reference')
+    const referenceSelector = wrapper.getAttribute('data-reference')
     const reference = (referenceSelector && document.querySelector(referenceSelector)) || trigger
     if (this.reference !== reference || this.wrapper !== wrapper) this.stopPositioning()
     this.trigger = trigger
     this.wrapper = wrapper
     this.panel = panel
     this.reference = reference
-    if (!trigger || !wrapper || !panel) {
-      this.isOpen = false
-      this.stopPositioning()
-      return
-    }
 
     this.syncAttributes()
     this.syncDisplay()
@@ -62,7 +57,7 @@ export default class PopoverController {
     }
     this.listen(this.hook.el, 'phx:show-start', onPanel(() => {
       this.panel.style.display = this.isOpen ? 'block' : 'none'
-      if (this.isOpen) this.initialFocus?.()?.focus({ preventScroll: true })
+      if (this.isOpen) this.initialFocus?.().focus({ preventScroll: true })
     }), true)
     this.listen(this.hook.el, 'phx:show-end', onPanel(() => {
       this.syncDisplay()
@@ -98,11 +93,10 @@ export default class PopoverController {
   }
 
   contains(target) {
-    return target && (this.trigger?.contains(target) || this.panel?.contains(target))
+    return target && (this.trigger.contains(target) || this.panel.contains(target))
   }
 
   syncAttributes() {
-    if (!this.trigger || !this.panel) return
     const js = this.hook.js()
     js.setAttribute(this.trigger, 'aria-expanded', String(this.isOpen))
     if (this.isOpen) {
@@ -120,7 +114,7 @@ export default class PopoverController {
   }
 
   open() {
-    if (this.isOpen || !this.panel || this.trigger.disabled) return
+    if (this.isOpen || this.trigger.disabled) return
     this.isOpen = true
     this.syncAttributes()
     this.wrapper.style.display = 'block'
@@ -135,7 +129,7 @@ export default class PopoverController {
     // Never leave DOM focus in the subtree that is about to become inert.
     if (this.panel.contains(document.activeElement)) document.activeElement.blur()
     this.syncAttributes()
-    this.onClose?.()
+    this.onClose()
 
     this.hook.liveSocket.execJS(this.panel, this.panel.getAttribute('js-hide'))
   }
@@ -162,7 +156,7 @@ export default class PopoverController {
       ? `${reference.offsetWidth}px` : ''
 
     computePosition(reference, wrapper, {
-      placement: wrapper.getAttribute('data-placement') || 'bottom-start',
+      placement: wrapper.getAttribute('data-placement'),
       middleware
     }).then(({ x, y }) => {
       Object.assign(wrapper.style, { top: `${y}px`, left: `${x}px` })
@@ -175,9 +169,7 @@ export default class PopoverController {
   }
 
   destroy() {
-    this.isOpen = false
     this.stopPositioning()
     this.listeners.forEach(([element, event, handler, capture]) => element.removeEventListener(event, handler, capture))
-    this.listeners = []
   }
 }
