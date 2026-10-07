@@ -137,10 +137,6 @@ export default {
     this.listeners = []
   },
 
-  beforeUpdate() {
-    this.popover.captureFocus()
-  },
-
   updated() {
     this.setupElements()
     this.setupPopover()

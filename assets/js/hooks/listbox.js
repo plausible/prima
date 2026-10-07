@@ -30,10 +30,6 @@ export default {
     this.js().setAttribute(this.el, 'data-prima-ready', 'true')
   },
 
-  beforeUpdate() {
-    this.popover.captureFocus()
-  },
-
   updated() {
     this.initialize()
     this.setFocus(this.el.querySelector(SELECTORS.FOCUSED_OPTION))

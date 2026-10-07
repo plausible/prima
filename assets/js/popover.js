@@ -26,7 +26,6 @@ export default class PopoverController {
     this.syncAttributes()
     this.syncDisplay()
     if (this.isOpen) this.startPositioning()
-    this.restoreFocusAfterUpdate()
   }
 
   setupDismissal() {
@@ -70,21 +69,6 @@ export default class PopoverController {
   syncDisplay() {
     this.wrapper.style.display = this.panel.style.display = this.isOpen ? 'block' : 'none'
     if (!this.isOpen) this.stopPositioning()
-  }
-
-  captureFocus() {
-    const element = document.activeElement
-    this.focusBeforeUpdate = this.isOpen && this.contains(element)
-      ? { element, trigger: element === this.trigger } : null
-  }
-
-  restoreFocusAfterUpdate() {
-    const previous = this.focusBeforeUpdate
-    this.focusBeforeUpdate = null
-    if (this.isOpen && previous && !previous.element.isConnected && document.activeElement === document.body) {
-      const target = previous.trigger ? this.trigger : this.panel
-      target.focus({ preventScroll: true })
-    }
   }
 
   listen(element, event, handler, capture = false) {

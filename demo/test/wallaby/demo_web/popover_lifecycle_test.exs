@@ -6,7 +6,6 @@ defmodule DemoWeb.PopoverLifecycleTest do
     @root "#popover-#{kind}"
     @trigger "#popover-#{kind}-trigger-0"
     @panel "#popover-#{kind}-panel-0"
-    @patched_focus "#popover-#{kind}-#{if kind == "combobox", do: "trigger", else: "panel"}-1"
 
     feature "#{@kind} closes logically before its exit animation finishes", %{session: session} do
       session
@@ -229,7 +228,6 @@ defmodule DemoWeb.PopoverLifecycleTest do
       |> assert_has(Query.css("#popover-#{@kind}-panel-1", visible: :any))
       |> assert_has(Query.css("#popover-#{@kind}-panel-1:not([inert])"))
       |> assert_has(Query.css("#popover-#{@kind}-trigger-1[aria-expanded=true]"))
-      |> assert_has(Query.css("#{@patched_focus}:focus"))
       |> click(Query.css("#popover-#{@kind}-trigger-1"))
       |> assert_has(Query.css("#popover-#{@kind}-panel-1", visible: false))
       |> click(Query.css("#popover-#{@kind}-trigger-1"))
