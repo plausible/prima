@@ -1,23 +1,28 @@
 import { computePosition, flip, offset, autoUpdate } from '@floating-ui/dom'
 
 // Internal lifecycle shared by anchored popups. Selection and active-option
-// policies belong to the hooks; logical openness never depends on an animation.
+// policies belong to the hooks. Open requests are ignored during exit.
 export default class PopoverController {
   constructor(hook, { initialFocus, onClose, onOpened }) {
     this.hook = hook
     this.initialFocus = initialFocus
     this.onClose = onClose
     this.onOpened = onOpened
-    this.isOpen = false
+    this.state = 'closed'
     this.listeners = []
     this.setupDismissal()
     this.setupTransitions()
+  }
+
+  get isOpen() {
+    return this.state === 'open'
   }
 
   update({ trigger, wrapper, panel }) {
     const referenceSelector = wrapper.getAttribute('data-reference')
     const reference = (referenceSelector && document.querySelector(referenceSelector)) || trigger
     if (this.reference !== reference || this.wrapper !== wrapper) this.stopPositioning()
+    if (this.panel !== panel && this.state === 'closing') this.state = 'closed'
     this.trigger = trigger
     this.wrapper = wrapper
     this.panel = panel
@@ -62,13 +67,13 @@ export default class PopoverController {
       this.syncDisplay()
       if (this.isOpen) this.onOpened?.()
     }), true)
-    this.listen(this.hook.el, 'phx:hide-end', onPanel(() => this.syncDisplay()), true)
+    this.listen(this.hook.el, 'phx:hide-end', onPanel(() => this.finishClose()), true)
   }
 
-  // Preserve the original hooks' basic display correction after LiveView commands.
+  // Keep both layers visible through the exit animation.
   syncDisplay() {
-    this.wrapper.style.display = this.panel.style.display = this.isOpen ? 'block' : 'none'
-    if (!this.isOpen) this.stopPositioning()
+    this.wrapper.style.display = this.panel.style.display = this.state === 'closed' ? 'none' : 'block'
+    if (this.state === 'closed') this.stopPositioning()
   }
 
   listen(element, event, handler, capture = false) {
@@ -98,8 +103,8 @@ export default class PopoverController {
   }
 
   open() {
-    if (this.isOpen || this.trigger.disabled) return
-    this.isOpen = true
+    if (this.state !== 'closed' || this.trigger.disabled) return
+    this.state = 'open'
     this.syncAttributes()
     this.wrapper.style.display = 'block'
     this.startPositioning()
@@ -108,14 +113,24 @@ export default class PopoverController {
 
   close(reason = 'programmatic') {
     if (!this.isOpen) return
-    this.isOpen = false
+    this.state = 'closing'
     this.focusFinal(reason)
     // Never leave DOM focus in the subtree that is about to become inert.
     if (this.panel.contains(document.activeElement)) document.activeElement.blur()
     this.syncAttributes()
     this.onClose()
 
-    this.hook.liveSocket.execJS(this.panel, this.panel.getAttribute('js-hide'))
+    if (this.panel.offsetWidth || this.panel.offsetHeight || this.panel.getClientRects().length) {
+      this.hook.liveSocket.execJS(this.panel, this.panel.getAttribute('js-hide'))
+    } else {
+      // LiveView skips JS.hide for hidden panels, so no hide-end will arrive.
+      this.finishClose()
+    }
+  }
+
+  finishClose() {
+    this.state = 'closed'
+    this.syncDisplay()
   }
 
   focusFinal(reason) {

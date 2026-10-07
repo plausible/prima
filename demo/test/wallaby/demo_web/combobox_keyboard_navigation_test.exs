@@ -91,6 +91,7 @@ defmodule DemoWeb.ComboboxKeyboardNavigationTest do
     |> visit_fixture("/fixtures/combobox-form-tab", "#demo-combobox")
     |> click(@search_input)
     |> click(Query.css("#demo-combobox [data-value='Apple']"))
+    |> assert_has(@options_container |> Query.visible(false))
     |> execute_script("""
     const input = document.querySelector('#demo-combobox input[data-prima-ref=search_input]');
     input.value = 'Man';
