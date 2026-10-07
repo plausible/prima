@@ -152,8 +152,7 @@ export default class PopoverController {
     const distance = parseInt(wrapper.getAttribute('data-offset'), 10)
     if (!Number.isNaN(distance)) middleware.push(offset(distance))
     if (wrapper.getAttribute('data-flip') !== 'false') middleware.push(flip())
-    wrapper.style.minWidth = wrapper.hasAttribute('data-match-trigger-width')
-      ? `${reference.offsetWidth}px` : ''
+    wrapper.style.setProperty('--reference-width', `${reference.offsetWidth}px`)
 
     computePosition(reference, wrapper, {
       placement: wrapper.getAttribute('data-placement'),

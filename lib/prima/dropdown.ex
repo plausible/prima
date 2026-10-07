@@ -100,13 +100,23 @@ defmodule Prima.Dropdown do
 
   attr :flip, :boolean, default: true
   attr :offset, :integer, default: 4
-  attr :match_trigger_width, :boolean, default: false
 
   # Two-div structure separates positioning from transitions:
   # - Outer wrapper: Handles Floating UI positioning (must be display:block for measurements)
   # - Inner menu: Handles CSS transitions (starts hidden, transitions in after positioning)
   # This prevents visual "jumping" where menu briefly appears at wrong position before
   # repositioning. Floating UI cannot measure display:none elements.
+  @doc """
+  The dropdown menu.
+
+  ### CSS variables
+
+  * `--reference-width`: Width of the trigger, or the element selected by
+    `reference`. Updates automatically while open.
+
+  Apply `min-width: var(--reference-width)` for a minimum width, or
+  `width: var(--reference-width)` for an exact match.
+  """
   def dropdown_menu(assigns) do
     ~H"""
     <div
@@ -117,7 +127,6 @@ defmodule Prima.Dropdown do
       data-placement={@placement}
       data-flip={@flip}
       data-offset={@offset}
-      data-match-trigger-width={@match_trigger_width}
     >
       <div
         id={@id}

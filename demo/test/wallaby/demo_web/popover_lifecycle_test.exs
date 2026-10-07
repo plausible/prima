@@ -144,6 +144,30 @@ defmodule DemoWeb.PopoverLifecycleTest do
       |> assert_has(Query.css(@panel, visible: false))
     end
 
+    feature "#{@kind} supports CSS width matching as the trigger resizes", %{session: session} do
+      session
+      |> open_popup(@kind, false)
+      |> execute_script("""
+      const trigger = document.querySelector('#{@trigger}');
+      const panel = document.querySelector('#{@panel}');
+      trigger.style.width = '320px';
+      panel.style.width = '40px';
+      """)
+      |> assert_popup_width(@panel, 40)
+      |> execute_script("""
+      document.querySelector('#{@panel}').classList.add('min-w-[var(--reference-width)]');
+      """)
+      |> assert_popup_width(@panel, 320)
+      |> execute_script("""
+      const panel = document.querySelector('#{@panel}');
+      panel.style.width = '';
+      panel.classList.remove('min-w-[var(--reference-width)]');
+      panel.classList.add('w-[var(--reference-width)]');
+      document.querySelector('#{@trigger}').style.width = '360px';
+      """)
+      |> assert_popup_width(@panel, 360)
+    end
+
     feature "#{@kind} prevents focus entering the panel during exit", %{session: session} do
       session
       |> open_popup(@kind, true)
@@ -233,6 +257,44 @@ defmodule DemoWeb.PopoverLifecycleTest do
       """,
       fn result -> assert result == %{"search" => "", "selected" => 0} end
     )
+  end
+
+  feature "CSS width follows a custom reference rather than the combobox input", %{
+    session: session
+  } do
+    panel = "#demo-multi-select-combobox-options"
+
+    session
+    |> visit_fixture("/fixtures/multi-select-combobox", "#demo-multi-select-combobox")
+    |> execute_script("""
+    document.querySelector('#demo-multi-select-combobox-field').style.width = '320px';
+    document.querySelector('#demo-multi-select-combobox input[data-prima-ref=search_input]').style.width = '100px';
+    document.querySelector('#{panel}').classList.add('w-[var(--reference-width)]');
+    """)
+    |> click(Query.css("#demo-multi-select-combobox input[data-prima-ref=search_input]"))
+    |> assert_popup_width(panel, 320)
+    |> execute_script("""
+    document.querySelector('#demo-multi-select-combobox-field').style.width = '400px';
+    """)
+    |> assert_popup_width(panel, 400)
+  end
+
+  defp assert_popup_width(session, selector, width) do
+    session
+    |> execute_script("""
+    const panel = document.querySelector('#{selector}');
+    let frame;
+    const check = () => {
+      if (Math.abs(panel.getBoundingClientRect().width - #{width}) < 1) {
+        panel.dataset.measuredWidth = '#{width}';
+      } else {
+        frame = requestAnimationFrame(check);
+      }
+    };
+    panel.addEventListener('phx:hide-end', () => cancelAnimationFrame(frame), {once: true});
+    check();
+    """)
+    |> assert_has(Query.css("#{selector}[data-measured-width='#{width}']"))
   end
 
   defp open_popup(session, kind, animated) do

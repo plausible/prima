@@ -410,6 +410,14 @@ defmodule Prima.Combobox do
     * `flip` - Auto-flip to opposite side if no space (default: `true`)
     * `offset` - Distance in pixels from the reference element (default: no offset)
 
+  ### CSS variables
+
+  * `--reference-width`: Width of the search input, or the element selected by
+    `reference`. Updates automatically while open.
+
+  Apply `min-width: var(--reference-width)` for a minimum width, or
+  `width: var(--reference-width)` for an exact match.
+
   ### Transitions
 
     * `transition_enter` - Transition for showing the dropdown
