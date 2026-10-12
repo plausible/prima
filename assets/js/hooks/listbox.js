@@ -90,7 +90,8 @@ export default {
       [this.refs.listbox, 'click', this.handleListboxClick.bind(this)],
       [this.el, 'keydown', this.handleKeydown.bind(this)],
       [this.refs.listbox, 'phx:show-start', this.handleShowStart.bind(this)],
-      [this.refs.listbox, 'phx:hide-end', this.handleHideEnd.bind(this)]
+      [this.refs.listbox, 'phx:hide-end', this.handleHideEnd.bind(this)],
+      [this.el, 'prima:listbox:set-value', this.handleSetValue.bind(this)]
     ]
 
     this.listeners.forEach(([element, event, handler]) => {
@@ -275,12 +276,28 @@ export default {
   // User-driven selection: updates the form and displayed values
   // instantly, ahead of any server round-trip.
   selectOption(option) {
+    this.applyValue(option, { notify: true })
+  },
+
+  // Like a native <select>'s `.value =`, this fires no events unless `notify`
+  // is set. Values with no matching option are ignored.
+  handleSetValue(e) {
+    const { value, notify = false } = e.detail || {}
+    if (value === null || value === undefined) return
+
+    const option = this.findOptionByValue(String(value))
+    if (option) this.applyValue(option, { notify })
+  },
+
+  applyValue(option, { notify }) {
     const value = option.getAttribute('data-value')
 
     if (this.refs.valueInput.value !== value) {
       this.refs.valueInput.value = value
-      this.refs.valueInput.dispatchEvent(new Event('input', { bubbles: true }))
-      this.refs.valueInput.dispatchEvent(new Event('change', { bubbles: true }))
+      if (notify) {
+        this.refs.valueInput.dispatchEvent(new Event('input', { bubbles: true }))
+        this.refs.valueInput.dispatchEvent(new Event('change', { bubbles: true }))
+      }
     }
 
     this.syncSelectedState(option)

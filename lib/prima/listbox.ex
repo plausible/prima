@@ -70,6 +70,34 @@ defmodule Prima.Listbox do
           <.listbox_option id="fruit-option-apple" value="apple">Apple</.listbox_option>
         </.listbox_options>
       </.listbox>
+
+  ## Setting the Value from Client-Side Code
+
+  `Prima.Listbox.JS.set_value/2` sets the value without a server round-trip.
+  It updates the hidden input, the displayed value and the selection markers:
+
+      <button type="button" phx-click={Prima.Listbox.JS.set_value("fruit-listbox", "apple")}>
+        Reset
+      </button>
+
+  Like setting `.value` on a native `<select>`, this dispatches no events by
+  default, so a parent form's `phx-change` doesn't fire. Pass `notify: true` to
+  also dispatch `input` and `change`, exactly like a user selection:
+
+      Prima.Listbox.JS.set_value("fruit-listbox", "apple", notify: true)
+
+  Without `notify`, the server never learns the new value. If this listbox
+  re-renders (its `value` or slot content changes), LiveView restores the
+  server's value. Re-renders elsewhere on the page don't affect it.
+
+  Disabled options can be set, since `disabled` only blocks user picks. A value
+  that matches no option, including `""`, is ignored.
+
+  From plain JavaScript, dispatch the underlying event on the listbox element:
+
+      document.getElementById("fruit-listbox").dispatchEvent(
+        new CustomEvent("prima:listbox:set-value", { detail: { value: "apple" } })
+      )
   """
 
   use Phoenix.Component
@@ -248,5 +276,50 @@ defmodule Prima.Listbox do
       {render_slot(@inner_block)}
     </div>
     """
+  end
+
+  defmodule JS do
+    @moduledoc """
+    JavaScript commands for client-side listbox control.
+    """
+    alias Phoenix.LiveView.JS
+
+    @doc """
+    Sets the value of the listbox with the given ID.
+
+    The value must match one of the listbox's options; otherwise nothing changes.
+    Dispatches no events unless `notify: true` is given.
+
+    ## Options
+
+      * `:notify` - also dispatch `input` and `change` on the hidden input, so a
+        parent form's `phx-change` fires (default: `false`)
+
+    ## Examples
+
+        <button type="button" phx-click={Prima.Listbox.JS.set_value("role-listbox", "viewer")}>
+          Reset role
+        </button>
+
+        <button
+          type="button"
+          phx-click={JS.push("reset") |> Prima.Listbox.JS.set_value("role-listbox", "viewer", notify: true)}
+        >
+          Reset role
+        </button>
+    """
+    def set_value(id, value), do: set_value(%JS{}, id, value, [])
+
+    def set_value(%JS{} = js, id, value), do: set_value(js, id, value, [])
+    def set_value(id, value, opts) when is_list(opts), do: set_value(%JS{}, id, value, opts)
+
+    def set_value(%JS{} = js, id, value, opts) when is_list(opts) do
+      opts = Keyword.validate!(opts, notify: false)
+
+      JS.dispatch(js, "prima:listbox:set-value",
+        to: "##{id}",
+        detail: %{value: value, notify: opts[:notify]}
+      )
+    end
   end
 end
