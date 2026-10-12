@@ -280,6 +280,7 @@ export default {
     if (this.refs.valueInput.value !== value) {
       this.refs.valueInput.value = value
       this.refs.valueInput.dispatchEvent(new Event('input', { bubbles: true }))
+      this.refs.valueInput.dispatchEvent(new Event('change', { bubbles: true }))
     }
 
     this.syncSelectedState(option)

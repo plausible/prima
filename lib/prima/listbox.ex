@@ -22,8 +22,9 @@ defmodule Prima.Listbox do
   ## Form Integration
 
   `Listbox` renders a hidden `<input>` with the given `name`. Selecting an option
-  updates the input's value and dispatches a bubbling `input` event, so a parent
-  form's `phx-change` fires exactly like it would for a native form field:
+  updates the input's value and dispatches bubbling `input` and `change` events,
+  so a parent form's `phx-change` fires exactly like it would for a native form
+  field:
 
       <form phx-change="form_changed">
         <.listbox id="fruit-listbox" name="fruit" value={@selected_fruit}>
