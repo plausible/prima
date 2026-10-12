@@ -134,4 +134,37 @@ defmodule DemoWeb.ListboxFormIntegrationTest do
     |> click(Query.css("#submit-listbox-form"))
     |> assert_has(Query.css("#listbox-submission", text: "Submitted: Mango"))
   end
+
+  describe "setting the value client-side" do
+    feature "does not fire phx-change by default", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox-form", "#listbox-form")
+      |> execute_script("""
+      document.getElementById('listbox-form').dispatchEvent(
+        new CustomEvent('prima:listbox:set-value', {detail: {value: 'Mango'}})
+      )
+      """)
+      |> assert_has(@listbox_value |> Query.text("Mango"))
+      # A real selection afterwards must be the first and only phx-change.
+      |> click(@button)
+      |> click(Query.css("#listbox-form-option-apple"))
+      |> assert_has(@selection_display |> Query.text("Selected: Apple"))
+      |> assert_form_change_count(1)
+    end
+
+    feature "Prima.Listbox.JS.set_value with notify fires phx-change once", %{
+      session: session
+    } do
+      session
+      |> visit_fixture("/fixtures/listbox-form", "#listbox-form")
+      |> click(Query.css("#set-listbox-pineapple"))
+      |> assert_has(@listbox_value |> Query.text("Pineapple"))
+      |> assert_has(@selection_display |> Query.text("Selected: Pineapple"))
+      # input + change together must count as one phx-change.
+      |> click(@button)
+      |> click(Query.css("#listbox-form-option-apple"))
+      |> assert_has(@selection_display |> Query.text("Selected: Apple"))
+      |> assert_form_change_count(2)
+    end
+  end
 end
