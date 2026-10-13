@@ -16,6 +16,19 @@ defmodule DemoWeb.FixturesLive do
   def mount(params, _session, socket) do
     socket =
       socket
+      |> assign(popover_version: 0)
+      |> assign(
+        popover_transition:
+          if(params["animated"] == "true",
+            do: {"transition-opacity duration-200", "opacity-0", "opacity-100"}
+          )
+      )
+      |> assign(
+        popover_exit_transition:
+          if(params["animated"] == "true",
+            do: {"transition-opacity duration-200", "opacity-100", "opacity-0"}
+          )
+      )
       |> assign(async_modal_open?: false)
       |> assign(selected_fruit: nil)
       |> assign(form_change_count: 0)
@@ -44,6 +57,15 @@ defmodule DemoWeb.FixturesLive do
   @impl true
   def handle_params(_params, _uri, socket) do
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("refresh-popovers", %{"version" => "patch"}, socket) do
+    {:noreply, update(socket, :form_change_count, &(&1 + 1))}
+  end
+
+  def handle_event("refresh-popovers", _params, socket) do
+    {:noreply, update(socket, :popover_version, &(&1 + 1))}
   end
 
   @impl true

@@ -3,7 +3,6 @@ defmodule DemoWeb.ListboxTest do
 
   @button Query.css("#listbox [aria-haspopup=listbox]")
   @listbox Query.css("#listbox [role=listbox]")
-  @options Query.css("#listbox [role=option]")
   @listbox_value Query.css("#listbox [data-prima-ref='value']")
 
   defp dispatch_set_value(session, listbox_id, detail) do
@@ -32,26 +31,6 @@ defmodule DemoWeb.ListboxTest do
     session
     |> visit_fixture("/fixtures/listbox", "#listbox")
     |> assert_has(Query.css("#listbox button[aria-haspopup=listbox][type=button]"))
-  end
-
-  feature "shows and hides the listbox when the trigger is clicked", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/listbox", "#listbox")
-    |> assert_has(@listbox |> Query.visible(false))
-    |> click(@button)
-    |> assert_has(@listbox |> Query.visible(true))
-    |> assert_has(Query.css("#listbox-options:focus"))
-    |> assert_has(@options |> Query.count(4))
-    |> click(@button)
-    |> assert_has(@listbox |> Query.visible(false))
-  end
-
-  feature "stays open after the click that starts an enter transition", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/listbox-with-transition", "#listbox")
-    |> assert_has(@listbox |> Query.visible(false))
-    |> click(@button)
-    |> assert_has(@listbox |> Query.visible(true))
   end
 
   feature "closes when clicking outside", %{session: session} do

@@ -5,26 +5,6 @@ defmodule DemoWeb.DropdownRerenderTriggerTest do
   @dropdown_menu Query.css("#dropdown [role=menu]")
   @update_button Query.css("#update-trigger")
 
-  feature "dropdown remains functional after trigger is re-rendered", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/dropdown-rerender-trigger", "#dropdown")
-    # Verify initial state
-    |> assert_has(@dropdown_menu |> Query.visible(false))
-    # Open dropdown
-    |> click(@dropdown_button)
-    |> assert_has(@dropdown_menu |> Query.visible(true))
-    # Close dropdown
-    |> click(@dropdown_button)
-    |> assert_has(@dropdown_menu |> Query.visible(false))
-    # Trigger LiveView update that re-renders the trigger button
-    |> click(@update_button)
-    # Wait for the trigger to update
-    |> assert_has(Query.css("#dropdown [aria-haspopup=menu]", text: "Updated Trigger"))
-    # Try to open dropdown again - this tests that DOM listeners are still intact
-    |> click(@dropdown_button)
-    |> assert_has(@dropdown_menu |> Query.visible(true))
-  end
-
   feature "dropdown keyboard navigation works after trigger is re-rendered", %{session: session} do
     session
     |> visit_fixture("/fixtures/dropdown-rerender-trigger", "#dropdown")

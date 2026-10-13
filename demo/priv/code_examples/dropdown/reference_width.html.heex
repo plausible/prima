@@ -1,6 +1,6 @@
-<.dropdown id="match-width-dropdown">
+<.dropdown id="reference-width-dropdown">
   <.dropdown_trigger
-    id="match-width-dropdown-trigger"
+    id="reference-width-dropdown-trigger"
     class="w-64 inline-flex justify-between items-center rounded-lg bg-white border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
   >
     Select an option
@@ -13,14 +13,13 @@
     </svg>
   </.dropdown_trigger>
   <.dropdown_menu
-    id="match-width-dropdown-menu"
+    id="reference-width-dropdown-menu"
     placement="bottom-start"
-    match_trigger_width={true}
-    class="py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none"
+    class="min-w-[var(--reference-width)] py-1 rounded-md bg-white shadow-xs ring-1 ring-gray-300 focus:outline-none"
   >
     <.dropdown_item
       :for={{option, index} <- Enum.with_index(["Account settings", "Billing", "Documentation"])}
-      id={"match-width-dropdown-item-#{index}"}
+      id={"reference-width-dropdown-item-#{index}"}
       class="text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 block w-full px-4 py-2 text-sm text-left"
     >
       {option}

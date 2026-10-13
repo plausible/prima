@@ -8,7 +8,7 @@ defmodule Prima.Combobox do
 
   ## Features
 
-  * **Keyboard Navigation** - Full arrow key navigation, Enter/Tab to select
+  * **Keyboard Navigation** - Arrow key navigation and Enter to select
   * **Smart Positioning** - Powered by Floating UI with automatic flipping and repositioning
   * **Dual Modes** - Frontend filtering or server-side async search
   * **Create New Items** - Optional "create new" functionality for user-generated content
@@ -409,6 +409,14 @@ defmodule Prima.Combobox do
       `bottom-end`, `left`, `left-start`, `left-end`
     * `flip` - Auto-flip to opposite side if no space (default: `true`)
     * `offset` - Distance in pixels from the reference element (default: no offset)
+
+  ### CSS variables
+
+  * `--reference-width`: Width of the search input, or the element selected by
+    `reference`. Updates automatically while open.
+
+  Apply `min-width: var(--reference-width)` for a minimum width, or
+  `width: var(--reference-width)` for an exact match.
 
   ### Transitions
 

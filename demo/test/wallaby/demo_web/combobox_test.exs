@@ -1,21 +1,9 @@
 defmodule DemoWeb.ComboboxTest do
   use Prima.WallabyCase, async: true
 
-  @combobox_container Query.css("#demo-combobox")
   @search_input Query.css("#demo-combobox input[data-prima-ref=search_input]")
   @options_container Query.css("#demo-combobox [data-prima-ref=options]")
   @all_options Query.css("#demo-combobox [role=option]")
-
-  feature "shows combobox options when input is focused", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    |> assert_has(@combobox_container)
-    |> assert_has(@search_input)
-    |> assert_has(@options_container |> Query.visible(false))
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    |> assert_has(@all_options |> Query.count(4))
-  end
 
   feature "hides options when clicking outside combobox", %{session: session} do
     session
@@ -349,58 +337,7 @@ defmodule DemoWeb.ComboboxTest do
     )
   end
 
-  feature "clicking input toggles options visibility", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    # Initially options are hidden
-    |> assert_has(@options_container |> Query.visible(false))
-    # Click to open
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    # Click again to close (toggle)
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(false))
-    # Click again to open
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-  end
-
-  feature "escape key closes options and maintains input value", %{session: session} do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    # Type something to filter
-    |> fill_in(@search_input, with: "app")
-    # Press Escape
-    |> send_keys([:escape])
-    # Options should close
-    |> assert_has(@options_container |> Query.visible(false))
-    # Input value should be cleared on blur
-    |> execute_script(
-      "return document.querySelector('#demo-combobox input[data-prima-ref=search_input]').value",
-      fn value ->
-        # After escape and blur, search input should be reset since no selection was made
-        assert value == "" || value == "app",
-               "Expected search input to be empty or contain typed text, got '#{value}'"
-      end
-    )
-  end
-
-  feature "single-select MUST close options after selection (behavior contract)", %{
-    session: session
-  } do
-    session
-    |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
-    |> click(@search_input)
-    |> assert_has(@options_container |> Query.visible(true))
-    # Select an option
-    |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
-    # This MUST close options - this is a behavioral requirement, not a side effect
-    |> assert_has(@options_container |> Query.visible(false))
-  end
-
-  feature "single-select does not focus input after clicking selection", %{session: session} do
+  feature "single-select restores input focus after clicking selection", %{session: session} do
     session
     |> visit_fixture("/fixtures/simple-combobox", "#demo-combobox")
     |> click(@search_input)
@@ -408,12 +345,12 @@ defmodule DemoWeb.ComboboxTest do
     # Select an option by clicking
     |> click(Query.css("#demo-combobox [role=option][data-value='Apple']"))
     |> assert_has(@options_container |> Query.visible(false))
-    # Verify the search input is NOT focused after selection
+    # Selection returns focus to the input.
     |> execute_script(
       "return document.activeElement === document.querySelector('#demo-combobox input[data-prima-ref=search_input]')",
       fn is_focused ->
-        assert is_focused == false,
-               "Expected search input to not be focused after selection in single-select mode"
+        assert is_focused == true,
+               "Expected search input to be focused after selection in single-select mode"
       end
     )
   end

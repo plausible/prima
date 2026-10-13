@@ -19,7 +19,7 @@
       class="text-indigo-600 hover:text-indigo-800"
     >
       Floating UI
-    </a>, and its options match the trigger's width by default.
+    </a>.
   </p>
 
   <h2>Quick Start</h2>
@@ -38,6 +38,25 @@
     This example starts with "Cherry" selected through the <code>value</code>
     attribute. Selecting another option updates the <code>.listbox_value</code>
     content immediately.
+  </p>
+
+  <h2>Styling</h2>
+
+  <h3>Popup width</h3>
+  <p>
+    Width is controlled by CSS. <code>--reference-width</code>
+    tracks the width of the trigger, or the element selected by <code>reference</code>, while open.
+    Apply width classes to <code>.listbox_options</code>.
+  </p>
+
+  <p>
+    Use <code>min-w-[var(--reference-width)]</code> for a minimum width,
+    or <code>w-[var(--reference-width)]</code> for an exact match.
+  </p>
+
+  <p>
+    The Quick Start example uses <code>min-w-[var(--reference-width)]</code>
+    to keep the options at least as wide as the trigger.
   </p>
 
   <h2>Form Integration</h2>
