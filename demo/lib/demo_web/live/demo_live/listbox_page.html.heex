@@ -63,9 +63,10 @@
   <p>
     <code>.listbox</code>
     renders a hidden <code>&lt;input&gt;</code>
-    with the given <code>name</code>. Selecting an option updates the input and dispatches an
+    with the given <code>name</code>. Selecting an option updates the input and dispatches
     <code>input</code>
-    event. This makes a parent form's <code>phx-change</code>
+    and <code>change</code>
+    events. This makes a parent form's <code>phx-change</code>
     event run as it does for a native form field.
     Use <code>.listbox_value</code>
     to render the current value or a placeholder in the trigger.
@@ -125,6 +126,30 @@
     trigger button. The regular <code>data-disabled:</code> does not work because Prima
     is unable to copy the <code>data-disabled="true"</code> attribute over to the
     trigger button in the server-rendered HTML.
+  </p>
+
+  <h2>Setting the Value Client-Side</h2>
+  <p>
+    Use <code>Prima.Listbox.JS.set_value/3</code>
+    to change the value without a server round-trip, for example to reset a field that
+    client-side code hides. It updates the hidden input, the displayed value and the
+    selection markers.
+  </p>
+
+  <div class="not-prose">
+    <.code_example file="listbox/value_setter.html.heex" id="value-setter-listbox-demo" />
+  </div>
+
+  <p>
+    Like setting <code>.value</code>
+    on a native <code>&lt;select&gt;</code>, it dispatches no events by default, so
+    <code>phx-change</code>
+    doesn't fire and the server keeps its old value. Pass <code>notify: true</code>
+    to dispatch <code>input</code>
+    and <code>change</code>
+    like a user selection. Values that match no option are ignored. From plain JavaScript,
+    dispatch a <code>prima:listbox:set-value</code>
+    event on the listbox element with the value in its <code>detail</code>.
   </p>
 
   <h2>Keyboard Interaction</h2>

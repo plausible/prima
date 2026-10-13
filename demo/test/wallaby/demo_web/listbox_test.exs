@@ -5,6 +5,28 @@ defmodule DemoWeb.ListboxTest do
   @listbox Query.css("#listbox [role=listbox]")
   @listbox_value Query.css("#listbox [data-prima-ref='value']")
 
+  defp dispatch_set_value(session, listbox_id, detail) do
+    execute_script(session, """
+    document.getElementById(#{Jason.encode!(listbox_id)}).dispatchEvent(
+      new CustomEvent('prima:listbox:set-value', {detail: #{Jason.encode!(detail)}})
+    )
+    """)
+  end
+
+  # Returns and clears the events recorded since the previous call, so each
+  # assertion only sees what the preceding action dispatched.
+  defp assert_dispatched_events(session, expected) do
+    execute_script(
+      session,
+      """
+      const events = window.listboxEvents;
+      window.listboxEvents = [];
+      return events;
+      """,
+      fn events -> assert events == expected end
+    )
+  end
+
   feature "default trigger has type='button' and aria-haspopup='listbox'", %{session: session} do
     session
     |> visit_fixture("/fixtures/listbox", "#listbox")
@@ -215,6 +237,78 @@ defmodule DemoWeb.ListboxTest do
       )
       |> click(@disabled_trigger)
       |> assert_has(@disabled_listbox |> Query.visible(false))
+    end
+  end
+
+  describe "setting the value client-side" do
+    feature "updates the hidden input, displayed value and selection markers", %{
+      session: session
+    } do
+      session
+      |> visit_fixture("/fixtures/listbox", "#listbox")
+      |> dispatch_set_value("listbox", %{value: "apple"})
+      |> assert_has(@listbox_value |> Query.text("Apple"))
+      |> assert_has(Query.css("#listbox input[value=apple]", visible: false))
+      |> assert_has(
+        Query.css("#listbox-option-apple[aria-selected=true][data-selected]", visible: false)
+      )
+      |> assert_missing(
+        Query.css("#listbox [role=option][aria-selected]:not(#listbox-option-apple)",
+          visible: :any
+        )
+      )
+    end
+
+    feature "dispatches input and change only for user selections and notify: true", %{
+      session: session
+    } do
+      session
+      |> visit_fixture("/fixtures/listbox", "#listbox")
+      |> execute_script("""
+      window.listboxEvents = [];
+      const input = document.querySelector('#listbox input[name=fruit_choice]');
+      for (const type of ['input', 'change']) {
+        input.addEventListener(type, () => window.listboxEvents.push(type));
+      }
+      """)
+      |> click(@button)
+      |> click(Query.css("#listbox-option-apple"))
+      |> assert_has(@listbox_value |> Query.text("Apple"))
+      |> assert_dispatched_events(["input", "change"])
+      |> dispatch_set_value("listbox", %{value: "cherry"})
+      |> assert_has(@listbox_value |> Query.text("Cherry"))
+      |> assert_dispatched_events([])
+      |> dispatch_set_value("listbox", %{value: "banana", notify: true})
+      |> assert_has(@listbox_value |> Query.text("Banana"))
+      |> assert_dispatched_events(["input", "change"])
+    end
+
+    feature "can select a disabled option", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox", "#listbox")
+      |> dispatch_set_value("listbox", %{value: "durian"})
+      |> assert_has(@listbox_value |> Query.text("Durian"))
+      |> assert_has(Query.css("#listbox input[value=durian]", visible: false))
+      |> assert_has(Query.css("#listbox-option-durian[aria-selected=true]", visible: false))
+    end
+
+    feature "ignores values that match no option", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox", "#listbox")
+      |> dispatch_set_value("listbox", %{value: "grape"})
+      |> dispatch_set_value("listbox", %{value: ""})
+      |> dispatch_set_value("listbox", %{value: nil})
+      |> assert_has(@listbox_value |> Query.text("Banana"))
+      |> assert_has(Query.css("#listbox input[value=banana]", visible: false))
+      |> assert_has(Query.css("#listbox-option-banana[aria-selected=true]", visible: false))
+    end
+
+    feature "applies to a disabled listbox", %{session: session} do
+      session
+      |> visit_fixture("/fixtures/listbox", "#disabled-listbox")
+      |> dispatch_set_value("disabled-listbox", %{value: "apple"})
+      |> assert_has(Query.css("#disabled-listbox [data-prima-ref=value]", text: "Apple"))
+      |> assert_has(Query.css("#disabled-listbox input:disabled[value=apple]", visible: false))
     end
   end
 end
