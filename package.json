@@ -1,6 +1,6 @@
 {
   "name": "prima",
-  "version": "0.1.2",
+  "version": "0.3.0",
   "description": "LiveView Javascript Hooks for Prima",
   "license": "MIT",
   "module": "./priv/static/assets/prima.js",

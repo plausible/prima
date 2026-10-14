@@ -16,7 +16,7 @@ Add `prima` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:prima, "~> 0.1.0"}
+    {:prima, "~> 0.3.0"}
   ]
 end
 ```
